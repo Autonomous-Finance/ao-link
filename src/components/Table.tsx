@@ -6,29 +6,35 @@ import Image from "next/image";
 import { transformLongText } from "@/utils/transformLongText";
 import { Loader } from './Loader'
 
-const DataTable = () => {
-  const [data, setData] = useState<
-    | {
-        id: string;
-        type: string;
-        messageId: string;
-        processId: string;
-        owner: string;
-        blockHeight: number;
-        schedulerId: string;
-        created: string;
-        nonce: number;
-      }[]
-    | []
-  >([]);
+type DataTableEntry = {
+  id: string;
+  type: string;
+  messageId: string;
+  processId: string;
+  owner: string;
+  blockHeight: number;
+  schedulerId: string;
+  created: string;
+  nonce: number;
+}
+
+type DataTableProps = {
+  initialData: DataTableEntry[]
+}
+
+const DataTable = (props: DataTableProps) => {
+  const { initialData } = props;
+
+  const [data, setData] = useState<DataTableEntry[]>(initialData);
 
   useEffect(() => {
     const getUserInfo = async () => {
       const events = await aoEvents();
-      if (events) setData(transformArrayElements(events));
+      if (events) {
+        const parsed = transformArrayElements(events)
+        setData(parsed);
+      }
     };
-    
-    getUserInfo()
     
     setInterval(() => getUserInfo(), 5000);
   }, []);
@@ -89,7 +95,10 @@ const DataTable = () => {
                           {item.owner}
                         </p>
                       </td>
-                      <td className="text-start p-2 ">{item.nonce}</td>
+                      <td className="text-start p-2 ">
+                        -
+                        {/* {item.nonce} */}
+                      </td>
                       <td className="text-start p-2 ">{item.blockHeight}</td>
                       <td className="text-start p-2 ">
                         <p style={{ fontFamily: "DM Sans, sans-serif" }}>

@@ -17,7 +17,7 @@ export function transformArrayElements(inputArray: IAOEvents[]): any {
       type,
       messageId: messageId,
       owner: transformLongText(owner),
-      nonce: Math.random().toFixed(5), // Assuming nonce is a number, parse it to an integer
+      nonce: 0, // Assuming nonce is a number, parse it to an integer
       processId: transformLongText(target),
       blockHeight,
       schedulerId,

@@ -9,6 +9,7 @@ import {
   metricsUsers,
 } from "@/services/aometrics";
 import { aoEvents } from "@/services/aoscan";
+import { transformArrayElements } from "@/utils/transformEvents";
 
 export default async function Home() {
   const events = await aoEvents();
@@ -19,6 +20,8 @@ export default async function Home() {
   const users = await metricsUsers();
 
   const processes = await metricsProcesses();
+
+  const initialTableData = transformArrayElements(events || [])
 
   return (
     <main>
@@ -51,7 +54,7 @@ export default async function Home() {
         </div>
       </div>
       <div className="text-main-dark-color uppercase mt-[2.75rem] mb-8">Latest Messages</div>
-      <Table />
+      <Table initialData={initialTableData}/>
     </main>
   );
 }
