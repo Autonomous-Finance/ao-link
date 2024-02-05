@@ -27,6 +27,9 @@ const DataTable = () => {
       const events = await aoEvents();
       if (events) setData(transformArrayElements(events));
     };
+    
+    getUserInfo()
+    
     setInterval(() => getUserInfo(), 5000);
   }, []);
 
