@@ -1,27 +1,27 @@
-import { AreaChart } from "@/components/Charts/AreaChart";
-import Header from "@/components/Header";
-import SuggestionInput from "@/components/SuggestionInput";
-import Table from "@/components/Table";
+import { AreaChart } from "@/components/Charts/AreaChart"
+import Header from "@/components/Header"
+import SuggestionInput from "@/components/SuggestionInput"
+import Table from "@/components/Table"
 import {
   metricsMessages,
   metricsModules,
   metricsProcesses,
   metricsUsers,
-} from "@/services/aometrics";
-import { aoEvents } from "@/services/aoscan";
-import { transformArrayElements } from "@/utils/transformEvents";
+} from "@/services/aometrics"
+import { aoEvents } from "@/services/aoscan"
+import { normalizeAoEvent } from "@/utils/ao-event-utils"
 
 export default async function Home() {
-  const events = await aoEvents();
-  const messages = await metricsMessages();
+  const events = (await aoEvents()) || []
+  const messages = await metricsMessages()
 
-  const modules = await metricsModules();
+  const modules = await metricsModules()
 
-  const users = await metricsUsers();
+  const users = await metricsUsers()
 
-  const processes = await metricsProcesses();
+  const processes = await metricsProcesses()
 
-  const initialTableData = transformArrayElements(events || [])
+  const initialTableData = events.map(normalizeAoEvent)
 
   return (
     <main>
@@ -53,8 +53,10 @@ export default async function Home() {
           <AreaChart data={processes} titleText="PROCESSES" />
         </div>
       </div>
-      <div className="text-main-dark-color uppercase mt-[2.75rem] mb-8">Latest Messages</div>
-      <Table initialData={initialTableData}/>
+      <div className="text-main-dark-color uppercase mt-[2.75rem] mb-8">
+        Latest
+      </div>
+      <Table initialData={initialTableData} />
     </main>
-  );
+  )
 }

@@ -1,65 +1,92 @@
 "use server";
 
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase"
 
-export interface IAOEvents {
-  owner: string;
-  id: string;
-  tags_flat: Record<string, any>;
-  target: string;
-  owner_address: string;
-  height: number;
-  created_at: string;
+export interface AoEvent {
+  owner: string
+  id: string
+  tags_flat: Record<string, any>
+  target: string
+  owner_address: string
+  height: number
+  created_at: string
 }
 
-export const aoEvents = async (all?: boolean): Promise<IAOEvents[] | null> => {
+export const aoEvents = async (all?: boolean): Promise<AoEvent[] | null> => {
   try {
-    let supabaseRq;
+    let supabaseRq
 
     if (all) {
       supabaseRq = supabase
         .from("ao_events")
         .select("owner,id,tags_flat,target,owner_address,height,created_at")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
     } else {
       supabaseRq = supabase
         .from("ao_events")
         .select("owner,id,tags_flat,target,owner_address,height,created_at")
         .order("created_at", { ascending: false })
-        .range(0, 30);
+        .range(0, 30)
     }
-    const { data } = await supabaseRq;
+    const { data } = await supabaseRq
     if (data) {
-      return data as IAOEvents[];
+      return data as AoEvent[]
     }
 
-    return null;
+    return null
   } catch (error) {
-    return null;
+    return null
   }
-};
+}
 
-export const aoEvent = async ({
-  id,
-}: {
-  id: string;
-}): Promise<IAOEvents> => {
-    const { data } = await supabase
-      .from("ao_events")
-      .select("owner,id,tags_flat,target,owner_address,height,created_at")
-      .eq("id", id);
+// export function subscribeToEvents(callback: (data: AoEvent) => void) {
+//   const channel = supabase
+//     .channel("ao_events")
+//     // .on<AoEvent>("broadcast", { event: "Test message" }, (payload) => {
+//     //   console.log("📜 LOG > subscribeToEvents > payload:", payload)
+//     // })
+//     .on<AoEvent>(
+//       "postgres_changes",
+//       { event: "INSERT", schema: "public", table: "ao_events" },
+//       (payload) => {
+//         console.log("📜 LOG > subscribeToEvents > payload:", payload)
+//         callback(payload.new)
+//       },
+//     )
+//     .subscribe()
 
-    if (data && data.length) {
-      return data[0] as IAOEvents;
-    }
 
-    return {
-      owner: '',
-      id: '',
-      tags_flat: [],
-      target: '',
-      owner_address: '',
-      height: 0,
-      created_at: ''
+//   const channels = supabase.getChannels()
+//   console.log("📜 LOG > subscribeToEvents > channels:", channels)
+
+//   return function unsubscribe() {
+//     supabase.removeChannel(channel)
+
+//     const channels = supabase.getChannels()
+//     console.log(
+//       "📜 LOG > subscribeToEvents > unsubscribe > channels:",
+//       channels,
+//     )
+//   }
+// }
+
+export const aoEvent = async ({ id }: { id: string }): Promise<AoEvent> => {
+  const { data } = await supabase
+    .from("ao_events")
+    .select("owner,id,tags_flat,target,owner_address,height,created_at")
+    .eq("id", id)
+
+  if (data && data.length) {
+    return data[0] as AoEvent
   }
-};
+
+  return {
+    owner: "",
+    id: "",
+    tags_flat: [],
+    target: "",
+    owner_address: "",
+    height: 0,
+    created_at: "",
+  }
+}

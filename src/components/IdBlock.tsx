@@ -1,6 +1,6 @@
 "use client"
 
-import { transformLongText } from "@/utils/transformLongText"
+import { truncateId } from "@/utils/data-utils"
 import { Check, Copy } from "@phosphor-icons/react"
 import { tree } from "d3"
 import React from "react"
@@ -28,7 +28,7 @@ export function IdBlock(props: IdBlockProps) {
           }, 1000)
         }}
       >
-        {transformLongText(value)}
+        {truncateId(value)}
         {copied ? (
           <Check className="inline-block ml-1"  size={14} />
         ) : (

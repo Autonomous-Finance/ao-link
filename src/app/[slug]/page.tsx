@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import {aoEvent} from "@/services/aoscan";
-import {getTimeMarginFromDate} from "@/utils/calcPeriod";
-import {transformLongText} from "@/utils/transformLongText";
+import {formatRelative, parseUtcString} from "@/utils/date-utils";
+import {truncateId} from "@/utils/data-utils";
 import {Graph} from "@/components/Graph";
 import { IdBlock } from "@/components/IdBlock";
 
@@ -177,7 +177,7 @@ export default async function Page({
             <div className="flex gap-2 items-center text-sm mt-12 mb-11">
                 <p className="text-[#9EA2AA] ">MESSAGE</p>
                 <p className="font-bold">/</p>
-                <p className="">{transformLongText(id)}</p>
+                <p className="">{truncateId(id)}</p>
             </div>
 
             <div className="flex w-full">
@@ -200,7 +200,7 @@ export default async function Page({
                         />
                         <SectionInfo
                             title="Created"
-                            value={getTimeMarginFromDate(created_at)}
+                            value={created_at? formatRelative(parseUtcString(created_at)): ''}
                         />
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { transformLongText } from "@/utils/transformLongText";
+import { truncateId } from "@/utils/data-utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -70,7 +70,7 @@ const SuggestionInput = ({ eventsIds }: { eventsIds: string[] }) => {
               >
                 <Link href={`/${suggestion}`} className="w-full">
                   <div className="flex justify-between w-full">
-                    <p>{transformLongText(suggestion)}</p>
+                    <p>{truncateId(suggestion)}</p>
                     <p>{Math.random().toFixed(5)}</p>
                   </div>
                 </Link>
