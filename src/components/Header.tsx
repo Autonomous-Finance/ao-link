@@ -13,14 +13,14 @@ const Header = () => {
               alt="aoscan"
               width={20}
               height={20}
-              src="aoscan.svg"
+              src="/aoscan.svg"
               className="inline-block h-[20px]"
             />
             <Image
               alt="ao"
               width={20}
               height={20}
-              src="ao.svg"
+              src="/ao.svg"
               className="inline-block h-[20px]"
             />
           </div>
