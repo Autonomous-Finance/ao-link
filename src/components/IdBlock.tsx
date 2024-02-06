@@ -1,6 +1,7 @@
 "use client"
 
 import { transformLongText } from "@/utils/transformLongText"
+import { Check, Copy } from "@phosphor-icons/react"
 import { tree } from "d3"
 import React from "react"
 
@@ -29,27 +30,9 @@ export function IdBlock(props: IdBlockProps) {
       >
         {transformLongText(value)}
         {copied ? (
-          <svg
-            className="inline-block ml-1"
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            fill="#000000"
-            viewBox="0 0 256 256"
-          >
-            <path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path>
-          </svg>
+          <Check className="inline-block ml-1"  size={14} />
         ) : (
-          <svg
-            className="inline-block ml-1"
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            fill="inherit"
-            viewBox="0 0 256 256"
-          >
-            <path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"></path>
-          </svg>
+          <Copy className="inline-block ml-1" fill="inherit" size={14} />
         )}
       </span>
     </span>
