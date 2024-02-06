@@ -1,5 +1,3 @@
-"use server";
-
 import { supabase } from "@/lib/supabase"
 
 export interface AoEvent {
@@ -39,36 +37,22 @@ export const aoEvents = async (all?: boolean): Promise<AoEvent[] | null> => {
   }
 }
 
-// export function subscribeToEvents(callback: (data: AoEvent) => void) {
-//   const channel = supabase
-//     .channel("ao_events")
-//     // .on<AoEvent>("broadcast", { event: "Test message" }, (payload) => {
-//     //   console.log("📜 LOG > subscribeToEvents > payload:", payload)
-//     // })
-//     .on<AoEvent>(
-//       "postgres_changes",
-//       { event: "INSERT", schema: "public", table: "ao_events" },
-//       (payload) => {
-//         console.log("📜 LOG > subscribeToEvents > payload:", payload)
-//         callback(payload.new)
-//       },
-//     )
-//     .subscribe()
+export function subscribeToEvents(callback: (data: AoEvent) => void) {
+  const channel = supabase
+    .channel("ao_events")
+    .on<AoEvent>(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "ao_events" },
+      (payload) => {
+        callback(payload.new)
+      },
+    )
+    .subscribe()
 
-
-//   const channels = supabase.getChannels()
-//   console.log("📜 LOG > subscribeToEvents > channels:", channels)
-
-//   return function unsubscribe() {
-//     supabase.removeChannel(channel)
-
-//     const channels = supabase.getChannels()
-//     console.log(
-//       "📜 LOG > subscribeToEvents > unsubscribe > channels:",
-//       channels,
-//     )
-//   }
-// }
+  return function unsubscribe() {
+    supabase.removeChannel(channel)
+  }
+}
 
 export const aoEvent = async ({ id }: { id: string }): Promise<AoEvent> => {
   const { data } = await supabase

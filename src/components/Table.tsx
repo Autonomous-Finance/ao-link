@@ -1,5 +1,5 @@
 "use client"
-import { AoEvent, aoEvents } from "@/services/aoscan"
+import { AoEvent, aoEvents, subscribeToEvents } from "@/services/aoscan"
 import { NormalizedAoEvent, normalizeAoEvent } from "@/utils/ao-event-utils"
 import React, { useEffect, useState } from "react"
 import Image from "next/image"
@@ -30,16 +30,16 @@ const DataTable = (props: DataTableProps) => {
     setInterval(() => getUserInfo(), 5000)
   }, [])
 
-  // useEffect(() => {
-  //   const unsubscribe = subscribeToEvents((event: AoEvent) => {
-  //     setData((prevData) => {
-  //       const parsed = normalizeAoEvent(event)
-  //       return [parsed, ...prevData.slice(0, 29)]
-  //     })
-  //   })
+  useEffect(() => {
+    const unsubscribe = subscribeToEvents((event: AoEvent) => {
+      setData((prevData) => {
+        const parsed = normalizeAoEvent(event)
+        return [parsed, ...prevData.slice(0, 29)]
+      })
+    })
 
-  //   return unsubscribe
-  // }, [])
+    return unsubscribe
+  }, [])
 
   const router = useRouter()
 
