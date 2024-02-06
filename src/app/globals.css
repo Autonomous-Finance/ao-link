@@ -80,3 +80,6 @@
   }
 }
 
+.tooltip::before {
+  overflow-wrap: anywhere;
+}

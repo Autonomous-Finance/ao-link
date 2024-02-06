@@ -3,6 +3,7 @@ import {aoEvent} from "@/services/aoscan";
 import {getTimeMarginFromDate} from "@/utils/calcPeriod";
 import {transformLongText} from "@/utils/transformLongText";
 import {Graph} from "@/components/Graph";
+import { IdBlock } from "@/components/IdBlock";
 
 const Diamonds = () => (
     <svg
@@ -95,7 +96,7 @@ const Asterics = () => (
     </svg>
 );
 
-const SectionInfo = ({ title, value }: { title: string; value: string }) => (
+const SectionInfo = ({ title, value }: { title: string; value: React.ReactNode }) => (
     <div className="flex flex-row items-baseline w-full mb-12">
         <div className="flex w-56 items-center">
             <p className="table-headers">{title}</p>
@@ -187,15 +188,15 @@ export default async function Page({
                     <div>
                         <SectionInfo
                             title="Owner"
-                            value={transformLongText(owner_address)}
+                            value={<IdBlock  value={owner_address}/>}
                         />
                         <SectionInfo
                             title="Message ID"
-                            value={transformLongText(id)}
+                            value={<IdBlock  value={id}/>}
                         />
                         <SectionInfo
                             title="Process ID"
-                            value={transformLongText(target)}
+                            value={<IdBlock  value={target}/>}
                         />
                         <SectionInfo
                             title="Created"
