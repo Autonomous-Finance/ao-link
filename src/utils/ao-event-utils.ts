@@ -2,7 +2,7 @@ import { AoEvent } from "@/services/aoscan"
 import { parseUtcString } from "./date-utils"
 
 export type NormalizedAoEvent = {
-  // id: string
+  id: string
   type: "Message" | "Process"
   messageId: string
   processId: string
@@ -27,6 +27,7 @@ export function normalizeAoEvent(event: AoEvent): NormalizedAoEvent {
   const messageId = type === "Message" ? id : ""
 
   return {
+    id,
     type,
     messageId,
     owner,

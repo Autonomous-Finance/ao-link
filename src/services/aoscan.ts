@@ -54,7 +54,7 @@ export function subscribeToEvents(callback: (data: AoEvent) => void) {
   }
 }
 
-export const aoEvent = async ({ id }: { id: string }): Promise<AoEvent> => {
+export async function getAoEventById(id: string): Promise<AoEvent | null> {
   const { data } = await supabase
     .from("ao_events")
     .select("owner,id,tags_flat,target,owner_address,height,created_at")
@@ -64,13 +64,5 @@ export const aoEvent = async ({ id }: { id: string }): Promise<AoEvent> => {
     return data[0] as AoEvent
   }
 
-  return {
-    owner: "",
-    id: "",
-    tags_flat: [],
-    target: "",
-    owner_address: "",
-    height: 0,
-    created_at: "",
-  }
+  return null
 }

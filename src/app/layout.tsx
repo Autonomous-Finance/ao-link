@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`px-[32px] ${inter.variable} ${dmSans.variable} font-dmSans`}>
+      <body className={`px-[32px] ${inter.variable} ${dmSans.variable} font-dmSans max-w-screen-lg mx-auto`}>
         {children}
       </body>
     </html>

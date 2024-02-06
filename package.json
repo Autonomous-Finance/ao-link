@@ -9,9 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.3",
-    "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.15.6",
     "@phosphor-icons/react": "^2.0.15",
     "@supabase/supabase-js": "^2.39.0",
     "d3": "^7.8.5",

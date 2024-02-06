@@ -1,40 +1,37 @@
 "use client"
 
 import { truncateId } from "@/utils/data-utils"
-import { Check, Copy } from "@phosphor-icons/react"
-import { tree } from "d3"
+import Link from "next/link"
 import React from "react"
+import { CopyToClipboard } from "./CopyToClipboard"
 
 type IdBlockProps = {
   value: string
+  href?: string
 }
 
 export function IdBlock(props: IdBlockProps) {
-  const { value } = props
+  const { value, href } = props
 
-  const [copied, setCopied] = React.useState(false)
+  if (href) {
+    return (
+      <div>
+        <Link href={href}>
+          <span className="tooltip hover:underline" data-tip={value}>
+            {truncateId(value)}
+          </span>
+        </Link>
+        <CopyToClipboard value={value} />
+      </div>
+    )
+  }
 
   return (
-    <span className="tooltip" data-tip={copied ? "Copied to clipboard" : value}>
-      <span
-        className="hover:fill-[#000] cursor-pointer fill-[#7d7d7d]"
-        onClick={() => {
-          navigator.clipboard.writeText(value)
-
-          setCopied(true)
-
-          setTimeout(() => {
-            setCopied(false)
-          }, 1000)
-        }}
-      >
+    <div>
+      <span className="tooltip" data-tip={value}>
         {truncateId(value)}
-        {copied ? (
-          <Check className="inline-block ml-1"  size={14} />
-        ) : (
-          <Copy className="inline-block ml-1" fill="inherit" size={14} />
-        )}
       </span>
-    </span>
+      <CopyToClipboard value={value} />
+    </div>
   )
 }

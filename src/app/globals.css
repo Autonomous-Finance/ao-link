@@ -47,7 +47,7 @@
   font-weight: 400;
   line-height: normal;
   letter-spacing: -0.12px;
-  cursor: pointer;
+  /* cursor: pointer; */
   height: 50px;
 }
 
