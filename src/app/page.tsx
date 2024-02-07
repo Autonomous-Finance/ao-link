@@ -1,7 +1,7 @@
 import { AreaChart } from "@/components/Charts/AreaChart"
 import Header from "@/components/Header"
 import SuggestionInput from "@/components/SuggestionInput"
-import EventsTable from "@/pages/HomePage/EventsTable"
+import EventsTable from "@/page-components/HomePage/EventsTable"
 import {
   metricsMessages,
   metricsModules,
