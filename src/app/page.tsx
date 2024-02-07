@@ -11,6 +11,8 @@ import {
 import { getLatestAoEvents } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
 
+export const dynamic = "force-dynamic"
+
 export default async function Home() {
   const events = (await getLatestAoEvents()) || []
   const messages = await metricsMessages()

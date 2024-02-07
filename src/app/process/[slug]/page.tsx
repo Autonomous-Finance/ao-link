@@ -4,7 +4,6 @@ import Header from "@/components/Header"
 import { IdBlock } from "@/components/IdBlock"
 import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
-import EventsTable from "@/pages/HomePage/EventsTable"
 import MessagesTable from "@/pages/ProcessPage/MessagesTable"
 import { getAoEventById, getLatestMessagesForProcess } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
@@ -14,6 +13,8 @@ import { formatRelative } from "@/utils/date-utils"
 type ProcessPageProps = {
   params: { slug: string }
 }
+
+export const dynamic = "force-dynamic"
 
 export default async function ProcessPage(props: ProcessPageProps) {
   const { slug: processId } = props.params

@@ -1,18 +1,20 @@
-import Header from "@/components/Header"
-import { getAoEventById } from "@/services/aoscan"
-import { formatRelative, parseUtcString } from "@/utils/date-utils"
-import { truncateId } from "@/utils/data-utils"
+import { Chip } from "@/components/Chip"
 import { Graph } from "@/components/Graph"
+import Header from "@/components/Header"
 import { IdBlock } from "@/components/IdBlock"
-import Link from "next/link"
+
 import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
-import { Chip } from "@/components/Chip"
+import { getAoEventById } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
+import { truncateId } from "@/utils/data-utils"
+import { formatRelative } from "@/utils/date-utils"
 
 type MessagePageProps = {
   params: { slug: string }
 }
+
+export const dynamic = "force-dynamic"
 
 export default async function MessagePage(props: MessagePageProps) {
   const { slug: messageId } = props.params
@@ -43,14 +45,13 @@ export default async function MessagePage(props: MessagePageProps) {
             <Graph messageId={id} />
           </div>
           <div>
-            <SectionInfo
-              title="Owner"
-              value={<IdBlock value={owner} />}
-            />
+            <SectionInfo title="Owner" value={<IdBlock value={owner} />} />
             <SectionInfo title="Message ID" value={<IdBlock value={id} />} />
             <SectionInfo
               title="Process ID"
-              value={<IdBlock value={processId} href={`/process/${processId}`} />}
+              value={
+                <IdBlock value={processId} href={`/process/${processId}`} />
+              }
             />
             <SectionInfo title="Created" value={formatRelative(created)} />
           </div>
