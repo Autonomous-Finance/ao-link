@@ -1,15 +1,15 @@
-import Header from "@/components/Header"
-import { getAoEventById } from "@/services/aoscan"
-import { formatRelative, parseUtcString } from "@/utils/date-utils"
-import { truncateId } from "@/utils/data-utils"
+import { Chip } from "@/components/Chip"
 import { Graph } from "@/components/Graph"
+import Header from "@/components/Header"
 import { IdBlock } from "@/components/IdBlock"
-import { normalizeAoEvent } from "@/utils/ao-event-utils"
-import { Diamonds } from "@/components/icons/Diamonds"
-import { Asterisk } from "@/components/icons/Asterisk"
 import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
-import { Chip } from "@/components/Chip"
+import EventsTable from "@/pages/HomePage/EventsTable"
+import MessagesTable from "@/pages/ProcessPage/MessagesTable"
+import { getAoEventById, getLatestMessagesForProcess } from "@/services/aoscan"
+import { normalizeAoEvent } from "@/utils/ao-event-utils"
+import { truncateId } from "@/utils/data-utils"
+import { formatRelative } from "@/utils/date-utils"
 
 type ProcessPageProps = {
   params: { slug: string }
@@ -26,8 +26,11 @@ export default async function ProcessPage(props: ProcessPageProps) {
 
   const normalizedEvent = normalizeAoEvent(event)
 
-  const { id, owner, type, blockHeight, created, messageId } = normalizedEvent
+  const { id, owner, type, blockHeight, created } = normalizedEvent
   const { tags_flat } = event
+
+  const events = (await getLatestMessagesForProcess(processId)) || []
+  const initialTableData = events.map(normalizeAoEvent)
 
   return (
     <main className="min-h-screen mb-6">
@@ -90,6 +93,10 @@ export default async function ProcessPage(props: ProcessPageProps) {
           </div>
         </div>
       </div>
+      <div className="text-main-dark-color uppercase mt-[2.75rem] mb-8">
+        Latest messages
+      </div>
+      <MessagesTable initialData={initialTableData} processId={processId} />
     </main>
   )
 }

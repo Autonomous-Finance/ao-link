@@ -10,23 +10,42 @@ export interface AoEvent {
   created_at: string
 }
 
-export const aoEvents = async (all?: boolean): Promise<AoEvent[] | null> => {
+export async function getLatestAoEvents(): Promise<AoEvent[] | null> {
   try {
     let supabaseRq
 
-    if (all) {
-      supabaseRq = supabase
-        .from("ao_events")
-        .select("owner,id,tags_flat,target,owner_address,height,created_at")
-        .order("created_at", { ascending: false })
-    } else {
-      supabaseRq = supabase
-        .from("ao_events")
-        .select("owner,id,tags_flat,target,owner_address,height,created_at")
-        .order("created_at", { ascending: false })
-        .range(0, 30)
-    }
+    supabaseRq = supabase
+      .from("ao_events")
+      .select("owner,id,tags_flat,target,owner_address,height,created_at")
+      .order("created_at", { ascending: false })
+      .range(0, 30)
+
     const { data } = await supabaseRq
+    if (data) {
+      return data as AoEvent[]
+    }
+
+    return null
+  } catch (error) {
+    return null
+  }
+}
+
+export async function getLatestMessagesForProcess(
+  processId: string,
+): Promise<AoEvent[] | null> {
+  try {
+    let supabaseRq
+
+    supabaseRq = supabase
+      .from("ao_events")
+      .select("owner,id,tags_flat,target,owner_address,height,created_at")
+      .order("created_at", { ascending: false })
+      .eq("target", processId)
+      .range(0, 10)
+
+    const { data } = await supabaseRq
+
     if (data) {
       return data as AoEvent[]
     }

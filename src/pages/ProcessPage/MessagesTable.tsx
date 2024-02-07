@@ -1,49 +1,42 @@
 "use client"
-import { AoEvent, aoEvents, subscribeToEvents } from "@/services/aoscan"
-import { NormalizedAoEvent, normalizeAoEvent } from "@/utils/ao-event-utils"
-import React, { useEffect, useState } from "react"
 import Image from "next/image"
-import { truncateId } from "@/utils/data-utils"
-import { Loader } from "./Loader"
-import { formatFullDate, formatRelative } from "@/utils/date-utils"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { IdBlock } from "./IdBlock"
+import React, { useEffect, useState } from "react"
 
-type DataTableProps = {
+import { type AoEvent, subscribeToEvents } from "@/services/aoscan"
+import {
+  type NormalizedAoEvent,
+  normalizeAoEvent,
+} from "@/utils/ao-event-utils"
+
+import { truncateId } from "@/utils/data-utils"
+
+import { formatFullDate, formatRelative } from "@/utils/date-utils"
+
+import { IdBlock } from "../../components/IdBlock"
+import { Loader } from "../../components/Loader"
+
+type MessagesTableProps = {
   initialData: NormalizedAoEvent[]
+  processId: string
 }
 
-const DataTable = (props: DataTableProps) => {
-  const { initialData } = props
+const MessagesTable = (props: MessagesTableProps) => {
+  const { initialData, processId } = props
 
   const [data, setData] = useState<NormalizedAoEvent[]>(initialData)
 
   useEffect(() => {
-    const getUserInfo = async () => {
-      const events = await aoEvents()
-      if (events) {
-        const parsed = events.map(normalizeAoEvent)
-        setData(parsed)
-      }
-    }
-
-    setInterval(() => getUserInfo(), 5000)
-  }, [])
-
-  useEffect(() => {
     const unsubscribe = subscribeToEvents((event: AoEvent) => {
+      if (event.target !== processId) return
       console.log("📜 LOG > unsubscribe > event:", event)
       setData((prevData) => {
         const parsed = normalizeAoEvent(event)
-        return [parsed, ...prevData.slice(0, 29)]
+        return [parsed, ...prevData.slice(0, 9)]
       })
     })
 
     return unsubscribe
   }, [])
-
-  const router = useRouter()
 
   return (
     <>
@@ -55,7 +48,6 @@ const DataTable = (props: DataTableProps) => {
                 <th className="text-start p-2 w-[120px]">Type</th>
                 <th className="text-start p-2 w-[160px]">Action</th>
                 <th className="text-start p-2 w-[180px]">Message ID</th>
-                <th className="text-start p-2 w-[180px]">Process ID</th>
                 <th className="text-start p-2 w-[180px]">Owner</th>
                 <th className="text-start p-2">Block Height</th>
                 <th className="text-start p-2">Scheduler ID</th>
@@ -90,8 +82,8 @@ const DataTable = (props: DataTableProps) => {
                         height={8}
                         src={
                           item.type === "Process"
-                            ? "process.svg"
-                            : "message.svg"
+                            ? "/process.svg"
+                            : "/message.svg"
                         }
                       />
                     </div>
@@ -103,13 +95,9 @@ const DataTable = (props: DataTableProps) => {
                       href={`/message/${item.messageId}`}
                     />
                   </td>
-                  <td className="text-start p-2">
-                    <IdBlock
-                      value={item.processId}
-                      href={`/process/${item.processId}`}
-                    />
+                  <td className="text-start p-2 ">
+                    <IdBlock value={item.owner} />
                   </td>
-                  <td className="text-start p-2 ">{truncateId(item.owner)}</td>
                   <td className="text-start p-2 ">{item.blockHeight}</td>
                   <td className="text-start p-2 ">
                     {truncateId(item.schedulerId)}
@@ -134,4 +122,4 @@ const DataTable = (props: DataTableProps) => {
   )
 }
 
-export default DataTable
+export default MessagesTable

@@ -1,18 +1,18 @@
 import { AreaChart } from "@/components/Charts/AreaChart"
 import Header from "@/components/Header"
 import SuggestionInput from "@/components/SuggestionInput"
-import Table from "@/components/Table"
+import EventsTable from "@/pages/HomePage/EventsTable"
 import {
   metricsMessages,
   metricsModules,
   metricsProcesses,
   metricsUsers,
 } from "@/services/aometrics"
-import { aoEvents } from "@/services/aoscan"
+import { getLatestAoEvents } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
 
 export default async function Home() {
-  const events = (await aoEvents()) || []
+  const events = (await getLatestAoEvents()) || []
   const messages = await metricsMessages()
 
   const modules = await metricsModules()
@@ -56,7 +56,7 @@ export default async function Home() {
       <div className="text-main-dark-color uppercase mt-[2.75rem] mb-8">
         Latest
       </div>
-      <Table initialData={initialTableData} />
+      <EventsTable initialData={initialTableData} />
     </main>
   )
 }

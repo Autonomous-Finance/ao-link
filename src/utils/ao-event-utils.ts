@@ -1,4 +1,5 @@
-import { AoEvent } from "@/services/aoscan"
+import { type AoEvent } from "@/services/aoscan"
+
 import { parseUtcString } from "./date-utils"
 
 export type NormalizedAoEvent = {
@@ -14,11 +15,12 @@ export type NormalizedAoEvent = {
 }
 
 export function normalizeAoEvent(event: AoEvent): NormalizedAoEvent {
-  const { owner, id, tags_flat, height, created_at, target } = event
+  const { owner_address, id, tags_flat, height, created_at, target } = event
   const { Action, Type, Variant } = tags_flat
   //
   const type = Type as NormalizedAoEvent["type"]
   const blockHeight = height
+  const owner = owner_address
   const schedulerId = Variant
   const action = Action
   const created = parseUtcString(created_at)
