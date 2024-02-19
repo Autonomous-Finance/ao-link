@@ -1,5 +1,3 @@
-import Link from "next/link"
-
 import { Chip } from "@/components/Chip"
 import { Graph } from "@/components/Graph"
 import Header from "@/components/Header"
@@ -11,7 +9,6 @@ import { getAoEventById } from "@/services/aoscan"
 import { normalizeAoEvent, normalizeTags } from "@/utils/ao-event-utils"
 import { truncateId } from "@/utils/data-utils"
 import { formatRelative } from "@/utils/date-utils"
-import { formatNumber } from "@/utils/number-utils"
 import { getColorFromText } from "@/utils/tailwind-utils"
 
 type MessagePageProps = {

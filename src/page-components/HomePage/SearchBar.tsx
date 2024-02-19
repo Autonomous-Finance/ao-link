@@ -3,14 +3,9 @@
 import { ArrowUpRight, MagnifyingGlass } from "@phosphor-icons/react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import React, { type ChangeEvent, useState } from "react"
 
-import {
-  type AoEvent,
-  getAoEventById,
-  getAoEventsForOwner,
-} from "@/services/aoscan"
+import { getAoEventById, getAoEventsForOwner } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
 import { TYPE_COLOR_MAP, TYPE_ICON_MAP } from "@/utils/data-utils"
 

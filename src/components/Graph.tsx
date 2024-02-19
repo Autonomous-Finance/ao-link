@@ -2,11 +2,7 @@
 
 "use client"
 import * as d3 from "d3"
-import {
-  type Simulation,
-  type SimulationNodeDatum,
-  SimulationLinkDatum,
-} from "d3-force"
+import { type Simulation, type SimulationNodeDatum } from "d3-force"
 import React, { useEffect, useState, useRef } from "react"
 
 import { supabase } from "@/lib/supabase"
@@ -183,7 +179,9 @@ export const Graph: React.FC<GraphProps> = ({
       .data(links)
       .join("path")
       .attr("id", (d) => `link-${d.source.id}-${d.target.id}`)
-      .attr("stroke", (d) => d.type === "User Message" ? "#57E51A" : "#6BB24C") // Set "#57E51A" for "User Message", and "#6BB24C" as default
+      .attr("stroke", (d) =>
+        d.type === "User Message" ? "#57E51A" : "#6BB24C",
+      ) // Set "#57E51A" for "User Message", and "#6BB24C" as default
       .attr(
         "marker-end",
         (d) => `url(${new URL(`#arrow-${d.type}`, location.href)})`,
@@ -215,31 +213,30 @@ export const Graph: React.FC<GraphProps> = ({
       .attr("fill", (d) => (d === "User Message" ? "#57E51A" : color(d)))
       .attr("d", "M0,-5L10,0L0,5")
 
-   const node = svg
-    .append("g")
-    .attr("fill", "currentColor")
-    .attr("stroke-linecap", "round")
-    .attr("stroke-linejoin", "round")
-    .selectAll<SVGGElement, CustomNode>("g")
-    .data(nodes)
-    .join("g")
-    .call(drag(simulation));
+    const node = svg
+      .append("g")
+      .attr("fill", "currentColor")
+      .attr("stroke-linecap", "round")
+      .attr("stroke-linejoin", "round")
+      .selectAll<SVGGElement, CustomNode>("g")
+      .data(nodes)
+      .join("g")
+      .call(drag(simulation))
 
-  node
-    .append("circle")
-    .attr("stroke", "white")
-    .attr("stroke-width", 1.5)
-    .attr("r", 8)
-    .attr("fill", (d) => {
-      if (d.id === "This Process") return "#0046FF";
-      else if (d.id.startsWith("Process")) return "#596EA6";
-      else if (d.id === "User") return "#D52C2C";
-      else if (d.id.startsWith("User")) return "#6BB24C";
-      else return color(d.type); // Default color assignment for other cases
-    });
+    node
+      .append("circle")
+      .attr("stroke", "white")
+      .attr("stroke-width", 1.5)
+      .attr("r", 8)
+      .attr("fill", (d) => {
+        if (d.id === "This Process") return "#0046FF"
+        else if (d.id.startsWith("Process")) return "#596EA6"
+        else if (d.id === "User") return "#D52C2C"
+        else if (d.id.startsWith("User")) return "#6BB24C"
+        else return color(d.type) // Default color assignment for other cases
+      })
 
-
-  const text = node
+    const text = node
       .append("text")
       .attr("x", 10)
       .attr("y", "0.31em")

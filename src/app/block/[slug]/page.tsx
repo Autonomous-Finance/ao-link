@@ -1,10 +1,8 @@
-import { CopyToClipboard } from "@/components/CopyToClipboard"
 import Header from "@/components/Header"
 import { IdBlock } from "@/components/IdBlock"
 import EventsTable from "@/page-components/HomePage/EventsTable"
 import { getAoEventsForBlock } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
-import { formatNumber } from "@/utils/number-utils"
 
 type BlockPageProps = {
   params: { slug: string }

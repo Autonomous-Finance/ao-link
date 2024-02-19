@@ -1,10 +1,7 @@
 /** @type {import("eslint").Linter.Config} */
 const config = {
   parser: "@typescript-eslint/parser",
-  parserOptions: {
-    project: true,
-  },
-  plugins: ["@typescript-eslint", "prettier", "import"],
+  plugins: ["@typescript-eslint", "prettier", "import", "unused-imports"],
   extends: [
     "next/core-web-vitals",
     // "plugin:@typescript-eslint/recommended-type-checked",
@@ -15,14 +12,8 @@ const config = {
     // "@typescript-eslint/array-type": "off",
     // "@typescript-eslint/consistent-type-definitions": "off",
     "prettier/prettier": ["warn"],
-    "@typescript-eslint/consistent-type-imports": [
-      "warn",
-      {
-        prefer: "type-imports",
-        fixStyle: "inline-type-imports",
-      },
-    ],
-
+    "unused-imports/no-unused-imports": "warn",
+    "@typescript-eslint/consistent-type-imports": ["off"],
     "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     "import/order": [
       "warn",

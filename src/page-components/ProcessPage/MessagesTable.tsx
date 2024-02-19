@@ -1,6 +1,5 @@
 "use client"
 import Image from "next/image"
-import Link from "next/link"
 import React, { useEffect, useState } from "react"
 
 import { type AoEvent, subscribeToEvents } from "@/services/aoscan"
@@ -13,10 +12,7 @@ import { TYPE_COLOR_MAP, TYPE_ICON_MAP, truncateId } from "@/utils/data-utils"
 
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
 
-import { formatNumber } from "@/utils/number-utils"
-
 import { IdBlock } from "../../components/IdBlock"
-import { Loader } from "../../components/Loader"
 
 type MessagesTableProps = {
   initialData: NormalizedAoEvent[]
