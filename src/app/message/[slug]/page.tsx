@@ -11,6 +11,8 @@ import { truncateId } from "@/utils/data-utils"
 import { formatRelative } from "@/utils/date-utils"
 import { getColorFromText } from "@/utils/tailwind-utils"
 
+import { ComputeResult } from "./ComputeResult"
+
 type MessagePageProps = {
   params: { slug: string }
 }
@@ -102,16 +104,7 @@ export default async function MessagePage(props: MessagePageProps) {
               </p>
             </div>
           </div>
-          <div>
-            <div className="mb-2">
-              <SectionInfoWithChip title="Compute Result" value={"Compute"} />
-            </div>
-            <div className="bg-secondary-gray w-96 min-h-14 flex items-start justify-start">
-              <p className="font-mono text-xs font-normal leading-normal tracking-tighter p-2">
-                Waiting to compute...
-              </p>
-            </div>
-          </div>
+          <ComputeResult messageId={messageId} processId={processId} />
           <div>
             <div className="mb-2">
               <p className="table-headers">Data</p>

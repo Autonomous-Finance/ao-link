@@ -89,16 +89,6 @@ export default async function ProcessPage(props: ProcessPageProps) {
           </div>
           <div>
             <div className="mb-2">
-              <SectionInfoWithChip title="Compute Result" value={"Compute"} />
-            </div>
-            <div className="bg-secondary-gray w-96 min-h-14 flex items-start justify-start">
-              <p className="font-mono text-xs font-normal leading-normal tracking-tighter p-2">
-                Waiting to compute...
-              </p>
-            </div>
-          </div>
-          <div>
-            <div className="mb-2">
               <p className="table-headers">Result Type</p>
             </div>
             <div className="bg-secondary-gray w-96 min-h-14 flex items-start justify-start">
