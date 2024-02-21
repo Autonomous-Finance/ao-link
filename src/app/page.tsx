@@ -4,10 +4,10 @@ import Header from "@/components/Header"
 import EventsTable from "@/page-components/HomePage/EventsTable"
 import SearchBar from "@/page-components/HomePage/SearchBar"
 import {
-  metricsMessages,
-  metricsModules,
-  metricsProcesses,
-  metricsUsers,
+  getMessageStats,
+  getModuleStats,
+  getProcessStats,
+  getUserStats,
 } from "@/services/aometrics"
 import { getLatestAoEvents } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
@@ -15,10 +15,12 @@ import { normalizeAoEvent } from "@/utils/ao-event-utils"
 export const dynamic = "force-dynamic"
 
 export default async function Home() {
-  const messages = await metricsMessages()
-  const modules = await metricsModules()
-  const users = await metricsUsers()
-  const processes = await metricsProcesses()
+  const [messages, modules, users, processes] = await Promise.all([
+    getMessageStats(),
+    getModuleStats(),
+    getUserStats(),
+    getProcessStats(),
+  ])
 
   const pageLimit = 30
 
