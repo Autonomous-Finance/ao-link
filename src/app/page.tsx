@@ -9,22 +9,37 @@ import {
   getUserStats,
 } from "@/services/aometrics"
 import { getLatestAoEvents } from "@/services/aoscan"
+import { FilterOption } from "@/types"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
 
 export const dynamic = "force-dynamic"
 
-export default async function Home() {
-  const [messages, modules, users, processes] = await Promise.all([
+type HomePageProps = {
+  searchParams?: {
+    filter?: FilterOption
+  }
+}
+
+export default async function HomePage(props: HomePageProps) {
+  const { searchParams = {} } = props
+  const { filter } = searchParams
+  const pageLimit = 30
+
+  const [events, messages, modules, users, processes] = await Promise.all([
+    getLatestAoEvents(pageLimit),
     getMessageStats(),
     getModuleStats(),
     getUserStats(),
     getProcessStats(),
   ])
 
-  const pageLimit = 30
+  let initialTableData = events.map(normalizeAoEvent)
 
-  const events = (await getLatestAoEvents(pageLimit)) || []
-  const initialTableData = events.map(normalizeAoEvent)
+  // if (filter) {
+  //   initialTableData = initialTableData.filter(
+  //     (event) => event.type.toLowerCase() === filter,
+  //   )
+  // }
 
   return (
     <main>

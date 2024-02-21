@@ -1,8 +1,12 @@
 "use client"
+import { MenuItem, Select, Stack } from "@mui/material"
 import Image from "next/image"
+import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 
+import { useUpdateSearch } from "@/hooks/useUpdateSearch"
 import { type AoEvent, subscribeToEvents } from "@/services/aoscan"
+import { FilterOption } from "@/types"
 import {
   type NormalizedAoEvent,
   normalizeAoEvent,
@@ -11,6 +15,8 @@ import {
 import { TYPE_COLOR_MAP, TYPE_ICON_MAP, truncateId } from "@/utils/data-utils"
 
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
+
+import { formatNumber } from "@/utils/number-utils"
 
 import { IdBlock } from "../../components/IdBlock"
 
@@ -23,6 +29,12 @@ type EventTablesProps = {
 
 const EventsTable = (props: EventTablesProps) => {
   const { initialData, blockHeight, pageLimit, ownerId } = props
+
+  const searchParams = useSearchParams()
+
+  const [filter, setFilter] = useState<FilterOption>(
+    (searchParams?.get("filter") as FilterOption) || "",
+  )
 
   const [data, setData] = useState<NormalizedAoEvent[]>(initialData)
 
@@ -46,38 +58,65 @@ const EventsTable = (props: EventTablesProps) => {
     return unsubscribe
   }, [blockHeight, pageLimit, ownerId])
 
+  const router = useRouter()
+  const updateSearch = useUpdateSearch()
+
   return (
-    <>
+    <Stack marginTop={5} gap={2}>
+      <Stack direction="row" justifyContent="space-between">
+        <div className="text-main-dark-color uppercase ">Latest events</div>
+        <Select
+          size="small"
+          sx={{
+            width: 160,
+            lineHeight: "normal",
+            "& .MuiSelect-select": { paddingY: "4px !important" },
+          }}
+          displayEmpty
+          value={filter}
+          onChange={(event) => {
+            const newValue = event.target.value as FilterOption
+            setFilter(newValue)
+            updateSearch("filter", newValue)
+          }}
+        >
+          <MenuItem value="">
+            <em>All</em>
+          </MenuItem>
+          <MenuItem value="messag">Messages</MenuItem>
+          <MenuItem value="process">Processes</MenuItem>
+        </Select>
+      </Stack>
       {data.length ? (
-        <div className="overflow-x-auto">
+        <div>
           <table className="min-w-full">
             <thead className="table-headers">
               <tr>
                 <th className="text-start p-2 w-[120px]">Type</th>
-                <th className="text-start p-2 w-[160px]">Action</th>
-                <th className="text-start p-2 w-[180px]">Message ID</th>
-                <th className="text-start p-2 w-[180px]">Process ID</th>
+                <th className="text-start p-2">Action</th>
+                <th className="text-start p-2 w-[220px]">Message ID</th>
+                <th className="text-start p-2 w-[220px]">Process ID</th>
                 {!ownerId && (
-                  <th className="text-start p-2 w-[180px]">Owner</th>
+                  <th className="text-start p-2 w-[220px]">Owner</th>
                 )}
                 {!blockHeight && (
-                  <th className="text-start p-2">Block Height</th>
+                  <th className="text-end p-2 w-[160px]">Block Height</th>
                 )}
-                <th className="text-start p-2">Created</th>
+                <th className="text-end p-2 w-[160px]">Created</th>
               </tr>
             </thead>
             <tbody>
               {data.map((item) => (
                 <tr
-                  className="table-row"
+                  className="table-row cursor-pointer"
                   key={item.id}
-                  // onClick={() => {
-                  //   router.push(
-                  //     item.type === "Message"
-                  //       ? `/message/${item.id}`
-                  //       : `/process/${item.id}`,
-                  //   )
-                  // }}
+                  onClick={() => {
+                    router.push(
+                      item.type === "Message"
+                        ? `/message/${item.id}`
+                        : `/process/${item.id}`,
+                    )
+                  }}
                 >
                   <td className="text-start p-2">
                     <div
@@ -119,14 +158,15 @@ const EventsTable = (props: EventTablesProps) => {
                     </td>
                   )}
                   {!blockHeight && (
-                    <td className="text-start p-2 ">
+                    <td className="text-end p-2 ">
                       <IdBlock
-                        label={String(item.blockHeight)}
+                        label={formatNumber(item.blockHeight)}
+                        value={String(item.blockHeight)}
                         href={`/block/${item.blockHeight}`}
                       />
                     </td>
                   )}
-                  <td className="text-start p-2">
+                  <td className="text-end p-2">
                     <span
                       className="tooltip"
                       data-tip={formatFullDate(item.created)}
@@ -140,7 +180,7 @@ const EventsTable = (props: EventTablesProps) => {
           </table>
         </div>
       ) : null}
-    </>
+    </Stack>
   )
 }
 

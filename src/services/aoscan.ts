@@ -10,9 +10,7 @@ export interface AoEvent {
   created_at: string
 }
 
-export async function getLatestAoEvents(
-  pageLimit: number,
-): Promise<AoEvent[] | null> {
+export async function getLatestAoEvents(pageLimit: number): Promise<AoEvent[]> {
   try {
     let supabaseRq
 
@@ -21,15 +19,15 @@ export async function getLatestAoEvents(
       .select("owner,id,tags_flat,target,owner_address,height,created_at")
       .order("created_at", { ascending: false })
       .range(0, pageLimit - 1)
+      .returns<AoEvent[]>()
 
     const { data } = await supabaseRq
-    if (data) {
-      return data as AoEvent[]
-    }
 
-    return null
+    if (!data) return []
+
+    return data
   } catch (error) {
-    return null
+    return []
   }
 }
 
@@ -86,7 +84,7 @@ export async function getAoEventsForOwner(
 
 export async function getLatestMessagesForProcess(
   processId: string,
-): Promise<AoEvent[] | null> {
+): Promise<AoEvent[]> {
   try {
     let supabaseRq
 
@@ -103,9 +101,10 @@ export async function getLatestMessagesForProcess(
       return data as AoEvent[]
     }
 
-    return null
+    return []
   } catch (error) {
-    return null
+    console.error(error)
+    return []
   }
 }
 

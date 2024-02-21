@@ -18,7 +18,8 @@ export function CopyToClipboard(props: CopyToClipboardProps) {
     <span
       data-tip={copied ? "Copied" : "Copy to clipboard"}
       className="hover:fill-[#000] cursor-pointer fill-inherit tooltip"
-      onClick={() => {
+      onClick={(event) => {
+        event.stopPropagation()
         navigator.clipboard.writeText(value)
 
         setCopied(true)

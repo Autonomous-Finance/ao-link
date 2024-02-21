@@ -22,7 +22,12 @@ export function IdBlock(props: IdBlockProps) {
   if (href) {
     return (
       <div className="fill-[#7d7d7d00] hover:fill-[#7d7d7d]">
-        <Link href={href}>
+        <Link
+          href={href}
+          onClick={(event) => {
+            event.stopPropagation()
+          }}
+        >
           <span className={cn({ tooltip }, "hover:underline")} data-tip={value}>
             {label}
           </span>

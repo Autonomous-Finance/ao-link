@@ -26,3 +26,5 @@ export type ProcessStatistic = {
 }
 
 export type HighchartAreaData = [number, number]
+
+export type FilterOption = "" | "message" | "process"

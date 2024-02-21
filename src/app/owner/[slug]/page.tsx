@@ -25,9 +25,6 @@ export default async function OwnerPage(props: OwnerPageProps) {
         <IdBlock label={ownerId} />
       </div>
 
-      <div className="text-main-dark-color uppercase mt-[2.75rem] mb-8">
-        {events.length} events
-      </div>
       <EventsTable
         initialData={initialTableData}
         // initialData={initialTableData.slice(0, pageLimit)}
