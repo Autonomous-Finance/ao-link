@@ -1,9 +1,12 @@
 "use client"
 
+import { Container } from "@mui/material"
 import CssBaseline from "@mui/material/CssBaseline"
 import { Experimental_CssVarsProvider as CssVarsProvider } from "@mui/material/styles"
 
 import { theme } from "./theme"
+import { Footer } from "../Footer"
+import Header from "../Header"
 
 export default function RootLayoutUI({
   children,
@@ -14,7 +17,9 @@ export default function RootLayoutUI({
     <>
       <CssVarsProvider theme={theme} defaultMode="light">
         <CssBaseline />
-        <div className="max-w-screen-lg mx-auto">{children}</div>
+        <Header />
+        <Container maxWidth="xl">{children}</Container>
+        <Footer />
       </CssVarsProvider>
     </>
   )

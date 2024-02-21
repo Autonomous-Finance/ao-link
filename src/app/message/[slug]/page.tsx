@@ -1,7 +1,6 @@
 import { Grid, Paper, Stack, Typography } from "@mui/material"
 
 import { Graph } from "@/components/Graph"
-import Header from "@/components/Header"
 import { IdBlock } from "@/components/IdBlock"
 
 import { MonoFontFF } from "@/components/RootLayout/fonts"
@@ -45,7 +44,6 @@ export default async function MessagePage(props: MessagePageProps) {
 
   return (
     <main className="min-h-screen mb-6">
-      <Header />
       <div className="flex gap-2 items-center text-sm mt-12 mb-11">
         <p className="text-[#9EA2AA] ">MESSAGE</p>
         <p className="font-bold">/</p>

@@ -1,4 +1,3 @@
-import Header from "@/components/Header"
 import { IdBlock } from "@/components/IdBlock"
 import EventsTable from "@/page-components/HomePage/EventsTable"
 import { getAoEventsForOwner } from "@/services/aoscan"
@@ -20,7 +19,6 @@ export default async function OwnerPage(props: OwnerPageProps) {
 
   return (
     <main className="min-h-screen mb-6">
-      <Header />
       <div className="flex gap-2 items-center text-sm mt-12 mb-11">
         <p className="text-[#9EA2AA] ">OWNER</p>
         <p className="font-bold">/</p>

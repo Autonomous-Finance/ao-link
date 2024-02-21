@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background-color: 249, 249, 249;
+  --background-color: 255, 255, 255;
   --font-color: 0, 0, 0;
   --gradient-start-color: 84, 91, 255;
   --gradient-stop-color: 168, 171, 255;
