@@ -63,7 +63,6 @@ const EventsTable = (props: EventTablesProps) => {
                 {!blockHeight && (
                   <th className="text-start p-2">Block Height</th>
                 )}
-                <th className="text-start p-2">Scheduler ID</th>
                 <th className="text-start p-2">Created</th>
               </tr>
             </thead>
@@ -127,9 +126,6 @@ const EventsTable = (props: EventTablesProps) => {
                       />
                     </td>
                   )}
-                  <td className="text-start p-2 ">
-                    {truncateId(item.schedulerId)}
-                  </td>
                   <td className="text-start p-2">
                     <span
                       className="tooltip"

@@ -12,16 +12,9 @@ const Header = () => {
             <Link href="/">
               <div className="flex items-center gap-1">
                 <Image
-                  alt="aoscan"
-                  width={20}
-                  height={20}
-                  src="/aoscan.svg"
-                  className="inline-block h-[20px]"
-                />
-                <Image
                   alt="ao"
-                  width={20}
-                  height={20}
+                  width={40}
+                  height={40}
                   src="/ao.svg"
                   className="inline-block h-[20px]"
                 />

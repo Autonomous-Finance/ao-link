@@ -7,6 +7,9 @@ const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dmSans" })
 
 export const metadata: Metadata = {
   title: "AOScan",
+  icons: {
+    icon: "/ao.svg",
+  },
 }
 
 export default function RootLayout({

@@ -49,7 +49,6 @@ const MessagesTable = (props: MessagesTableProps) => {
                 <th className="text-start p-2 w-[180px]">Message ID</th>
                 <th className="text-start p-2 w-[180px]">Owner</th>
                 <th className="text-start p-2">Block Height</th>
-                <th className="text-start p-2">Scheduler ID</th>
                 <th className="text-start p-2">Created</th>
               </tr>
             </thead>
@@ -101,9 +100,6 @@ const MessagesTable = (props: MessagesTableProps) => {
                       label={String(item.blockHeight)}
                       href={`/block/${item.blockHeight}`}
                     />
-                  </td>
-                  <td className="text-start p-2 ">
-                    {truncateId(item.schedulerId)}
                   </td>
                   <td className="text-start p-2">
                     <span
