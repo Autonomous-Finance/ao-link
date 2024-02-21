@@ -5,7 +5,7 @@ import dayjs from "dayjs"
 import { HighchartAreaData } from "@/types"
 import { formatNumber } from "@/utils/number-utils"
 
-// import { TitleFontFF } from "../RootLayout/fonts"
+import { TitleFontFF } from "../RootLayout/fonts"
 
 export const defaultOpts: HighchartOptions = {
   title: {
@@ -150,7 +150,7 @@ export function createOptionsForStat(
     title: {
       align: "left",
       style: {
-        // fontFamily: exportServer ? "Helvetica" : TitleFontFF,
+        fontFamily: exportServer ? "Helvetica" : TitleFontFF,
         fontSize: fontSizes.title,
         color: fontColor,
       },

@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { Inter, DM_Sans } from "next/font/google"
+
 import "./globals.css"
+import RootLayoutUI from "../components/RootLayout/RootLayoutUI"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dmSans" })
@@ -20,9 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`px-[32px] ${inter.variable} ${dmSans.variable} font-dmSans max-w-screen-lg mx-auto`}
+        className={`px-[32px] ${inter.variable} ${dmSans.variable} font-dmSans`}
       >
-        {children}
+        <RootLayoutUI>{children}</RootLayoutUI>
       </body>
     </html>
   )

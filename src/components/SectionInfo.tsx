@@ -1,4 +1,7 @@
+import { Stack, Typography } from "@mui/material"
 import React from "react"
+
+import { MonoFontFF } from "./RootLayout/fonts"
 
 export const SectionInfo = ({
   title,
@@ -7,12 +10,12 @@ export const SectionInfo = ({
   title: string
   value: React.ReactNode
 }) => (
-  <div className="flex flex-row items-baseline w-full">
-    <div className="flex w-56 items-center">
-      <div className="table-headers">{title}</div>
-    </div>
-    <div className="flex">
-      <div className="table-row hover:bg-transparent !h-auto">{value}</div>
-    </div>
-  </div>
+  <Stack gap={1} direction="row">
+    <Typography variant="subtitle2" color="text.secondary" width={220}>
+      {title}
+    </Typography>
+    <Typography variant="body2" fontFamily={MonoFontFF}>
+      {value}
+    </Typography>
+  </Stack>
 )

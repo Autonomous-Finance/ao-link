@@ -15,6 +15,7 @@
   @apply hidden;
 }
 
+/* TODO */
 .nav-bar-button {
   color: #000;
   font-weight: 400;
@@ -28,12 +29,13 @@
   right: 0;
   transform: translateY(-25%);
   height: 50%;
-  border-right: 0.25px solid #222326; /* Adjust the border style as needed */
+  border-right: 0.25px solid #222326;
+  /* Adjust the border style as needed */
   opacity: 0.5;
 }
 
 .table-headers {
-  color:#9EA2AA;
+  color: #9EA2AA;
   font-size: 12px;
   font-weight: 400;
   line-height: normal;
@@ -67,11 +69,15 @@
 .loader {
   animation: bounce 2s infinite;
 }
+
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(-200%);
     animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }
+
   50% {
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
@@ -80,4 +86,8 @@
 
 .tooltip::before {
   overflow-wrap: anywhere;
+}
+
+body * {
+  scrollbar-width: thin;
 }
