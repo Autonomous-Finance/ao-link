@@ -29,6 +29,8 @@ export function ComputeResult(props: ComputeResultProps) {
         `https://cu.ao-testnet.xyz/result/${messageId}?process-id=${processId}`,
       )
       const json = await result.json()
+      if (!("Output" in json)) throw new Error(json.error)
+
       setContent(json.Output.data.output)
     } catch (error) {
       setContent(`Error computing result: ${String(error)}`)
