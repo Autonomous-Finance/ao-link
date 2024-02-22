@@ -38,14 +38,37 @@ const EventsTable = (props: EventTablesProps) => {
 
   const [data, setData] = useState<NormalizedAoEvent[]>(initialData)
 
+  const [pauseStreaming, setPauseStreaming] = useState(false)
 
   useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        console.log("Resuming realtime streaming")
+        setPauseStreaming(false);
+      } else {
+        console.log("Pausing realtime streaming")
+        setPauseStreaming(true);
+      }
+    };
+  
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+  
+    return function cleanup() {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    } 
+  }, []);
+
+  useEffect(() => {
+    if(pauseStreaming) return
+    console.log("Fetching latest data")
     getLatestAoEvents(pageLimit, filter).then((events) => {
       setData(events.map(normalizeAoEvent))
     })
-  },[pageLimit,filter])
+  },[pauseStreaming, pageLimit,filter])
 
   useEffect(() => {
+    if(pauseStreaming) return 
+
     const unsubscribe = subscribeToEvents((event: AoEvent) => {
       if (blockHeight && event.height !== blockHeight) return
       if (ownerId && event.owner_address !== ownerId) return
@@ -69,7 +92,7 @@ const EventsTable = (props: EventTablesProps) => {
     })
 
     return unsubscribe
-  }, [blockHeight, pageLimit, ownerId])
+  }, [pauseStreaming, blockHeight, pageLimit, ownerId])
 
   const router = useRouter()
   const updateSearch = useUpdateSearch()
