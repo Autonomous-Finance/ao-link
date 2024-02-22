@@ -14,7 +14,7 @@ export const SectionInfo = ({
     <Typography variant="subtitle2" color="text.secondary" width={220}>
       {title}
     </Typography>
-    <Typography variant="body2" fontFamily={MonoFontFF}>
+    <Typography variant="body2" fontFamily={MonoFontFF} component="div">
       {value}
     </Typography>
   </Stack>

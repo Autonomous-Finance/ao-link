@@ -1,6 +1,8 @@
-import { Chip } from "@/components/Chip"
+import { Grid, Paper, Stack, Typography } from "@mui/material"
+
 import { Graph } from "@/components/Graph"
 import { IdBlock } from "@/components/IdBlock"
+import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import MessagesTable from "@/page-components/ProcessPage/MessagesTable"
@@ -40,13 +42,12 @@ export default async function ProcessPage(props: ProcessPageProps) {
         <p className="font-bold">/</p>
         <IdBlock label={id} />
       </div>
-
-      <div className="flex w-full">
-        <div className="w-1/2 flex flex-col">
-          <div className="w-[426px] h-[410px] border border-[#000] flex items-center justify-center mb-6">
-            <Graph messageId={id} isProcess />
-          </div>
-          <div className="flex flex-col gap-8">
+      <Grid container spacing={{ xs: 2, lg: 12 }}>
+        <Grid item xs={12} lg={6}>
+          <Stack gap={4}>
+            <Paper sx={{ height: 428, width: 428 }}>
+              <Graph messageId={id} isProcess />
+            </Paper>
             <SectionInfoWithChip title="Type" value={type} />
             <SectionInfo
               title="Owner"
@@ -68,35 +69,49 @@ export default async function ProcessPage(props: ProcessPageProps) {
               }
             />
             <SectionInfo title="Created" value={formatRelative(created)} />
-          </div>
-        </div>
-        <div className="flex flex-col items-start justify-start gap-8">
-          <div>
-            <div className="mb-2">
-              <p className="table-headers">Tags:</p>
-            </div>
-            <div className="bg-secondary-gray w-96 flex items-start justify-start">
-              <p className="font-mono text-xs font-normal leading-normal tracking-tighter p-2">
+          </Stack>
+        </Grid>
+        <Grid item xs={12} lg={6}>
+          <Stack gap={4}>
+            <Stack gap={1} justifyContent="stretch">
+              <Typography variant="subtitle2" color="text.secondary">
+                Tags
+              </Typography>
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                gap={1}
+                sx={{
+                  maxHeight: 178,
+                  overflowY: "auto",
+                }}
+              >
                 {Object.entries(tags).map(([key, value]) => (
-                  <Chip key={key} className={getColorFromText(key)}>
+                  <Typography
+                    key={key}
+                    className={getColorFromText(key)}
+                    sx={{ padding: 0.5 }}
+                    variant="caption"
+                    fontFamily={MonoFontFF}
+                  >
                     {key}:{value}
-                  </Chip>
+                  </Typography>
                 ))}
-              </p>
-            </div>
-          </div>
-          <div>
-            <div className="mb-2">
-              <p className="table-headers">Result Type</p>
-            </div>
-            <div className="bg-secondary-gray w-96 min-h-14 flex items-start justify-start">
-              <p className="font-mono text-xs font-normal leading-normal tracking-tighter p-2">
-                JSON
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+              </Stack>
+            </Stack>
+            <Stack gap={1} justifyContent="stretch">
+              <Typography variant="subtitle2" color="text.secondary">
+                Result Type
+              </Typography>
+              <Paper sx={{ width: "100%", padding: 2 }}>
+                <Typography variant="body2" fontFamily={MonoFontFF}>
+                  JSON
+                </Typography>
+              </Paper>
+            </Stack>
+          </Stack>
+        </Grid>
+      </Grid>
       <div className="text-main-dark-color uppercase mt-[2.75rem] mb-8">
         Latest messages
       </div>

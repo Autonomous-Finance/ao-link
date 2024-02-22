@@ -5,7 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 
 import { useUpdateSearch } from "@/hooks/useUpdateSearch"
-import { type AoEvent, subscribeToEvents, getLatestAoEvents, targetEmptyValue } from "@/services/aoscan"
+import {
+  type AoEvent,
+  subscribeToEvents,
+  getLatestAoEvents,
+  targetEmptyValue,
+} from "@/services/aoscan"
 import { FilterOption } from "@/types"
 import {
   type NormalizedAoEvent,
@@ -28,7 +33,7 @@ type EventTablesProps = {
 }
 
 const EventsTable = (props: EventTablesProps) => {
-  const { initialData, blockHeight, pageLimit , ownerId } = props
+  const { initialData, blockHeight, pageLimit, ownerId } = props
 
   const searchParams = useSearchParams()
 
@@ -44,30 +49,30 @@ const EventsTable = (props: EventTablesProps) => {
     function handleVisibilityChange() {
       if (document.visibilityState === "visible") {
         console.log("Resuming realtime streaming")
-        setPauseStreaming(false);
+        setPauseStreaming(false)
       } else {
         console.log("Pausing realtime streaming")
-        setPauseStreaming(true);
+        setPauseStreaming(true)
       }
-    };
-  
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-  
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
     return function cleanup() {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    } 
-  }, []);
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [])
 
   useEffect(() => {
-    if(pauseStreaming) return
+    if (pauseStreaming) return
     console.log("Fetching latest data")
     getLatestAoEvents(pageLimit, filter).then((events) => {
       setData(events.map(normalizeAoEvent))
     })
-  },[pauseStreaming, pageLimit,filter])
+  }, [pauseStreaming, pageLimit, filter])
 
   useEffect(() => {
-    if(pauseStreaming) return 
+    if (pauseStreaming) return
 
     const unsubscribe = subscribeToEvents((event: AoEvent) => {
       if (blockHeight && event.height !== blockHeight) return
