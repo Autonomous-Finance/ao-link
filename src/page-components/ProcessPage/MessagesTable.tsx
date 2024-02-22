@@ -1,7 +1,10 @@
 "use client"
+import { Typography } from "@mui/material"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 
+import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { type AoEvent, subscribeToEvents } from "@/services/aoscan"
 import {
   type NormalizedAoEvent,
@@ -11,6 +14,8 @@ import {
 import { TYPE_COLOR_MAP, TYPE_ICON_MAP, truncateId } from "@/utils/data-utils"
 
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
+
+import { formatNumber } from "@/utils/number-utils"
 
 import { IdBlock } from "../../components/IdBlock"
 
@@ -37,33 +42,35 @@ const MessagesTable = (props: MessagesTableProps) => {
     return unsubscribe
   }, [])
 
+  const router = useRouter()
+
   return (
     <>
       {data.length ? (
-        <div className="overflow-x-auto">
+        <div>
           <table className="min-w-full">
             <thead className="table-headers">
               <tr>
                 <th className="text-start p-2 w-[120px]">Type</th>
-                <th className="text-start p-2 w-[160px]">Action</th>
-                <th className="text-start p-2 w-[180px]">Message ID</th>
-                <th className="text-start p-2 w-[180px]">Owner</th>
-                <th className="text-start p-2">Block Height</th>
-                <th className="text-start p-2">Created</th>
+                <th className="text-start p-2">Action</th>
+                <th className="text-start p-2 w-[220px]">Message ID</th>
+                <th className="text-start p-2 w-[220px]">Owner</th>
+                <th className="text-end p-2 w-[160px]">Block Height</th>
+                <th className="text-end p-2 w-[160px]">Created</th>
               </tr>
             </thead>
             <tbody>
               {data.map((item) => (
                 <tr
-                  className="table-row"
+                  className="table-row cursor-pointer"
                   key={item.id}
-                  // onClick={() => {
-                  //   router.push(
-                  //     item.type === "Message"
-                  //       ? `/message/${item.id}`
-                  //       : `/process/${item.id}`,
-                  //   )
-                  // }}
+                  onClick={() => {
+                    router.push(
+                      item.type === "Message"
+                        ? `/message/${item.id}`
+                        : `/process/${item.id}`,
+                    )
+                  }}
                 >
                   <td className="text-start p-2">
                     <div
@@ -95,13 +102,20 @@ const MessagesTable = (props: MessagesTableProps) => {
                       href={`/owner/${item.owner}`}
                     />
                   </td>
-                  <td className="text-start p-2 ">
-                    <IdBlock
-                      label={String(item.blockHeight)}
-                      href={`/block/${item.blockHeight}`}
-                    />
+                  <td className="text-end p-2">
+                    <Typography
+                      fontFamily={MonoFontFF}
+                      component="div"
+                      variant="inherit"
+                    >
+                      <IdBlock
+                        label={formatNumber(item.blockHeight)}
+                        value={String(item.blockHeight)}
+                        href={`/block/${item.blockHeight}`}
+                      />
+                    </Typography>
                   </td>
-                  <td className="text-start p-2">
+                  <td className="text-end p-2">
                     <span
                       className="tooltip"
                       data-tip={formatFullDate(item.created)}

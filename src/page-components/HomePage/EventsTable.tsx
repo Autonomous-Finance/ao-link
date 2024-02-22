@@ -1,9 +1,10 @@
 "use client"
-import { MenuItem, Select, Stack } from "@mui/material"
+import { MenuItem, Select, Stack, Typography } from "@mui/material"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 
+import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { useUpdateSearch } from "@/hooks/useUpdateSearch"
 import {
   type AoEvent,
@@ -97,7 +98,7 @@ const EventsTable = (props: EventTablesProps) => {
     })
 
     return unsubscribe
-  }, [pauseStreaming, blockHeight, pageLimit, ownerId])
+  }, [pauseStreaming, blockHeight, pageLimit, ownerId, filter])
 
   const router = useRouter()
   const updateSearch = useUpdateSearch()
@@ -199,12 +200,18 @@ const EventsTable = (props: EventTablesProps) => {
                     </td>
                   )}
                   {!blockHeight && (
-                    <td className="text-end p-2 ">
-                      <IdBlock
-                        label={formatNumber(item.blockHeight)}
-                        value={String(item.blockHeight)}
-                        href={`/block/${item.blockHeight}`}
-                      />
+                    <td className="text-end p-2">
+                      <Typography
+                        fontFamily={MonoFontFF}
+                        component="div"
+                        variant="inherit"
+                      >
+                        <IdBlock
+                          label={formatNumber(item.blockHeight)}
+                          value={String(item.blockHeight)}
+                          href={`/block/${item.blockHeight}`}
+                        />
+                      </Typography>
                     </td>
                   )}
                   <td className="text-end p-2">
