@@ -14,31 +14,39 @@ export async function getMessageStats(): Promise<HighchartAreaData[]> {
     const { data } = await supabase
       .from("ao_metrics_messages")
       .select("*")
-      .order("created_date", { ascending: true })
+      .order("created_date", { ascending: false })
+      .limit(30)
       .returns<MessageStatistic[]>()
 
     if (data) {
-      // derive cumulative data
       return data
-        .reduce((acc, curr) => {
-          const numMessages = acc.length
-            ? acc[acc.length - 1][1] + curr.num_messages
-            : curr.num_messages
-          return [
-            ...acc,
-            [
-              new Date(curr.created_date).getTime(),
-              numMessages,
-            ] as HighchartAreaData,
-          ]
-        }, [] as HighchartAreaData[])
-        .slice(-30)
+        .reverse()
+        .map((x) => [new Date(x.created_date).getTime(), x.num_messages])
     }
 
     return []
   } catch (error) {
     console.error(error)
     return []
+  }
+}
+export async function getTotalMessages(): Promise<number> {
+  try {
+    const { data } = await supabase
+      .from("ao_metrics_messages")
+      .select("*")
+      .returns<MessageStatistic[]>()
+
+    if (data) {
+      return data.reduce((acc, curr) => {
+        return acc + curr.num_messages
+      }, 0)
+    }
+
+    return 0
+  } catch (error) {
+    console.error(error)
+    return 0
   }
 }
 

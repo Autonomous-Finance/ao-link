@@ -6,6 +6,7 @@ import {
   getMessageStats,
   getModuleStats,
   getProcessStats,
+  getTotalMessages,
   getUserStats,
 } from "@/services/aometrics"
 import { getLatestAoEvents } from "@/services/aoscan"
@@ -25,13 +26,15 @@ export default async function HomePage(props: HomePageProps) {
   const { filter } = searchParams
   const pageLimit = 30
 
-  const [events, messages, modules, users, processes] = await Promise.all([
-    getLatestAoEvents(pageLimit, filter),
-    getMessageStats(),
-    getModuleStats(),
-    getUserStats(),
-    getProcessStats(),
-  ])
+  const [events, messages, totalMessages, modules, users, processes] =
+    await Promise.all([
+      getLatestAoEvents(pageLimit, filter),
+      getMessageStats(),
+      getTotalMessages(),
+      getModuleStats(),
+      getUserStats(),
+      getProcessStats(),
+    ])
 
   let initialTableData = events.map(normalizeAoEvent)
 
@@ -42,19 +45,23 @@ export default async function HomePage(props: HomePageProps) {
       </div>
       <div className="flex justify-between flex-wrap mt-[64px] mx-[-24px]">
         <div className="container w-1/2 lg:w-1/4 px-4 min-h-[150px] relative">
-          <AreaChart data={messages} titleText="TOTAL MESSAGES" />
+          <AreaChart
+            data={messages}
+            titleText="TOTAL MESSAGES"
+            overrideValue={totalMessages}
+          />
+          <div className="separator"></div>
+        </div>
+        <div className="container w-1/2 lg:w-1/4 px-4 min-h-[150px] relative">
+          <AreaChart data={users} titleText="USERS" />
+          <div className="separator hidden lg:block"></div>
+        </div>
+        <div className="container w-1/2 lg:w-1/4 px-4 min-h-[150px] relative">
+          <AreaChart data={processes} titleText="PROCESSES" />
           <div className="separator"></div>
         </div>
         <div className="container w-1/2 lg:w-1/4 px-4 min-h-[150px] relative">
           <AreaChart data={modules} titleText="MODULES" />
-          <div className="separator hidden lg:block"></div>
-        </div>
-        <div className="container w-1/2 lg:w-1/4 px-4 min-h-[150px] relative">
-          <AreaChart data={users} titleText="USERS" />
-          <div className="separator"></div>
-        </div>
-        <div className="container w-1/2 lg:w-1/4 px-4 min-h-[150px] relative">
-          <AreaChart data={processes} titleText="PROCESSES" />
         </div>
       </div>
       <EventsTable initialData={initialTableData} pageLimit={pageLimit} />

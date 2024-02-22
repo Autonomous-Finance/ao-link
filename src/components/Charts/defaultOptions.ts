@@ -134,6 +134,7 @@ export function createOptionsForStat(
   chartHeight: number,
   chartWidth: number | undefined,
   data: HighchartAreaData[],
+  overrideValue: number | undefined,
   exportServer = false,
 ): HighchartOptions {
   const fontColor = exportServer
@@ -205,7 +206,7 @@ export function createOptionsForStat(
                 const value = Intl.NumberFormat("en", {
                   maximumSignificantDigits: 3,
                   notation: "compact",
-                }).format(lastY)
+                }).format(overrideValue || lastY)
 
                 return `<span style="font-size: ${fontSizes.value}; color: ${fontColor}">${value}</span>`
               }
