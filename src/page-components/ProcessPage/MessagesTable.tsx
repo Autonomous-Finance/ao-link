@@ -27,7 +27,7 @@ const MessagesTable = (props: MessagesTableProps) => {
   useEffect(() => {
     const unsubscribe = subscribeToEvents((event: AoEvent) => {
       if (event.target !== processId) return
-      console.log("📜 LOG > unsubscribe > event:", event)
+      console.log("📜 LOG > subscribe > event:", event)
       setData((prevData) => {
         const parsed = normalizeAoEvent(event)
         return [parsed, ...prevData.slice(0, 9)]

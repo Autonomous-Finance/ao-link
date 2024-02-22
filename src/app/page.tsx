@@ -26,7 +26,7 @@ export default async function HomePage(props: HomePageProps) {
   const pageLimit = 30
 
   const [events, messages, modules, users, processes] = await Promise.all([
-    getLatestAoEvents(pageLimit),
+    getLatestAoEvents(pageLimit, filter),
     getMessageStats(),
     getModuleStats(),
     getUserStats(),
@@ -34,12 +34,6 @@ export default async function HomePage(props: HomePageProps) {
   ])
 
   let initialTableData = events.map(normalizeAoEvent)
-
-  // if (filter) {
-  //   initialTableData = initialTableData.filter(
-  //     (event) => event.type.toLowerCase() === filter,
-  //   )
-  // }
 
   return (
     <main>

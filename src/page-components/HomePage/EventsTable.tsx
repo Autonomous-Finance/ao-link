@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 
 import { useUpdateSearch } from "@/hooks/useUpdateSearch"
-import { type AoEvent, subscribeToEvents } from "@/services/aoscan"
+import { type AoEvent, subscribeToEvents, getLatestAoEvents, targetEmptyValue } from "@/services/aoscan"
 import { FilterOption } from "@/types"
 import {
   type NormalizedAoEvent,
@@ -28,7 +28,7 @@ type EventTablesProps = {
 }
 
 const EventsTable = (props: EventTablesProps) => {
-  const { initialData, blockHeight, pageLimit, ownerId } = props
+  const { initialData, blockHeight, pageLimit , ownerId } = props
 
   const searchParams = useSearchParams()
 
@@ -38,12 +38,25 @@ const EventsTable = (props: EventTablesProps) => {
 
   const [data, setData] = useState<NormalizedAoEvent[]>(initialData)
 
+
+  useEffect(() => {
+    getLatestAoEvents(pageLimit, filter).then((events) => {
+      setData(events.map(normalizeAoEvent))
+    })
+  },[pageLimit,filter])
+
   useEffect(() => {
     const unsubscribe = subscribeToEvents((event: AoEvent) => {
       if (blockHeight && event.height !== blockHeight) return
       if (ownerId && event.owner_address !== ownerId) return
+      if (filter === "message" && event.target === targetEmptyValue) {
+        return
+      }
+      if (filter === "process" && event.target !== targetEmptyValue) {
+        return
+      }
 
-      console.log("📜 LOG > unsubscribe > event:", event)
+      console.log("📜 LOG > subscribe > event:", event)
       setData((prevData) => {
         const parsed = normalizeAoEvent(event)
 
@@ -83,7 +96,7 @@ const EventsTable = (props: EventTablesProps) => {
           <MenuItem value="">
             <em>All</em>
           </MenuItem>
-          <MenuItem value="messag">Messages</MenuItem>
+          <MenuItem value="message">Messages</MenuItem>
           <MenuItem value="process">Processes</MenuItem>
         </Select>
       </Stack>
