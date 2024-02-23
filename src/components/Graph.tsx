@@ -91,7 +91,7 @@ function BaseGraph(props: GraphProps) {
       .attr("height", height)
       .attr(
         "style",
-        "max-width: 100%; height: auto; font: 12px sans-serif; background: #f9f9f9;",
+        "max-width: 100%; height: auto; font: 12px sans-serif; background: transparent;",
       )
 
     const types = Array.from(new Set(chartData.map((d) => d.type)))

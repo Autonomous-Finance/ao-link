@@ -1,17 +1,17 @@
 "use client"
 import { Typography } from "@mui/material"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 
 import { MonoFontFF } from "@/components/RootLayout/fonts"
+import { TypeBadge } from "@/components/TypeBadge"
 import { type AoEvent, subscribeToEvents } from "@/services/aoscan"
 import {
   type NormalizedAoEvent,
   normalizeAoEvent,
 } from "@/utils/ao-event-utils"
 
-import { TYPE_COLOR_MAP, TYPE_ICON_MAP, truncateId } from "@/utils/data-utils"
+import { truncateId } from "@/utils/data-utils"
 
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
 
@@ -75,19 +75,7 @@ const MessagesTable = (props: MessagesTableProps) => {
                   }}
                 >
                   <td className="text-start p-2">
-                    <div
-                      className={`gap-2 inline-flex px-2 py-1 ${
-                        TYPE_COLOR_MAP[item.type]
-                      }`}
-                    >
-                      <p className="uppercase">{item.type}</p>
-                      <Image
-                        alt="icon"
-                        width={8}
-                        height={8}
-                        src={TYPE_ICON_MAP[item.type]}
-                      />
-                    </div>
+                    <TypeBadge type={item.type} />
                   </td>
                   <td className="text-start p-2 ">{item.action}</td>
                   <td className="text-start p-2 ">

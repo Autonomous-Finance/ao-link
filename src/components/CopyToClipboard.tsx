@@ -1,5 +1,6 @@
 "use client"
 
+import { Box, Tooltip } from "@mui/material"
 import { Check, Copy } from "@phosphor-icons/react"
 import React from "react"
 
@@ -15,25 +16,31 @@ export function CopyToClipboard(props: CopyToClipboardProps) {
   if (!value) return null
 
   return (
-    <span
-      data-tip={copied ? "Copied" : "Copy to clipboard"}
-      className="hover:fill-[#000] cursor-pointer fill-inherit tooltip"
-      onClick={(event) => {
-        event.stopPropagation()
-        navigator.clipboard.writeText(value)
+    <Tooltip title={copied ? "Copied" : "Copy to clipboard"}>
+      <Box
+        sx={{
+          marginLeft: 1,
+          cursor: "pointer",
+          display: "inline-block",
+          "&:hover": { fill: "var(--mui-palette-text-primary)" },
+        }}
+        onClick={(event) => {
+          event.stopPropagation()
+          navigator.clipboard.writeText(value)
 
-        setCopied(true)
+          setCopied(true)
 
-        setTimeout(() => {
-          setCopied(false)
-        }, 1000)
-      }}
-    >
-      {copied ? (
-        <Check className="inline-block ml-1" size={14} />
-      ) : (
-        <Copy className="inline-block ml-1" fill="inherit" size={14} />
-      )}
-    </span>
+          setTimeout(() => {
+            setCopied(false)
+          }, 1000)
+        }}
+      >
+        {copied ? (
+          <Check size={14} weight="regular" />
+        ) : (
+          <Copy fill="inherit" size={14} weight="regular" />
+        )}
+      </Box>
+    </Tooltip>
   )
 }

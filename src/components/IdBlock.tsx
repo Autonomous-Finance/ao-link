@@ -1,9 +1,8 @@
 "use client"
 
+import { Box, Tooltip } from "@mui/material"
 import Link from "next/link"
 import React from "react"
-
-import { cn } from "@/utils/tailwind-utils"
 
 import { CopyToClipboard } from "./CopyToClipboard"
 
@@ -16,33 +15,49 @@ type IdBlockProps = {
 export function IdBlock(props: IdBlockProps) {
   const { label, value, href } = props
 
-  const tooltip = !!value
   const copyValue = value || label
 
   if (href) {
     return (
-      <div className="fill-[#7d7d7d00] hover:fill-[#7d7d7d]">
+      <Box
+        sx={{
+          fill: "none",
+          "&:hover": { fill: "var(--mui-palette-text-secondary)" },
+        }}
+      >
         <Link
           href={href}
           onClick={(event) => {
             event.stopPropagation()
           }}
         >
-          <span className={cn({ tooltip }, "hover:underline")} data-tip={value}>
-            {label}
-          </span>
+          <Tooltip title={value}>
+            <Box
+              sx={{
+                display: "inline-block",
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              {label}
+            </Box>
+          </Tooltip>
         </Link>
         <CopyToClipboard value={copyValue} />
-      </div>
+      </Box>
     )
   }
 
   return (
-    <div className="fill-[#7d7d7d00] hover:fill-[#7d7d7d]">
-      <span className={cn({ tooltip })} data-tip={value}>
-        {label}
-      </span>
+    <Box
+      sx={{
+        fill: "none",
+        "&:hover": { fill: "var(--mui-palette-text-secondary)" },
+      }}
+    >
+      <Tooltip title={value}>
+        <span>{label}</span>
+      </Tooltip>
       <CopyToClipboard value={copyValue} />
-    </div>
+    </Box>
   )
 }

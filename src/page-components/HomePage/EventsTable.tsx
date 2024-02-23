@@ -6,11 +6,11 @@ import {
   Stack,
   Typography,
 } from "@mui/material"
-import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useRef, useState } from "react"
 
 import { MonoFontFF } from "@/components/RootLayout/fonts"
+import { TypeBadge } from "@/components/TypeBadge"
 import { useUpdateSearch } from "@/hooks/useUpdateSearch"
 import {
   type AoEvent,
@@ -24,7 +24,7 @@ import {
   normalizeAoEvent,
 } from "@/utils/ao-event-utils"
 
-import { TYPE_COLOR_MAP, TYPE_ICON_MAP, truncateId } from "@/utils/data-utils"
+import { truncateId } from "@/utils/data-utils"
 
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
 
@@ -169,7 +169,9 @@ const EventsTable = (props: EventTablesProps) => {
   return (
     <Stack marginTop={5} gap={2}>
       <Stack direction="row" justifyContent="space-between">
-        <div className="text-main-dark-color uppercase ">Latest events</div>
+        <Typography variant="subtitle1" sx={{ textTransform: "uppercase" }}>
+          Latest events
+        </Typography>
         <Select
           size="small"
           sx={{
@@ -234,19 +236,7 @@ const EventsTable = (props: EventTablesProps) => {
                   }}
                 >
                   <td className="text-start p-2">
-                    <div
-                      className={`gap-2 inline-flex px-2 py-1 ${
-                        TYPE_COLOR_MAP[item.type]
-                      }`}
-                    >
-                      <p className="uppercase">{item.type}</p>
-                      <Image
-                        alt="icon"
-                        width={8}
-                        height={8}
-                        src={TYPE_ICON_MAP[item.type]}
-                      />
-                    </div>
+                    <TypeBadge type={item.type} />
                   </td>
                   <td className="text-start p-2 ">{item.action}</td>
                   <td className="text-start p-2 ">

@@ -4,11 +4,15 @@
 
 :root {
   --background-color: 255, 255, 255;
-  --font-color: 0, 0, 0;
   --gradient-start-color: 84, 91, 255;
   --gradient-stop-color: 168, 171, 255;
   background: rgb(var(--background-color));
-  color: rgb(var(--font-color))
+}
+
+html[data-mui-color-scheme="dark"] :root {
+  --background-color: #252424;
+  --gradient-start-color: 84, 91, 255;
+  --gradient-stop-color: 168, 171, 255;
 }
 
 .highcharts-credits {
@@ -34,6 +38,10 @@
   opacity: 0.5;
 }
 
+html[data-mui-color-scheme="dark"] .separator {
+  border-right: 0.25px solid #FFF;
+}
+
 .table-headers {
   color: #9EA2AA;
   font-size: 12px;
@@ -43,7 +51,6 @@
 }
 
 .table-row {
-  color: #222326;
   font-size: 12px;
   font-weight: 400;
   line-height: normal;
@@ -53,6 +60,10 @@
 
 .table-row:hover {
   background-color: #DDD;
+}
+
+html[data-mui-color-scheme="dark"] .table-row:hover {
+  background-color: #444;
 }
 
 .chart-label {

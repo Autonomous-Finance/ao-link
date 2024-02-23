@@ -1,13 +1,13 @@
 "use client"
 
+import { Backdrop, Box } from "@mui/material"
 import { ArrowUpRight, MagnifyingGlass } from "@phosphor-icons/react"
-import Image from "next/image"
 import Link from "next/link"
 import React, { type ChangeEvent, useState } from "react"
 
+import { TypeBadge } from "@/components/TypeBadge"
 import { getAoEventById, getLatestAoEvents } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
-import { TYPE_COLOR_MAP, TYPE_ICON_MAP } from "@/utils/data-utils"
 
 type ResultType = "Message" | "Entity" | "Block"
 
@@ -98,10 +98,18 @@ const SearchBar = () => {
   return (
     <div>
       <div className="dropdown relative w-full">
-        <input
+        <Box
+          component="input"
+          sx={{
+            background: "var(--mui-palette-background-default) !important",
+            border: "1px solid var(--mui-palette-text-primary) !important",
+            "&:focus": {
+              borderColor: "var(--mui-palette-background-default) !important",
+            },
+          }}
           role="button"
           placeholder="Search by Message ID / Process ID / User ID / Block Height"
-          className="bg-background border border-[#222326] w-full py-[28px] px-[32px] outline-none focus:border-transparent z-50 relative"
+          className="bg-transparent w-full py-[28px] px-[32px] outline-none focus:border-transparent z-50 relative"
           value={inputValue}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
@@ -122,9 +130,11 @@ const SearchBar = () => {
         <div tabIndex={0} className="dropdown-content z-50 w-full">
           <ul className="mt-[10px] z-50 relative max-h-[200px] overflow-y-auto">
             {results.map((item) => (
-              <li
+              <Box
+                component={"li"}
+                sx={{ background: "var(--mui-palette-background-default)" }}
                 key={item.id}
-                className="cursor-pointer p-[8px] bg-background flex justify-between"
+                className="cursor-pointer p-[8px] flex justify-between"
               >
                 <Link
                   href={`/${item.type.toLowerCase()}/${item.id}`}
@@ -132,36 +142,18 @@ const SearchBar = () => {
                 >
                   <div className="flex justify-between w-full items-center">
                     <div className="flex items-center gap-4">
-                      <div
-                        className={`gap-2 inline-flex px-2 py-1 ${
-                          TYPE_COLOR_MAP[item.type]
-                        }`}
-                      >
-                        <p className="uppercase">{item.type}</p>
-                        {TYPE_ICON_MAP[item.type] && (
-                          <Image
-                            alt="icon"
-                            width={8}
-                            height={8}
-                            src={TYPE_ICON_MAP[item.type]}
-                          />
-                        )}
-                      </div>
+                      <TypeBadge type={item.type} />
                       <p>{item.id}</p>
                     </div>
                     <ArrowUpRight size={18} />
                   </div>
                 </Link>
-              </li>
+              </Box>
             ))}
           </ul>
         </div>
       </div>
-      {isInputFocused && (
-        <div
-          className={`fixed top-0 left-0 w-full h-full bg-[#0000004d] z-[1]`}
-        ></div>
-      )}
+      <Backdrop open={isInputFocused} />
     </div>
   )
 }

@@ -155,9 +155,12 @@ export function ProcessPage(props: ProcessPageProps) {
           </Stack>
         </Grid>
       </Grid>
-      <div className="text-main-dark-color uppercase mt-[2.75rem] mb-8">
+      <Typography
+        variant="subtitle1"
+        sx={{ textTransform: "uppercase", marginBottom: 3, marginTop: 6 }}
+      >
         Latest messages
-      </div>
+      </Typography>
       <MessagesTable initialData={initialTableData} processId={processId} />
     </main>
   )

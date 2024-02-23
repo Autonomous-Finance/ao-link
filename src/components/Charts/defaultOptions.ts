@@ -139,7 +139,7 @@ export function createOptionsForStat(
 ): HighchartOptions {
   const fontColor = exportServer
     ? "rgb(255, 255, 255)"
-    : "rgb(var(--font-color))"
+    : "var(--mui-palette-text-primary)"
   const backgroundColor = exportServer ? "#252424" : "transparent"
 
   const fontSizes = {
@@ -188,7 +188,7 @@ export function createOptionsForStat(
             allowOverlap: true,
             point: { x: 0, y: 50, xAxis: null, yAxis: null },
             formatter: function () {
-              return `<span>${titleText}</span>`
+              return `<span style="color: ${fontColor}">${titleText}</span>`
             },
           },
           {
@@ -224,8 +224,9 @@ export function createOptionsForStat(
         color: {
           linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
           stops: [
-            [0, "#29CC00"],
-            [1, "#F2F2F2"],
+            [0, "rgba(41, 204, 0, 1)"],
+            [0.5, "rgba(41, 204, 0, 0.33)"],
+            [1, "rgba(41, 204, 0, 0)"],
           ],
         },
         type: "area",

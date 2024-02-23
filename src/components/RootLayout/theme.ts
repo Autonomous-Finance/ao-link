@@ -10,7 +10,7 @@ export const theme = extendTheme({
           main: "rgb(220,220,220)",
         },
         secondary: {
-          main: "rgb(190,190,190)",
+          main: "rgb(200,200,200)",
         },
         background: {
           paper: "#252424",
@@ -40,6 +40,28 @@ export const theme = extendTheme({
     fontFamily: MainFontFF,
   },
   components: {
+    MuiBackdrop: {
+      styleOverrides: {
+        root: {
+          zIndex: 10,
+          backdropFilter: "blur(4px)",
+          'html[data-mui-color-scheme="dark"] &': {
+            backgroundColor: "rgba(255, 255, 255, 0.15)",
+          },
+        },
+      },
+    },
+    MuiTooltip: {
+      defaultProps: {
+        placement: "top",
+      },
+      styleOverrides: {
+        tooltip: {
+          fontSize: "0.9rem",
+          textAlign: "center",
+        },
+      },
+    },
     MuiButtonBase: {
       defaultProps: {
         disableRipple: true,
