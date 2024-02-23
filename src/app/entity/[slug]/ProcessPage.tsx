@@ -98,7 +98,7 @@ export function ProcessPage(props: ProcessPageProps) {
                 <IdBlock
                   label={truncateId(owner)}
                   value={owner}
-                  href={`/owner/${owner}`}
+                  href={`/entity/${owner}`}
                 />
               }
             />
