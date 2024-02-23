@@ -49,6 +49,10 @@ const EventsTable = (props: EventTablesProps) => {
 
   const [endReached, setEndReached] = useState(false)
 
+  const filterRef = useRef<FilterOption>(
+    (searchParams?.get("filter") as FilterOption) || "",
+  )
+
   useEffect(() => {
     if (endReached) return
     const observer = new IntersectionObserver(
@@ -59,7 +63,7 @@ const EventsTable = (props: EventTablesProps) => {
           getLatestAoEvents(
             pageSize,
             listSizeRef.current,
-            filter,
+            filterRef.current,
             blockHeight,
             ownerId,
           ).then((events) => {
@@ -92,10 +96,6 @@ const EventsTable = (props: EventTablesProps) => {
     return () => observer.disconnect()
   }, [])
 
-  const [filter, setFilter] = useState<FilterOption>(
-    (searchParams?.get("filter") as FilterOption) || "",
-  )
-
   const [data, setData] = useState<NormalizedAoEvent[]>(initialData)
   const [streamingPaused, setStreamingPaused] = useState(false)
 
@@ -106,7 +106,7 @@ const EventsTable = (props: EventTablesProps) => {
         getLatestAoEvents(
           listSizeRef.current,
           0,
-          filter,
+          filterRef.current,
           blockHeight,
           ownerId,
         ).then((events) => {
@@ -135,10 +135,16 @@ const EventsTable = (props: EventTablesProps) => {
     const unsubscribe = subscribeToEvents((event: AoEvent) => {
       if (blockHeight && event.height !== blockHeight) return
       if (ownerId && event.owner_address !== ownerId) return
-      if (filter === "message" && event.target === targetEmptyValue) {
+      if (
+        filterRef.current === "message" &&
+        event.target === targetEmptyValue
+      ) {
         return
       }
-      if (filter === "process" && event.target !== targetEmptyValue) {
+      if (
+        filterRef.current === "process" &&
+        event.target !== targetEmptyValue
+      ) {
         return
       }
 
@@ -155,7 +161,7 @@ const EventsTable = (props: EventTablesProps) => {
       console.log("Unsubscribed from realtime updates")
       unsubscribe()
     }
-  }, [streamingPaused, blockHeight, pageSize, ownerId, filter])
+  }, [streamingPaused, blockHeight, pageSize, ownerId])
 
   const router = useRouter()
   const updateSearch = useUpdateSearch()
@@ -172,11 +178,23 @@ const EventsTable = (props: EventTablesProps) => {
             "& .MuiSelect-select": { paddingY: "4px !important" },
           }}
           displayEmpty
-          value={filter}
+          value={filterRef.current}
           onChange={(event) => {
             const newValue = event.target.value as FilterOption
-            setFilter(newValue)
+            filterRef.current = newValue
             updateSearch("filter", newValue)
+            getLatestAoEvents(
+              listSizeRef.current,
+              0,
+              newValue,
+              blockHeight,
+              ownerId,
+            ).then((events) => {
+              console.log(
+                `Fetched ${events.length} records, listSize=${listSizeRef.current} (filter changed)`,
+              )
+              setData(events.map(normalizeAoEvent))
+            })
           }}
         >
           <MenuItem value="">
@@ -193,11 +211,9 @@ const EventsTable = (props: EventTablesProps) => {
               <tr>
                 <th className="text-start p-2 w-[120px]">Type</th>
                 <th className="text-start p-2">Action</th>
-                <th className="text-start p-2 w-[220px]">Message ID</th>
-                <th className="text-start p-2 w-[220px]">Process ID</th>
-                {!ownerId && (
-                  <th className="text-start p-2 w-[220px]">Owner</th>
-                )}
+                <th className="text-start p-2 w-[220px]">ID</th>
+                <th className="text-start p-2 w-[220px]">From</th>
+                <th className="text-start p-2 w-[220px]">To</th>
                 {!blockHeight && (
                   <th className="text-end p-2 w-[160px]">Block Height</th>
                 )}
@@ -213,7 +229,7 @@ const EventsTable = (props: EventTablesProps) => {
                     router.push(
                       item.type === "Message"
                         ? `/message/${item.id}`
-                        : `/process/${item.id}`,
+                        : `/entity/${item.id}`,
                     )
                   }}
                 >
@@ -235,27 +251,31 @@ const EventsTable = (props: EventTablesProps) => {
                   <td className="text-start p-2 ">{item.action}</td>
                   <td className="text-start p-2 ">
                     <IdBlock
-                      label={truncateId(item.messageId)}
-                      value={item.messageId}
-                      href={`/message/${item.messageId}`}
+                      label={truncateId(item.id)}
+                      value={item.id}
+                      href={
+                        item.type === "Message"
+                          ? `/message/${item.id}`
+                          : `/entity/${item.id}`
+                      }
                     />
                   </td>
                   <td className="text-start p-2">
                     <IdBlock
-                      label={truncateId(item.processId)}
-                      value={item.processId}
-                      href={`/process/${item.processId}`}
+                      label={truncateId(item.from)}
+                      value={item.from}
+                      href={`/entity/${item.from}`}
                     />
                   </td>
-                  {!ownerId && (
-                    <td className="text-start p-2 ">
+                  <td className="text-start p-2 ">
+                    {item.to && (
                       <IdBlock
-                        label={truncateId(item.owner)}
-                        value={item.owner}
-                        href={`/owner/${item.owner}`}
+                        label={truncateId(item.to)}
+                        value={item.to}
+                        href={`/entity/${item.to}`}
                       />
-                    </td>
-                  )}
+                    )}
+                  </td>
                   {!blockHeight && (
                     <td className="text-end p-2">
                       <Typography

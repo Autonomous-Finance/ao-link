@@ -30,7 +30,13 @@ export function ProcessPage(props: ProcessPageProps) {
 
   const normalizedEvent = normalizeAoEvent(event)
 
-  const { id: processId, owner, type, blockHeight, created } = normalizedEvent
+  const {
+    id: processId,
+    from: owner,
+    type,
+    blockHeight,
+    created,
+  } = normalizedEvent
   const tags = normalizeTags(event.tags_flat)
 
   const initialTableData = messages.map(normalizeAoEvent)

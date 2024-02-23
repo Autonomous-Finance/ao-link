@@ -54,8 +54,9 @@ const MessagesTable = (props: MessagesTableProps) => {
               <tr>
                 <th className="text-start p-2 w-[120px]">Type</th>
                 <th className="text-start p-2">Action</th>
-                <th className="text-start p-2 w-[220px]">Message ID</th>
-                <th className="text-start p-2 w-[220px]">Owner</th>
+                <th className="text-start p-2 w-[220px]">ID</th>
+                <th className="text-start p-2 w-[220px]">From</th>
+                <th className="text-start p-2 w-[220px]">To</th>
                 <th className="text-end p-2 w-[160px]">Block Height</th>
                 <th className="text-end p-2 w-[160px]">Created</th>
               </tr>
@@ -69,7 +70,7 @@ const MessagesTable = (props: MessagesTableProps) => {
                     router.push(
                       item.type === "Message"
                         ? `/message/${item.id}`
-                        : `/process/${item.id}`,
+                        : `/entity/${item.id}`,
                     )
                   }}
                 >
@@ -91,16 +92,23 @@ const MessagesTable = (props: MessagesTableProps) => {
                   <td className="text-start p-2 ">{item.action}</td>
                   <td className="text-start p-2 ">
                     <IdBlock
-                      label={truncateId(item.messageId)}
-                      value={item.messageId}
-                      href={`/message/${item.messageId}`}
+                      label={truncateId(item.id)}
+                      value={item.id}
+                      href={`/message/${item.id}`}
                     />
                   </td>
                   <td className="text-start p-2 ">
                     <IdBlock
-                      label={truncateId(item.owner)}
-                      value={item.owner}
-                      href={`/owner/${item.owner}`}
+                      label={truncateId(item.from)}
+                      value={item.from}
+                      href={`/entity/${item.from}`}
+                    />
+                  </td>
+                  <td className="text-start p-2 ">
+                    <IdBlock
+                      label={truncateId(item.to)}
+                      value={item.to}
+                      href={`/entity/${item.to}`}
                     />
                   </td>
                   <td className="text-end p-2">

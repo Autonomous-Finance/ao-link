@@ -35,11 +35,11 @@ export function MessagePage(props: MessagePageProps) {
 
   const {
     id: messageId,
-    owner,
+    from,
     type,
     blockHeight,
     created,
-    processId,
+    to,
   } = normalizedEvent
   const tags = normalizeTags(event.tags_flat)
 
@@ -98,22 +98,22 @@ export function MessagePage(props: MessagePageProps) {
               </Paper>
               <SectionInfoWithChip title="Type" value={type} />
               <SectionInfo
-                title="Owner"
+                title="From"
                 value={
                   <IdBlock
-                    label={truncateId(owner)}
-                    value={owner}
-                    href={`/owner/${owner}`}
+                    label={truncateId(from)}
+                    value={from}
+                    href={`/entity/${from}`}
                   />
                 }
               />
               <SectionInfo
-                title="Process ID"
+                title="To"
                 value={
                   <IdBlock
-                    label={truncateId(processId)}
-                    value={processId}
-                    href={`/process/${processId}`}
+                    label={truncateId(to)}
+                    value={to}
+                    href={`/entity/${to}`}
                   />
                 }
               />
@@ -157,7 +157,7 @@ export function MessagePage(props: MessagePageProps) {
                   ))}
                 </Stack>
               </Stack>
-              <ComputeResult messageId={messageId} processId={processId} />
+              <ComputeResult messageId={messageId} processId={to} />
               <Stack gap={1} justifyContent="stretch">
                 <Typography variant="subtitle2" color="text.secondary">
                   Data
