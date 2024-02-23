@@ -22,11 +22,11 @@ import { getColorFromText } from "@/utils/tailwind-utils"
 
 type ProcessPageProps = {
   event: AoEvent
-  messages: AoEvent[]
+  // messages: AoEvent[]
 }
 
 export function ProcessPage(props: ProcessPageProps) {
-  const { event, messages } = props
+  const { event } = props
 
   const normalizedEvent = normalizeAoEvent(event)
 
@@ -39,12 +39,9 @@ export function ProcessPage(props: ProcessPageProps) {
   } = normalizedEvent
   const tags = normalizeTags(event.tags_flat)
 
-  const initialTableData = messages.map(normalizeAoEvent)
-
   const [loading, setLoading] = useState(true)
   const [graphData, setChartData] = useState<ChartDataItem[]>([])
   const [linkedMessages, setLinkedMessages] = useState<NormalizedAoEvent[]>([])
-  console.log("📜 LOG > ProcessPage > linkedMessages:", linkedMessages)
 
   useEffect(() => {
     setLoading(true)
@@ -63,7 +60,11 @@ export function ProcessPage(props: ProcessPageProps) {
         const { graph, messages } = data
 
         setChartData(graph)
-        setLinkedMessages(messages.map(normalizeAoEvent))
+        setLinkedMessages(
+          messages
+            .map(normalizeAoEvent)
+            .sort((a, b) => b.created.getTime() - a.created.getTime()),
+        )
         setLoading(false)
       })
   }, [processId])
@@ -155,13 +156,17 @@ export function ProcessPage(props: ProcessPageProps) {
           </Stack>
         </Grid>
       </Grid>
-      <Typography
-        variant="subtitle1"
-        sx={{ textTransform: "uppercase", marginBottom: 3, marginTop: 6 }}
-      >
-        Latest messages
-      </Typography>
-      <MessagesTable initialData={initialTableData} processId={processId} />
+      {linkedMessages.length > 0 && (
+        <>
+          <Typography
+            variant="subtitle1"
+            sx={{ textTransform: "uppercase", marginBottom: 3, marginTop: 6 }}
+          >
+            Linked messages
+          </Typography>
+          <MessagesTable data={linkedMessages} />
+        </>
+      )}
     </main>
   )
 }

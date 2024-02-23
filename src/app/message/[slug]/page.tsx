@@ -22,7 +22,7 @@ export default async function MessagePageServer(props: MessagePageServerProps) {
     const dataResponse = await fetch(`https://arweave.net/${messageId}`)
     data = await dataResponse.text()
   } catch (error) {
-    console.log("📜 LOG > MessagePage > arweave.net error:", error)
+    console.log("Arweave.net error:", error)
   }
 
   return <MessagePage event={event} data={data} />

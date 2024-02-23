@@ -66,7 +66,10 @@ export function MessagePage(props: MessagePageProps) {
 
         setChartData(graph)
         setLinkedMessages(
-          messages.filter((x) => x.id !== messageId).map(normalizeAoEvent),
+          messages
+            .filter((x) => x.id !== messageId)
+            .map(normalizeAoEvent)
+            .sort((a, b) => b.created.getTime() - a.created.getTime()),
         )
         setLoading(false)
       })
@@ -183,10 +186,13 @@ export function MessagePage(props: MessagePageProps) {
         </Grid>
         {linkedMessages.length > 0 && (
           <>
-            <div className="text-main-dark-color uppercase mt-24 mb-4">
+            <Typography
+              variant="subtitle1"
+              sx={{ textTransform: "uppercase", marginBottom: 3, marginTop: 6 }}
+            >
               Linked messages
-            </div>
-            <MessagesTable initialData={linkedMessages} />
+            </Typography>
+            <MessagesTable data={linkedMessages} />
           </>
         )}
       </main>

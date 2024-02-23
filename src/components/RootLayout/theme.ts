@@ -40,13 +40,6 @@ export const theme = extendTheme({
     fontFamily: MainFontFF,
   },
   components: {
-    // MuiBackdrop: {
-    //   styleOverrides: {
-    //     root: {
-
-    //     },
-    //   },
-    // },
     MuiTooltip: {
       defaultProps: {
         placement: "top",
