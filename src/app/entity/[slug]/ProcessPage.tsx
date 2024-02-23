@@ -133,7 +133,7 @@ export function ProcessPage(props: ProcessPageProps) {
                   <Typography
                     key={key}
                     className={getColorFromText(key)}
-                    sx={{ padding: 0.5 }}
+                    sx={{ padding: 0.5, color: "black" }}
                     variant="caption"
                     fontFamily={MonoFontFF}
                   >
