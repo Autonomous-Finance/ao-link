@@ -1,6 +1,6 @@
 import { IdBlock } from "@/components/IdBlock"
 import EventsTable from "@/page-components/HomePage/EventsTable"
-import { getAoEventsForBlock } from "@/services/aoscan"
+import { getLatestAoEvents } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
 
 type BlockPageProps = {
@@ -12,7 +12,14 @@ export const dynamic = "force-dynamic"
 export default async function BlockPage(props: BlockPageProps) {
   const { slug: blockHeight } = props.params
 
-  const events = (await getAoEventsForBlock(blockHeight)) || []
+  const pageSize = 30
+
+  const events = await getLatestAoEvents(
+    pageSize,
+    undefined,
+    undefined,
+    Number(blockHeight),
+  )
   const initialTableData = events.map(normalizeAoEvent)
 
   return (
@@ -26,6 +33,7 @@ export default async function BlockPage(props: BlockPageProps) {
       <EventsTable
         initialData={initialTableData}
         blockHeight={parseInt(blockHeight)}
+        pageSize={pageSize}
       />
     </main>
   )

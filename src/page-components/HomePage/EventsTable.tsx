@@ -1,8 +1,14 @@
 "use client"
-import { MenuItem, Select, Stack, Typography } from "@mui/material"
+import {
+  CircularProgress,
+  MenuItem,
+  Select,
+  Stack,
+  Typography,
+} from "@mui/material"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { useUpdateSearch } from "@/hooks/useUpdateSearch"
@@ -30,30 +36,89 @@ type EventTablesProps = {
   initialData: NormalizedAoEvent[]
   blockHeight?: number
   ownerId?: string
-  pageLimit?: number
+  pageSize: number
 }
 
 const EventsTable = (props: EventTablesProps) => {
-  const { initialData, blockHeight, pageLimit, ownerId } = props
+  const { initialData, blockHeight, pageSize, ownerId } = props
 
   const searchParams = useSearchParams()
+  const loaderRef = useRef(null)
+
+  const listSizeRef = useRef(pageSize)
+
+  const [endReached, setEndReached] = useState(false)
+
+  useEffect(() => {
+    if (endReached) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0]
+        if (first.isIntersecting) {
+          console.log("Intersecting - Fetching more data")
+          getLatestAoEvents(
+            pageSize,
+            listSizeRef.current,
+            filter,
+            blockHeight,
+            ownerId,
+          ).then((events) => {
+            console.log(`Fetched another page of ${events.length} records`)
+            if (events.length === 0) {
+              console.log("No more records to fetch")
+              observer.disconnect()
+              setEndReached(true)
+              return
+            }
+
+            setData((prevData) => {
+              const newData = events.map(normalizeAoEvent)
+              const newList = [...prevData, ...newData]
+              listSizeRef.current = newList.length
+              return newList
+            })
+          })
+        } else {
+          console.log("Not intersecting")
+        }
+      },
+      { threshold: 1 },
+    )
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
 
   const [filter, setFilter] = useState<FilterOption>(
     (searchParams?.get("filter") as FilterOption) || "",
   )
 
   const [data, setData] = useState<NormalizedAoEvent[]>(initialData)
-
-  const [pauseStreaming, setPauseStreaming] = useState(false)
+  const [streamingPaused, setStreamingPaused] = useState(false)
 
   useEffect(() => {
     function handleVisibilityChange() {
       if (document.visibilityState === "visible") {
         console.log("Resuming realtime streaming")
-        setPauseStreaming(false)
+        getLatestAoEvents(
+          listSizeRef.current,
+          0,
+          filter,
+          blockHeight,
+          ownerId,
+        ).then((events) => {
+          console.log(
+            `Fetched ${events.length} records, listSize=${listSizeRef.current}`,
+          )
+          setData(events.map(normalizeAoEvent))
+          setStreamingPaused(false)
+        })
       } else {
         console.log("Pausing realtime streaming")
-        setPauseStreaming(true)
+        setStreamingPaused(true)
       }
     }
 
@@ -65,15 +130,7 @@ const EventsTable = (props: EventTablesProps) => {
   }, [])
 
   useEffect(() => {
-    if (pauseStreaming) return
-    console.log("Fetching latest data")
-    getLatestAoEvents(pageLimit, filter).then((events) => {
-      setData(events.map(normalizeAoEvent))
-    })
-  }, [pauseStreaming, pageLimit, filter])
-
-  useEffect(() => {
-    if (pauseStreaming) return
+    if (streamingPaused) return
 
     const unsubscribe = subscribeToEvents((event: AoEvent) => {
       if (blockHeight && event.height !== blockHeight) return
@@ -85,20 +142,20 @@ const EventsTable = (props: EventTablesProps) => {
         return
       }
 
-      console.log("📜 LOG > subscribe > event:", event)
+      console.log("New realtime event", event.id)
       setData((prevData) => {
         const parsed = normalizeAoEvent(event)
-
-        if (pageLimit === undefined) {
-          return [parsed, ...prevData]
-        }
-
-        return [parsed, ...prevData.slice(0, pageLimit - 1)]
+        listSizeRef.current = prevData.length + 1
+        return [parsed, ...prevData]
       })
     })
+    console.log("Subscribed to realtime updates")
 
-    return unsubscribe
-  }, [pauseStreaming, blockHeight, pageLimit, ownerId, filter])
+    return function cleanup() {
+      console.log("Unsubscribed from realtime updates")
+      unsubscribe()
+    }
+  }, [streamingPaused, blockHeight, pageSize, ownerId, filter])
 
   const router = useRouter()
   const updateSearch = useUpdateSearch()
@@ -226,6 +283,23 @@ const EventsTable = (props: EventTablesProps) => {
               ))}
             </tbody>
           </table>
+          <Stack
+            marginY={2}
+            marginX={1}
+            ref={loaderRef}
+            sx={{ width: "100%" }}
+            direction="row"
+            gap={1}
+            alignItems="center"
+            // justifyContent="center"
+          >
+            {!endReached && <CircularProgress size={12} color="primary" />}
+            <Typography variant="body2" color="text.secondary">
+              {endReached
+                ? `Total rows: ${data.length}`
+                : "Loading more records..."}
+            </Typography>
+          </Stack>
         </div>
       ) : null}
     </Stack>

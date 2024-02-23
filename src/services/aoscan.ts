@@ -14,8 +14,11 @@ export interface AoEvent {
 export const targetEmptyValue = "                                           "
 
 export async function getLatestAoEvents(
-  pageLimit: number = 1000,
+  limit = 1000,
+  skip = 0,
   filter?: FilterOption,
+  blockHeight?: number,
+  ownerId?: string,
 ): Promise<AoEvent[]> {
   try {
     let supabaseRq
@@ -31,7 +34,15 @@ export async function getLatestAoEvents(
       supabaseRq = supabaseRq.neq("target", targetEmptyValue)
     }
 
-    supabaseRq = supabaseRq.range(0, pageLimit - 1).returns<AoEvent[]>()
+    if (blockHeight) {
+      supabaseRq.eq("height", blockHeight)
+    }
+
+    if (ownerId) {
+      supabaseRq.eq("owner_address", ownerId)
+    }
+
+    supabaseRq = supabaseRq.range(skip, skip + limit - 1).returns<AoEvent[]>()
 
     const { data } = await supabaseRq
 
@@ -40,57 +51,6 @@ export async function getLatestAoEvents(
     return data
   } catch (error) {
     return []
-  }
-}
-
-export async function getAoEventsForBlock(
-  blockHeight: string,
-): Promise<AoEvent[] | null> {
-  try {
-    let supabaseRq
-
-    supabaseRq = supabase
-      .from("ao_events")
-      .select("owner,id,tags_flat,target,owner_address,height,created_at")
-      .order("created_at", { ascending: false })
-      .eq("height", blockHeight)
-
-    const { data } = await supabaseRq
-    if (data) {
-      return data as AoEvent[]
-    }
-
-    return null
-  } catch (error) {
-    return null
-  }
-}
-
-export async function getAoEventsForOwner(
-  ownerId: string,
-  limit?: number,
-): Promise<AoEvent[] | null> {
-  try {
-    let supabaseRq
-
-    supabaseRq = supabase
-      .from("ao_events")
-      .select("owner,id,tags_flat,target,owner_address,height,created_at")
-      .order("created_at", { ascending: false })
-      .eq("owner_address", ownerId)
-
-    if (limit) {
-      supabaseRq = supabaseRq.range(0, limit - 1)
-    }
-
-    const { data } = await supabaseRq
-    if (data) {
-      return data as AoEvent[]
-    }
-
-    return null
-  } catch (error) {
-    return null
   }
 }
 

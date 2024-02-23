@@ -1,6 +1,6 @@
 import { IdBlock } from "@/components/IdBlock"
 import EventsTable from "@/page-components/HomePage/EventsTable"
-import { getAoEventsForOwner } from "@/services/aoscan"
+import { getLatestAoEvents } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
 
 type OwnerPageProps = {
@@ -12,10 +12,16 @@ export const dynamic = "force-dynamic"
 export default async function OwnerPage(props: OwnerPageProps) {
   const { slug: ownerId } = props.params
 
-  const events = (await getAoEventsForOwner(ownerId)) || []
-  const initialTableData = events.map(normalizeAoEvent)
+  const pageSize = 30
 
-  // const pageLimit = 10
+  const events = await getLatestAoEvents(
+    pageSize,
+    undefined,
+    undefined,
+    undefined,
+    ownerId,
+  )
+  const initialTableData = events.map(normalizeAoEvent)
 
   return (
     <main className="min-h-screen mb-6">
@@ -27,8 +33,7 @@ export default async function OwnerPage(props: OwnerPageProps) {
 
       <EventsTable
         initialData={initialTableData}
-        // initialData={initialTableData.slice(0, pageLimit)}
-        // pageLimit={pageLimit}
+        pageSize={pageSize}
         ownerId={ownerId}
       />
     </main>

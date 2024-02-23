@@ -24,11 +24,11 @@ type HomePageProps = {
 export default async function HomePage(props: HomePageProps) {
   const { searchParams = {} } = props
   const { filter } = searchParams
-  const pageLimit = 30
+  const pageSize = 30
 
   const [events, messages, totalMessages, modules, users, processes] =
     await Promise.all([
-      getLatestAoEvents(pageLimit, filter),
+      getLatestAoEvents(pageSize, 0, filter),
       getMessageStats(),
       getTotalMessages(),
       getModuleStats(),
@@ -64,7 +64,7 @@ export default async function HomePage(props: HomePageProps) {
           <AreaChart data={modules} titleText="MODULES" />
         </div>
       </div>
-      <EventsTable initialData={initialTableData} pageLimit={pageLimit} />
+      <EventsTable initialData={initialTableData} pageSize={pageSize} />
     </main>
   )
 }
