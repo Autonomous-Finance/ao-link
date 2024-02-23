@@ -2,14 +2,14 @@
 
 import { supabase } from "@/lib/supabase"
 import {
-  HighchartAreaData,
+  HighchartAreaDataServer,
   MessageStatistic,
   ModuleStatistic,
   ProcessStatistic,
   UserStatistic,
 } from "@/types"
 
-export async function getMessageStats(): Promise<HighchartAreaData[]> {
+export async function getMessageStats(): Promise<HighchartAreaDataServer[]> {
   try {
     const { data } = await supabase
       .from("ao_metrics_messages")
@@ -19,9 +19,7 @@ export async function getMessageStats(): Promise<HighchartAreaData[]> {
       .returns<MessageStatistic[]>()
 
     if (data) {
-      return data
-        .reverse()
-        .map((x) => [new Date(x.created_date).getTime(), x.num_messages])
+      return data.reverse().map((x) => [x.created_date, x.num_messages])
     }
 
     return []
@@ -50,7 +48,7 @@ export async function getTotalMessages(): Promise<number> {
   }
 }
 
-export async function getModuleStats(): Promise<HighchartAreaData[]> {
+export async function getModuleStats(): Promise<HighchartAreaDataServer[]> {
   try {
     const { data } = await supabase
       .from("ao_metrics_modules")
@@ -60,9 +58,7 @@ export async function getModuleStats(): Promise<HighchartAreaData[]> {
       .returns<ModuleStatistic[]>()
 
     if (data) {
-      return data
-        .reverse()
-        .map((x) => [new Date(x.created_date).getTime(), x.modules_running])
+      return data.reverse().map((x) => [x.created_date, x.modules_running])
     }
 
     return []
@@ -72,7 +68,7 @@ export async function getModuleStats(): Promise<HighchartAreaData[]> {
   }
 }
 
-export async function getUserStats(): Promise<HighchartAreaData[]> {
+export async function getUserStats(): Promise<HighchartAreaDataServer[]> {
   try {
     const { data } = await supabase
       .from("ao_metrics_users")
@@ -82,9 +78,7 @@ export async function getUserStats(): Promise<HighchartAreaData[]> {
       .returns<UserStatistic[]>()
 
     if (data) {
-      return data
-        .reverse()
-        .map((x) => [new Date(x.created_date).getTime(), x.users])
+      return data.reverse().map((x) => [x.created_date, x.users])
     }
 
     return []
@@ -94,7 +88,7 @@ export async function getUserStats(): Promise<HighchartAreaData[]> {
   }
 }
 
-export async function getProcessStats(): Promise<HighchartAreaData[]> {
+export async function getProcessStats(): Promise<HighchartAreaDataServer[]> {
   try {
     const { data } = await supabase
       .from("ao_metrics_processes ")
@@ -104,9 +98,7 @@ export async function getProcessStats(): Promise<HighchartAreaData[]> {
       .returns<ProcessStatistic[]>()
 
     if (data) {
-      return data
-        .reverse()
-        .map((x) => [new Date(x.created_date).getTime(), x.processes])
+      return data.reverse().map((x) => [x.created_date, x.processes])
     }
 
     return []

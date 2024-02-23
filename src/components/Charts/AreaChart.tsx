@@ -2,12 +2,14 @@
 
 import { createOptionsForStat } from "@/components/Charts/defaultOptions"
 
-import { HighchartAreaData } from "@/types"
+import { HighchartAreaDataServer } from "@/types"
+
+import { formatAbsString } from "@/utils/date-utils"
 
 import { Highchart, HighchartOptions } from "./Highchart"
 
 type AreaChartProps = {
-  data: HighchartAreaData[]
+  data: HighchartAreaDataServer[]
   titleText: string
   overrideValue?: number
 }
@@ -21,7 +23,7 @@ export const AreaChart = ({
     titleText,
     150,
     undefined,
-    data,
+    data.map(([date, value]) => [formatAbsString(date), value]),
     overrideValue,
   )
 

@@ -25,6 +25,7 @@ export type ProcessStatistic = {
   pct_change: number
 }
 
+export type HighchartAreaDataServer = [string, number]
 export type HighchartAreaData = [number, number]
 
 export type FilterOption = "" | "message" | "process"
