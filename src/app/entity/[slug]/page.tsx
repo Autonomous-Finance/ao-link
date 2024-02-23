@@ -48,7 +48,7 @@ export default async function EntityPageServer(props: EntityPageServerProps) {
     return (
       <main className="min-h-screen mb-6">
         <div className="flex gap-2 items-center text-sm mt-12 mb-11">
-          <p className="text-[#9EA2AA] ">OWNER</p>
+          <p className="text-[#9EA2AA] ">USER</p>
           <p className="font-bold">/</p>
           <IdBlock label={ownerId} />
         </div>
