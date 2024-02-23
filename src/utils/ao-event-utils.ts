@@ -19,7 +19,8 @@ export function normalizeAoEvent(event: AoEvent): NormalizedAoEvent {
   //
   const type = Type as NormalizedAoEvent["type"]
   const blockHeight = height
-  const from = owner_address
+  const forwardedFor = tags_flat["Forwarded-For"]
+  const from = forwardedFor || owner_address
   const schedulerId = Scheduler
   const action = Action
   const created = parseUtcString(created_at)
