@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import React, { type ChangeEvent, useState } from "react"
 
-import { getAoEventById, getAoEventsForOwner } from "@/services/aoscan"
+import { getAoEventById, getLatestAoEvents } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
 import { TYPE_COLOR_MAP, TYPE_ICON_MAP } from "@/utils/data-utils"
 
@@ -17,7 +17,7 @@ type Result = {
 async function findByText(text: string): Promise<Result[]> {
   const [event, ownerEvents] = await Promise.all([
     getAoEventById(text),
-    getAoEventsForOwner(text, 1),
+    getLatestAoEvents(1, 0, undefined, undefined, text),
   ])
 
   const results = []
