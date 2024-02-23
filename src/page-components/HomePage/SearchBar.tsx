@@ -153,7 +153,16 @@ const SearchBar = () => {
           </ul>
         </div>
       </div>
-      <Backdrop open={isInputFocused} />
+      <Backdrop
+        open={isInputFocused}
+        sx={{
+          zIndex: 10,
+          backdropFilter: "blur(4px)",
+          'html[data-mui-color-scheme="dark"] &': {
+            backgroundColor: "rgba(255, 255, 255, 0.15)",
+          },
+        }}
+      />
     </div>
   )
 }
