@@ -74,6 +74,7 @@ const Header = () => {
               </MuiLink>
             </Stack>
             <IconButton
+              size="small"
               onClick={() => {
                 const nextMode = mode === "dark" ? "light" : "dark"
                 setMode(nextMode)

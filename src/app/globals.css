@@ -19,14 +19,6 @@ html[data-mui-color-scheme="dark"] :root {
   @apply hidden;
 }
 
-/* TODO */
-.nav-bar-button {
-  color: #000;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
-
 .separator {
   position: absolute;
   top: 50%;

@@ -42,7 +42,7 @@ export function ComputeResult(props: ComputeResultProps) {
           ) {
             setContent(json.Output.data.output)
           } else {
-            setContent(json.Output.data)
+            setContent(JSON.stringify(json.Output.data, null, 2))
           }
         } else {
           setContent(JSON.stringify(json.Output, null, 2))
