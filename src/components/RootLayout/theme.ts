@@ -10,7 +10,7 @@ export const theme = extendTheme({
           main: "rgb(220,220,220)",
         },
         secondary: {
-          main: "rgb(84, 91, 255)",
+          main: "rgb(190,190,190)",
         },
         background: {
           paper: "#252424",
@@ -21,10 +21,10 @@ export const theme = extendTheme({
     light: {
       palette: {
         primary: {
-          main: "#E7E7E7",
+          main: "rgb(180, 180, 180)",
         },
         secondary: {
-          main: "rgb(226, 240, 220)",
+          main: "rgb(230, 230, 230)",
         },
         background: {
           default: "rgb(255,255,255)",

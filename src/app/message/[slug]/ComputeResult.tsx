@@ -29,9 +29,27 @@ export function ComputeResult(props: ComputeResultProps) {
         `https://cu.ao-testnet.xyz/result/${messageId}?process-id=${processId}`,
       )
       const json = await result.json()
-      if (!("Output" in json)) throw new Error(json.error)
 
-      setContent(json.Output.data.output)
+      if ("error" in json) {
+        throw new Error(json.error)
+      }
+
+      if ("Output" in json) {
+        if ("data" in json.Output) {
+          if (
+            typeof json.Output.data === "object" &&
+            "output" in json.Output.data
+          ) {
+            setContent(json.Output.data.output)
+          } else {
+            setContent(json.Output.data)
+          }
+        } else {
+          setContent(JSON.stringify(json.Output, null, 2))
+        }
+      } else {
+        setContent(JSON.stringify(json, null, 2))
+      }
     } catch (error) {
       setContent(`Error computing result: ${String(error)}`)
     }
@@ -49,7 +67,7 @@ export function ComputeResult(props: ComputeResultProps) {
         <Button
           size="small"
           sx={{
-            bgcolor: "var(--mui-palette-primary-main) !important",
+            bgcolor: "var(--mui-palette-secondary-main) !important",
             height: "fit-content",
           }}
           variant="contained"
@@ -57,7 +75,7 @@ export function ComputeResult(props: ComputeResultProps) {
           disabled={loading}
           endIcon={
             loading ? (
-              <CircularProgress size={12} sx={{ color: "inherit" }} />
+              <CircularProgress size={12} color="inherit" />
             ) : (
               <Asterisk width={12} height={12} weight="bold" />
             )
