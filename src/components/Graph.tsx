@@ -3,9 +3,7 @@
 "use client"
 import * as d3 from "d3"
 import { type Simulation, type SimulationNodeDatum } from "d3-force"
-import React, { useEffect, useState, useRef } from "react"
-
-import { supabase } from "@/lib/supabase"
+import React, { memo, useEffect, useRef } from "react"
 
 interface Link {
   source: { x: number; y: number }
@@ -53,12 +51,7 @@ const drag = (simulation: Simulation<CustomNode, undefined>) => {
     .on("end", dragended)
 }
 
-interface GraphProps {
-  messageId: string // Specify that messageId is a string
-  isProcess?: boolean
-}
-
-interface ChartDataItem {
+export interface ChartDataItem {
   source: string
   target: string
   type: string
@@ -76,36 +69,12 @@ interface CustomLink extends SimulationNodeDatum {
   action: string
 }
 
-export const Graph: React.FC<GraphProps> = ({
-  messageId,
-  isProcess = false,
-}) => {
-  const [chartData, setChartData] = useState<ChartDataItem[]>([])
+interface GraphProps {
+  data: ChartDataItem[]
+}
 
-  // Function to call the Supabase RPC
-  const fetchChartData = async () => {
-    try {
-      const { data, error } = await supabase.rpc("get_message_network", {
-        p_id: messageId,
-        is_process: isProcess,
-      })
-
-      if (error) {
-        console.error("Error calling Supabase RPC:", error.message)
-        return
-      }
-
-      // Update the chartData state with the data received from the RPC call
-      setChartData(data)
-    } catch (error) {
-      console.error("Error fetching chart data:", error)
-    }
-  }
-
-  // useEffect to call the RPC when the component mounts
-  useEffect(() => {
-    fetchChartData()
-  }, [])
+function BaseGraph(props: GraphProps) {
+  const { data: chartData } = props
 
   const svgRef = useRef(null)
 
@@ -269,3 +238,5 @@ export const Graph: React.FC<GraphProps> = ({
 
   return <svg ref={svgRef}></svg>
 }
+
+export const Graph = memo(BaseGraph)

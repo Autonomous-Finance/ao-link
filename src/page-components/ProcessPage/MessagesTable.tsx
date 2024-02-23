@@ -21,7 +21,7 @@ import { IdBlock } from "../../components/IdBlock"
 
 type MessagesTableProps = {
   initialData: NormalizedAoEvent[]
-  processId: string
+  processId?: string
 }
 
 const MessagesTable = (props: MessagesTableProps) => {
@@ -30,6 +30,7 @@ const MessagesTable = (props: MessagesTableProps) => {
   const [data, setData] = useState<NormalizedAoEvent[]>(initialData)
 
   useEffect(() => {
+    if (!processId) return
     const unsubscribe = subscribeToEvents((event: AoEvent) => {
       if (event.target !== processId) return
       console.log("📜 LOG > subscribe > event:", event)
@@ -40,7 +41,7 @@ const MessagesTable = (props: MessagesTableProps) => {
     })
 
     return unsubscribe
-  }, [])
+  }, [processId])
 
   const router = useRouter()
 
