@@ -23,4 +23,5 @@ export const TYPE_COLOR_MAP: Record<string, string> = {
   Message: "bg-[#E2F0DC]",
   Owner: "bg-[#FFADAD]",
   Block: "bg-[#FEEEE5]",
+  Entity: "bg-[#9EA2AA]",
 }

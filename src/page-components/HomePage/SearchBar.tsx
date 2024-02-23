@@ -9,12 +9,16 @@ import { getAoEventById, getLatestAoEvents } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
 import { TYPE_COLOR_MAP, TYPE_ICON_MAP } from "@/utils/data-utils"
 
+type ResultType = "Message" | "Entity" | "Block"
+
 type Result = {
   id: string
-  type: "Message" | "Process" | "Block" | "Owner"
+  type: ResultType
 }
 
 async function findByText(text: string): Promise<Result[]> {
+  if (!text || !text.trim()) return Promise.resolve([])
+
   const [event, ownerEvents] = await Promise.all([
     getAoEventById(text),
     getLatestAoEvents(1, 0, undefined, undefined, text),
@@ -23,13 +27,19 @@ async function findByText(text: string): Promise<Result[]> {
   const results = []
 
   if (event) {
-    results.push(normalizeAoEvent(event))
+    results.push({
+      id: event.id,
+      type:
+        normalizeAoEvent(event).type === "Message"
+          ? "Message"
+          : ("Entity" as ResultType),
+    })
   }
 
   if (ownerEvents && ownerEvents.length > 0) {
     results.push({
       id: text,
-      type: "Owner" as "Owner",
+      type: "Entity" as ResultType,
     })
   }
 
@@ -90,7 +100,7 @@ const SearchBar = () => {
       <div className="dropdown relative w-full">
         <input
           role="button"
-          placeholder="Search by Message ID / Process ID / Owner ID / Block Height"
+          placeholder="Search by Message ID / Process ID / User ID / Block Height"
           className="bg-background border border-[#222326] w-full py-[28px] px-[32px] outline-none focus:border-transparent z-50 relative"
           value={inputValue}
           onChange={handleInputChange}
