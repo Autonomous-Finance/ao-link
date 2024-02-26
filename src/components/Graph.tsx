@@ -73,10 +73,11 @@ interface CustomLink extends SimulationNodeDatum {
 
 interface GraphProps {
   data: ChartDataItem[]
+  onLinkClick: (from: string, to: string) => void
 }
 
 function BaseGraph(props: GraphProps) {
-  const { data: chartData } = props
+  const { data: chartData, onLinkClick } = props
 
   const svgRef = useRef(null)
   const router = useRouter()
@@ -169,10 +170,12 @@ function BaseGraph(props: GraphProps) {
         "marker-end",
         (d) => `url(${new URL(`#arrow-${d.type}`, location.href)})`,
       )
-      .on("mouseclick", function (event, d) {
-        svg
-          .select(`#${CSS.escape(`#link-text-${d.source.id}-${d.target.id}`)}`)
-          .attr("visibility", "visible")
+      .style("cursor", "pointer")
+      .on("click", function (event, d) {
+        onLinkClick(d.source.id, d.target.id)
+        // svg
+        //   .select(`#${CSS.escape(`#link-text-${d.source.id}-${d.target.id}`)}`)
+        //   .attr("visibility", "visible")
       })
       .on("mouseout", function (event, d) {
         svg

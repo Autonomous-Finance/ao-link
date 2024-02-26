@@ -1,8 +1,15 @@
 "use client"
 
-import { CircularProgress, Grid, Paper, Stack, Typography } from "@mui/material"
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { ChartDataItem, Graph } from "@/components/Graph"
 import { IdBlock } from "@/components/IdBlock"
@@ -75,6 +82,15 @@ export function MessagePage(props: MessagePageProps) {
       })
   }, [messageId])
 
+  const [tableFilter, setTableFilter] = useState<{
+    from: string
+    to: string
+  } | null>(null)
+
+  const handleLinkClick = useCallback((from: string, to: string) => {
+    setTableFilter({ from, to })
+  }, [])
+
   return (
     <>
       <main className="min-h-screen mb-6">
@@ -96,7 +112,7 @@ export function MessagePage(props: MessagePageProps) {
                     <CircularProgress size={24} color="primary" />
                   </Stack>
                 ) : (
-                  <Graph data={graphData} />
+                  <Graph data={graphData} onLinkClick={handleLinkClick} />
                 )}
               </Paper>
               <SectionInfoWithChip title="Type" value={type} />
@@ -198,13 +214,32 @@ export function MessagePage(props: MessagePageProps) {
         </Grid>
         {linkedMessages.length > 0 && (
           <>
-            <Typography
-              variant="subtitle1"
-              sx={{ textTransform: "uppercase", marginBottom: 3, marginTop: 6 }}
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
             >
-              Linked messages
-            </Typography>
-            <MessagesTable data={linkedMessages} />
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  textTransform: "uppercase",
+                  marginBottom: 3,
+                  marginTop: 6,
+                }}
+              >
+                Linked messages
+              </Typography>
+              {tableFilter && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setTableFilter(null)}
+                >
+                  Clear filter
+                </Button>
+              )}
+            </Stack>
+            <MessagesTable data={linkedMessages} tableFilter={tableFilter} />
           </>
         )}
       </main>

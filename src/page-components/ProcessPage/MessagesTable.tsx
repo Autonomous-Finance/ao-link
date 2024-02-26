@@ -1,7 +1,7 @@
 "use client"
 import { CircularProgress, Stack, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 
 import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { TypeBadge } from "@/components/TypeBadge"
@@ -17,12 +17,16 @@ import { IdBlock } from "../../components/IdBlock"
 
 type MessagesTableProps = {
   data: NormalizedAoEvent[]
+  tableFilter: {
+    from: string
+    to: string
+  } | null
 }
 
 const pageSize = 30
 
 const MessagesTable = (props: MessagesTableProps) => {
-  const { data } = props
+  const { data, tableFilter } = props
 
   const router = useRouter()
   const loaderRef = useRef(null)
@@ -58,6 +62,16 @@ const MessagesTable = (props: MessagesTableProps) => {
     return () => observer.disconnect()
   }, [])
 
+  const filteredData = useMemo(() => {
+    if (tableFilter) {
+      return data.filter(
+        (item) => item.from === tableFilter.from && item.to === tableFilter.to,
+      )
+    } else {
+      return data
+    }
+  }, [data, tableFilter])
+
   return (
     <>
       {data.length ? (
@@ -75,7 +89,7 @@ const MessagesTable = (props: MessagesTableProps) => {
               </tr>
             </thead>
             <tbody>
-              {data.slice(0, listSize).map((item) => (
+              {filteredData.slice(0, listSize).map((item) => (
                 <tr
                   className="table-row cursor-pointer"
                   key={item.id}
