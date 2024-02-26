@@ -99,9 +99,9 @@ function BaseGraph(props: GraphProps) {
     const nodes: CustomNode[] = Array.from(
       new Set(chartData.flatMap((l) => [l.source_id, l.target_id])),
       id => {
-        // Find the original object to get the source/target labels
+        // lookup original node and take the id column, which is actualy the label but is still named id for backwards compat in the api
         const original = chartData.find(l => l.source_id === id || l.target_id === id);
-        const label = original ? (original.source_id === id ? original.source : original.target) : ''; // Use the source or target as the label based on the id
+        const label = original ? (original.source_id === id ? original.source : original.target) : '';
         return { id, label };
       }
     )
