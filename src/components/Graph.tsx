@@ -59,8 +59,8 @@ export interface ChartDataItem {
 }
 
 interface CustomNode extends SimulationNodeDatum {
-  id: string;
-  label: string;
+  id: string
+  label: string
 }
 
 interface CustomLink extends SimulationNodeDatum {
@@ -78,6 +78,7 @@ function BaseGraph(props: GraphProps) {
   const { data: chartData } = props
 
   const svgRef = useRef(null)
+  const router = useRouter()
 
   useEffect(() => {
     if (!chartData || chartData.length === 0) return
@@ -98,12 +99,18 @@ function BaseGraph(props: GraphProps) {
     const types = Array.from(new Set(chartData.map((d) => d.type)))
     const nodes: CustomNode[] = Array.from(
       new Set(chartData.flatMap((l) => [l.source_id, l.target_id])),
-      id => {
+      (id) => {
         // lookup original node and take the id column, which is actualy the label but is still named id for backwards compat in the api
-        const original = chartData.find(l => l.source_id === id || l.target_id === id);
-        const label = original ? (original.source_id === id ? original.source : original.target) : '';
-        return { id, label };
-      }
+        const original = chartData.find(
+          (l) => l.source_id === id || l.target_id === id,
+        )
+        const label = original
+          ? original.source_id === id
+            ? original.source
+            : original.target
+          : ""
+        return { id, label }
+      },
     )
     const links: CustomLink[] = chartData.map((d) => ({
       ...d,
@@ -197,7 +204,7 @@ function BaseGraph(props: GraphProps) {
       .data(nodes)
       .join("g")
       .style("cursor", "pointer")
-      .call(drag(simulation));
+      .call(drag(simulation))
 
     node
       .append("circle")
@@ -227,9 +234,9 @@ function BaseGraph(props: GraphProps) {
       .on("mouseout", function () {
         d3.select(this).select("text").style("visibility", "hidden")
       })
-      .on("click", function(event, d) {
-        window.location.href = `/entity/${d.id}`;
-      });
+      .on("click", function (event, d) {
+        router.push(`/entity/${d.id}`)
+      })
 
     simulation.on("tick", () => {
       link.attr("d", linkArc)
@@ -242,6 +249,7 @@ function BaseGraph(props: GraphProps) {
     // invalidation.then(() => simulation.stop());
     // Clean up the effect
     return () => {
+      svg.remove()
       // Stop the simulation or any intervals/timers here
     }
   }, [chartData]) // Re-run the effect when 'chartData' data changes
