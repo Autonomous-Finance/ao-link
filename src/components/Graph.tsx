@@ -95,7 +95,6 @@ function BaseGraph(props: GraphProps) {
         "max-width: 100%; height: auto; font: 12px sans-serif; background: transparent;",
       )
 
-    console.log(chartData)
     const types = Array.from(new Set(chartData.map((d) => d.type)))
     const nodes: CustomNode[] = Array.from(
       new Set(chartData.flatMap((l) => [l.source_id, l.target_id])),
@@ -106,7 +105,6 @@ function BaseGraph(props: GraphProps) {
         return { id, label };
       }
     )
-    console.log('n', nodes)
     const links: CustomLink[] = chartData.map((d) => ({
       ...d,
       source: nodes.find((n) => n.id === d.source_id),
