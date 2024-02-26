@@ -65,7 +65,9 @@ const MessagesTable = (props: MessagesTableProps) => {
   const filteredData = useMemo(() => {
     if (tableFilter) {
       return data.filter(
-        (item) => item.from === tableFilter.from && item.to === tableFilter.to,
+        (item) =>
+          item.from.toLowerCase() === tableFilter.from.toLowerCase() &&
+          item.to.toLowerCase() === tableFilter.to.toLowerCase(),
       )
     } else {
       return data

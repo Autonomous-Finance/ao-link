@@ -88,6 +88,7 @@ export function MessagePage(props: MessagePageProps) {
   } | null>(null)
 
   const handleLinkClick = useCallback((from: string, to: string) => {
+    console.log("📜 LOG > handleLinkClick > { from, to }:", { from, to })
     setTableFilter({ from, to })
   }, [])
 
