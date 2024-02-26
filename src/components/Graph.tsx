@@ -59,7 +59,8 @@ export interface ChartDataItem {
 }
 
 interface CustomNode extends SimulationNodeDatum {
-  id: string
+  id: string;
+  label: string;
 }
 
 interface CustomLink extends SimulationNodeDatum {
@@ -94,15 +95,22 @@ function BaseGraph(props: GraphProps) {
         "max-width: 100%; height: auto; font: 12px sans-serif; background: transparent;",
       )
 
+    console.log(chartData)
     const types = Array.from(new Set(chartData.map((d) => d.type)))
     const nodes: CustomNode[] = Array.from(
-      new Set(chartData.flatMap((l) => [l.source, l.target])),
-      (id) => ({ id }),
+      new Set(chartData.flatMap((l) => [l.source_id, l.target_id])),
+      id => {
+        // Find the original object to get the source/target labels
+        const original = chartData.find(l => l.source_id === id || l.target_id === id);
+        const label = original ? (original.source_id === id ? original.source : original.target) : ''; // Use the source or target as the label based on the id
+        return { id, label };
+      }
     )
+    console.log('n', nodes)
     const links: CustomLink[] = chartData.map((d) => ({
       ...d,
-      source: nodes.find((n) => n.id === d.source),
-      target: nodes.find((n) => n.id === d.target),
+      source: nodes.find((n) => n.id === d.source_id),
+      target: nodes.find((n) => n.id === d.target_id),
     }))
     const myColors = ["#6BB24C"]
     const color = d3.scaleOrdinal(types, myColors)
@@ -190,7 +198,8 @@ function BaseGraph(props: GraphProps) {
       .selectAll<SVGGElement, CustomNode>("g")
       .data(nodes)
       .join("g")
-      .call(drag(simulation))
+      .style("cursor", "pointer")
+      .call(drag(simulation));
 
     node
       .append("circle")
@@ -198,10 +207,10 @@ function BaseGraph(props: GraphProps) {
       .attr("stroke-width", 1.5)
       .attr("r", 8)
       .attr("fill", (d) => {
-        if (d.id === "This Process") return "#0046FF"
-        else if (d.id.startsWith("Process")) return "#596EA6"
-        else if (d.id === "User") return "#D52C2C"
-        else if (d.id.startsWith("User")) return "#6BB24C"
+        if (d.label === "This Process") return "#0046FF"
+        else if (d.label.startsWith("Process")) return "#596EA6"
+        else if (d.label === "User") return "#D52C2C"
+        else if (d.label.startsWith("User")) return "#6BB24C"
         else return color(d.type) // Default color assignment for other cases
       })
 
@@ -209,7 +218,7 @@ function BaseGraph(props: GraphProps) {
       .append("text")
       .attr("x", 10)
       .attr("y", "0.31em")
-      .text((d) => d.id)
+      .text((d) => d.label)
       .style("visibility", "hidden") // Initially hide the text
       .style("pointer-events", "none") // Ensure the text doesn't interfere with mouse events
 
@@ -220,6 +229,9 @@ function BaseGraph(props: GraphProps) {
       .on("mouseout", function () {
         d3.select(this).select("text").style("visibility", "hidden")
       })
+      .on("click", function(event, d) {
+        window.location.href = `/entity/${d.id}`;
+      });
 
     simulation.on("tick", () => {
       link.attr("d", linkArc)
