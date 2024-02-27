@@ -1,4 +1,4 @@
-import { Box, Container, Link, Stack } from "@mui/material"
+import { Box, Container, Link, Stack, Typography } from "@mui/material"
 import React from "react"
 
 import { PoweredBy } from "./PoweredBy"
@@ -23,22 +23,126 @@ export function Footer() {
         }}
       >
         <Stack justifyContent="space-between" direction="row">
-          <Link
-            href="https://6t4x4xx75j3ovjugzicw7wx7bogigt4sz3pnbh43dqdua6pa56wa.arweave.net/9Pl-Xv_qduqmhsoFb9r_C4yDT5LO3tCfmxwHQHng76w/#/spec"
-            // color="text.secondary"
-            sx={{
-              textTransform: "uppercase",
-              color: "#D4D5D9",
-              "&:hover": {
-                color: "#FFF",
-              },
-            }}
-            fontWeight={500}
-            underline="none"
-            variant="body2"
+          <Stack
+            direction="row"
+            sx={{ color: "#D4D5D9" }}
+            gap={1.5}
+            alignItems="center"
           >
-            SPEC
-          </Link>
+            <Link
+              href="/"
+              sx={{
+                "&:hover": {
+                  color: "#FFF",
+                },
+              }}
+              fontWeight={500}
+              underline="none"
+              variant="body2"
+            >
+              HOME
+            </Link>
+            <Typography
+              component="span"
+              sx={{ opacity: 0.4 }}
+              variant="caption"
+            >
+              /
+            </Typography>
+            <Link
+              href="https://6t4x4xx75j3ovjugzicw7wx7bogigt4sz3pnbh43dqdua6pa56wa.arweave.net/9Pl-Xv_qduqmhsoFb9r_C4yDT5LO3tCfmxwHQHng76w/#/spec"
+              sx={{
+                "&:hover": {
+                  color: "#FFF",
+                },
+              }}
+              fontWeight={500}
+              underline="none"
+              variant="body2"
+            >
+              SPEC
+            </Link>
+            <Typography
+              component="span"
+              sx={{ opacity: 0.4 }}
+              variant="caption"
+            >
+              /
+            </Typography>
+            <Link
+              href="https://github.com/permaweb/aos"
+              sx={{
+                "&:hover": {
+                  color: "#FFF",
+                },
+              }}
+              fontWeight={500}
+              underline="none"
+              variant="body2"
+            >
+              GITHUB
+            </Link>
+            <Typography
+              component="span"
+              sx={{ opacity: 0.4 }}
+              variant="caption"
+            >
+              /
+            </Typography>
+            <Link
+              href="http://arweave.net/9Pl-Xv_qduqmhsoFb9r_C4yDT5LO3tCfmxwHQHng76w/"
+              sx={{
+                "&:hover": {
+                  color: "#FFF",
+                },
+              }}
+              fontWeight={500}
+              underline="none"
+              variant="body2"
+            >
+              AO
+            </Link>
+            <Typography
+              component="span"
+              sx={{ opacity: 0.4 }}
+              variant="caption"
+            >
+              /
+            </Typography>
+            <Link
+              href="https://twitter.com/TheDataOS"
+              sx={{
+                "&:hover": {
+                  color: "#FFF",
+                },
+              }}
+              fontWeight={500}
+              underline="none"
+              variant="body2"
+            >
+              X
+            </Link>
+            <Typography
+              component="span"
+              sx={{ opacity: 0.4 }}
+              variant="caption"
+            >
+              /
+            </Typography>
+            <Link
+              href="https://stats.dataos.so/"
+              sx={{
+                "&:hover": {
+                  color: "#FFF",
+                },
+              }}
+              fontWeight={500}
+              underline="none"
+              variant="body2"
+            >
+              ARWEAVE STATS
+            </Link>
+          </Stack>
           <PoweredBy />
         </Stack>
       </Container>
