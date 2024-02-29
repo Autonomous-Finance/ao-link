@@ -24,7 +24,7 @@ import {
   normalizeAoEvent,
 } from "@/utils/ao-event-utils"
 
-import { truncateId } from "@/utils/data-utils"
+import { TYPE_PATH_MAP, truncateId } from "@/utils/data-utils"
 
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
 
@@ -228,11 +228,7 @@ const EventsTable = (props: EventTablesProps) => {
                   className="table-row cursor-pointer"
                   key={item.id}
                   onClick={() => {
-                    router.push(
-                      item.type === "Message"
-                        ? `/message/${item.id}`
-                        : `/entity/${item.id}`,
-                    )
+                    router.push(`/${TYPE_PATH_MAP[item.type]}/${item.id}`)
                   }}
                 >
                   <td className="text-start p-2">
@@ -243,11 +239,7 @@ const EventsTable = (props: EventTablesProps) => {
                     <IdBlock
                       label={truncateId(item.id)}
                       value={item.id}
-                      href={
-                        item.type === "Message"
-                          ? `/message/${item.id}`
-                          : `/entity/${item.id}`
-                      }
+                      href={`/${TYPE_PATH_MAP[item.type]}/${item.id}`}
                     />
                   </td>
                   <td className="text-start p-2">

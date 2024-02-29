@@ -11,7 +11,7 @@ export function useUpdateSearch() {
     }
 
     const newValue = `${window.location.pathname}?${params.toString()}`
-    window.history.pushState({}, "", newValue)
+    window.history.replaceState({}, "", newValue)
   }, [])
 
   return updateSearch

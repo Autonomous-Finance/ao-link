@@ -7,7 +7,7 @@ import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { TypeBadge } from "@/components/TypeBadge"
 import { type NormalizedAoEvent } from "@/utils/ao-event-utils"
 
-import { truncateId } from "@/utils/data-utils"
+import { TYPE_PATH_MAP, truncateId } from "@/utils/data-utils"
 
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
 
@@ -96,11 +96,7 @@ const MessagesTable = (props: MessagesTableProps) => {
                   className="table-row cursor-pointer"
                   key={item.id}
                   onClick={() => {
-                    router.push(
-                      item.type === "Message"
-                        ? `/message/${item.id}`
-                        : `/entity/${item.id}`,
-                    )
+                    router.push(`/${TYPE_PATH_MAP[item.type]}/${item.id}`)
                   }}
                 >
                   <td className="text-start p-2">

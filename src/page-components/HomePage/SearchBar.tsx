@@ -8,8 +8,9 @@ import React, { type ChangeEvent, useState } from "react"
 import { TypeBadge } from "@/components/TypeBadge"
 import { getAoEventById, getLatestAoEvents } from "@/services/aoscan"
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
+import { TYPE_PATH_MAP } from "@/utils/data-utils"
 
-type ResultType = "Message" | "Entity" | "Block"
+type ResultType = "Message" | "Entity" | "Block" | "Checkpoint" | "Process"
 
 type Result = {
   id: string
@@ -29,10 +30,7 @@ async function findByText(text: string): Promise<Result[]> {
   if (event) {
     results.push({
       id: event.id,
-      type:
-        normalizeAoEvent(event).type === "Message"
-          ? "Message"
-          : ("Entity" as ResultType),
+      type: normalizeAoEvent(event).type,
     })
   }
 
@@ -137,7 +135,7 @@ const SearchBar = () => {
                 className="cursor-pointer p-[8px] flex justify-between"
               >
                 <Link
-                  href={`/${item.type.toLowerCase()}/${item.id}`}
+                  href={`/${TYPE_PATH_MAP[item.type]}/${item.id}`}
                   className="w-full"
                 >
                   <div className="flex justify-between w-full items-center">

@@ -4,7 +4,7 @@ import { parseUtcString } from "./date-utils"
 
 export type NormalizedAoEvent = {
   id: string
-  type: "Message" | "Process"
+  type: "Message" | "Process" | "Checkpoint"
   to: string
   from: string
   blockHeight: number
