@@ -6,6 +6,7 @@ import {
   Grid,
   Paper,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material"
 
@@ -127,16 +128,18 @@ export function MessagePage(props: MessagePageProps) {
                   />
                 }
               />
-              <SectionInfo
-                title="To"
-                value={
-                  <IdBlock
-                    label={truncateId(to)}
-                    value={to}
-                    href={`/entity/${to}`}
-                  />
-                }
-              />
+              {to && (
+                <SectionInfo
+                  title="To"
+                  value={
+                    <IdBlock
+                      label={truncateId(to)}
+                      value={to}
+                      href={`/entity/${to}`}
+                    />
+                  }
+                />
+              )}
               {pushedFor && (
                 <SectionInfo
                   title="Pushed for"
@@ -194,11 +197,22 @@ export function MessagePage(props: MessagePageProps) {
                 <Typography variant="subtitle2" color="text.secondary">
                   Data
                 </Typography>
-                <Paper sx={{ width: "100%", padding: 2 }}>
-                  <Typography variant="body2" fontFamily={MonoFontFF}>
-                    {data}
-                  </Typography>
-                </Paper>
+                <TextField
+                  sx={(theme) => ({
+                    bgcolor: "var(--mui-palette-background-paper)",
+                    "& textarea": {
+                      ...theme.typography.body2,
+                      fontFamily: MonoFontFF,
+                      resize: "both",
+                      minWidth: "100%",
+                      minHeight: 200,
+                    },
+                  })}
+                  rows={1}
+                  multiline
+                  variant="outlined"
+                  value={data}
+                />
               </Stack>
               <Stack gap={1} justifyContent="stretch">
                 <Typography variant="subtitle2" color="text.secondary">
