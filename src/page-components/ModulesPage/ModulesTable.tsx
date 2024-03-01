@@ -98,7 +98,7 @@ const ModulesTable = (props: ModulesTableProps) => {
     <Stack marginTop={5} gap={2}>
       <Stack direction="row" justifyContent="space-between">
         <Typography variant="subtitle1" sx={{ textTransform: "uppercase" }}>
-          Processes
+          Modules
         </Typography>
       </Stack>
       {data.length ? (

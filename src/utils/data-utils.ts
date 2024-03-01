@@ -13,9 +13,10 @@ export function hashString(str: string) {
   return hash
 }
 
-export const TYPE_ICON_MAP: Record<string, string> = {
+export const TYPE_ICON_MAP: Record<string, any> = {
   Process: "/process.svg",
   Message: "/message.svg",
+  Module: "/article.svg",
 }
 
 export const TYPE_COLOR_MAP: Record<string, string> = {
