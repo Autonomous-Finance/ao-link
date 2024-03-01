@@ -8,6 +8,7 @@ import {
   Button,
   Toolbar,
   useColorScheme,
+  Link as MuiLink,
 } from "@mui/material"
 import { Moon, Sun } from "@phosphor-icons/react"
 import Link from "next/link"
@@ -35,10 +36,40 @@ const Header = () => {
             alignItems="center"
             sx={{ width: "100%" }}
           >
-            <Stack direction="row" gap={2}>
+            <Stack direction="row" gap={2} alignItems="baseline">
               <Button component={Link} href="/">
                 <Logo color="var(--mui-palette-text-primary)" />
               </Button>
+              <MuiLink
+                component={Link}
+                href="/processes"
+                sx={{
+                  color: "#9EA2AA",
+                  "&:hover": {
+                    color: "var(--mui-palette-text-primary)",
+                  },
+                }}
+                fontWeight={500}
+                underline="none"
+                variant="body2"
+              >
+                PROCESSES
+              </MuiLink>
+              <MuiLink
+                component={Link}
+                href="/modules"
+                sx={{
+                  color: "#9EA2AA",
+                  "&:hover": {
+                    color: "var(--mui-palette-text-primary)",
+                  },
+                }}
+                fontWeight={500}
+                underline="none"
+                variant="body2"
+              >
+                MODULES
+              </MuiLink>
             </Stack>
             <IconButton
               size="small"
