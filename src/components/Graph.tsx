@@ -18,12 +18,20 @@ function linkArc(d: Link) {
     A${r},${r} 0 0,1 ${d.target.x},${d.target.y}`
 }
 
-const drag = (simulation: Simulation<CustomNode, undefined>) => {
+const drag = (
+  simulation: Simulation<CustomNode, undefined>,
+  largeGraph: boolean,
+) => {
   function dragstarted(
     event: d3.D3DragEvent<SVGGElement, CustomNode, CustomNode>,
     d: CustomNode,
   ) {
-    if (!event.active) simulation.alphaTarget(0.3).restart()
+    if (!event.active)
+      simulation
+        .alphaTarget(0.3)
+        .alphaDecay(largeGraph ? 1 : defaultAlphaDecay)
+        .restart()
+
     d.fx = d.x
     d.fy = d.y
   }
@@ -70,6 +78,8 @@ interface CustomLink extends SimulationNodeDatum {
   type: string
   action: string
 }
+
+const defaultAlphaDecay = 0.0228
 
 interface GraphProps {
   data: ChartDataItem[]
@@ -122,8 +132,11 @@ function BaseGraph(props: GraphProps) {
     const myColors = ["#6BB24C"]
     const color = d3.scaleOrdinal(types, myColors)
 
+    const largeGraph = nodes.length > 20
+
     const simulation = d3
       .forceSimulation<CustomNode>(nodes) // Ensure simulation is initialized with CustomNode type
+      .alphaDecay(largeGraph ? 0.5 : defaultAlphaDecay)
       .force(
         "link",
         d3
@@ -208,7 +221,7 @@ function BaseGraph(props: GraphProps) {
       .data(nodes)
       .join("g")
       .style("cursor", "pointer")
-      .call(drag(simulation))
+      .call(drag(simulation, largeGraph))
 
     node
       .append("circle")
