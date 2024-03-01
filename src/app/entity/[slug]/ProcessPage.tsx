@@ -17,7 +17,7 @@ import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import { supabase } from "@/lib/supabase"
 import MessagesTable from "@/page-components/ProcessPage/MessagesTable"
-import { AoEvent } from "@/services/aoscan"
+import { AoEvent, Process } from "@/services/aoscan"
 import {
   NormalizedAoEvent,
   normalizeAoEvent,
@@ -25,15 +25,16 @@ import {
 } from "@/utils/ao-event-utils"
 import { truncateId } from "@/utils/data-utils"
 import { formatRelative } from "@/utils/date-utils"
+import { formatNumber } from "@/utils/number-utils"
 import { getColorFromText } from "@/utils/tailwind-utils"
 
 type ProcessPageProps = {
   event: AoEvent
-  // messages: AoEvent[]
+  process: Process
 }
 
 export function ProcessPage(props: ProcessPageProps) {
-  const { event } = props
+  const { event, process } = props
 
   const normalizedEvent = normalizeAoEvent(event)
 
@@ -121,6 +122,16 @@ export function ProcessPage(props: ProcessPageProps) {
               }
             />
             <SectionInfo
+              title="Module"
+              value={
+                <IdBlock
+                  label={truncateId(process.module)}
+                  value={process.module}
+                  href={`/module/${process.module}`}
+                />
+              }
+            />
+            <SectionInfo
               title="Block Height"
               value={
                 <IdBlock
@@ -130,6 +141,10 @@ export function ProcessPage(props: ProcessPageProps) {
               }
             />
             <SectionInfo title="Created" value={formatRelative(created)} />
+            <SectionInfo
+              title="Incoming messages"
+              value={formatNumber(process.incoming_messages)}
+            />
           </Stack>
         </Grid>
         <Grid item xs={12} lg={6}>

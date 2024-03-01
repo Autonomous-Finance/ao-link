@@ -1,4 +1,4 @@
-import { Box, Container, Link, Stack, Typography } from "@mui/material"
+import { Box, Button, Container, Link, Stack, Typography } from "@mui/material"
 import React from "react"
 
 import { PoweredBy } from "./PoweredBy"
@@ -51,6 +51,7 @@ export function Footer() {
             </Typography>
             <Link
               href="https://gygbo2cdld7i3t624il5zxa3ezyv6sa2ikvhrlmabah2etw45wua.arweave.net/NgwXaENY_o3P2uIX3NwbJnFfSBpCqnitgAgPok7c7ag/#/spec"
+              target="_blank"
               sx={{
                 "&:hover": {
                   color: "#FFF",
@@ -71,6 +72,7 @@ export function Footer() {
             </Typography>
             <Link
               href="https://github.com/permaweb/aos"
+              target="_blank"
               sx={{
                 "&:hover": {
                   color: "#FFF",
@@ -91,6 +93,7 @@ export function Footer() {
             </Typography>
             <Link
               href="http://arweave.net/9Pl-Xv_qduqmhsoFb9r_C4yDT5LO3tCfmxwHQHng76w/"
+              target="_blank"
               sx={{
                 "&:hover": {
                   color: "#FFF",
@@ -111,6 +114,7 @@ export function Footer() {
             </Typography>
             <Link
               href="https://twitter.com/TheDataOS"
+              target="_blank"
               sx={{
                 "&:hover": {
                   color: "#FFF",
@@ -131,6 +135,7 @@ export function Footer() {
             </Typography>
             <Link
               href="https://stats.dataos.so/"
+              target="_blank"
               sx={{
                 "&:hover": {
                   color: "#FFF",
@@ -143,7 +148,14 @@ export function Footer() {
               ARWEAVE STATS
             </Link>
           </Stack>
-          <PoweredBy />
+          <Button
+            component={Link}
+            target="_blank"
+            href="https://dataos.so/"
+            sx={{ margin: -1 }}
+          >
+            <PoweredBy />
+          </Button>
         </Stack>
       </Container>
     </Box>

@@ -19,6 +19,7 @@ export const TYPE_ICON_MAP: Record<string, string> = {
 }
 
 export const TYPE_COLOR_MAP: Record<string, string> = {
+  Module: "bg-[#B8C3E050]",
   Checkpoint: "bg-[#B8C3E050]",
   Process: "bg-[#B8C3E0]",
   Message: "bg-[#E2F0DC]",
@@ -28,6 +29,7 @@ export const TYPE_COLOR_MAP: Record<string, string> = {
 }
 
 export const TYPE_PATH_MAP: Record<string, string> = {
+  Module: "module",
   Checkpoint: "message",
   Process: "entity",
   Message: "message",

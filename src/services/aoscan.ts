@@ -11,6 +11,23 @@ export interface AoEvent {
   created_at: string
 }
 
+export interface Process {
+  id: string
+  sdk: string
+  name: string
+  type: string
+  module: string
+  variant: string
+  app_name: string
+  scheduler: string
+  aos_version: string
+  content_type: string
+  data_protocol: string
+  incoming_messages: number
+  latest_message: string
+  created_at: string
+}
+
 export const targetEmptyValue = "                                           "
 
 export async function getLatestAoEvents(
@@ -108,4 +125,35 @@ export async function getAoEventById(id: string): Promise<AoEvent | null> {
   }
 
   return null
+}
+
+export async function getProcessById(id: string) {
+  const { data, error } = await supabase
+    .from("processes")
+    .select("*")
+    .eq("id", id)
+    .returns<Process[]>()
+
+  if (error || !data) {
+    console.error(error)
+    return null
+  }
+
+  return data[0]
+}
+
+export async function getProcesses(limit = 1000, skip = 0) {
+  const { data, error } = await supabase
+    .from("processes")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .range(skip, skip + limit - 1)
+    .returns<Process[]>()
+
+  if (error || !data) {
+    console.error(error)
+    return []
+  }
+
+  return data
 }

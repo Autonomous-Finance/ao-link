@@ -1,7 +1,11 @@
 import { IdBlock } from "@/components/IdBlock"
 import { supabase } from "@/lib/supabase"
 import EventsTable from "@/page-components/HomePage/EventsTable"
-import { getAoEventById, getLatestAoEvents } from "@/services/aoscan"
+import {
+  getAoEventById,
+  getLatestAoEvents,
+  getProcessById,
+} from "@/services/aoscan"
 
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
 
@@ -60,16 +64,11 @@ export default async function EntityPageServer(props: EntityPageServerProps) {
   const processId = entityId
 
   const event = await getAoEventById(processId)
+  const process = await getProcessById(processId)
 
-  if (!event) {
+  if (!event || !process) {
     return <div>Not Found</div>
   }
-  // const messages = (await getLatestMessagesForProcess(processId)) || []
 
-  return (
-    <ProcessPage
-      event={event}
-      // messages={messages}
-    />
-  )
+  return <ProcessPage event={event} process={process} />
 }
