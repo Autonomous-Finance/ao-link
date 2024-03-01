@@ -28,6 +28,23 @@ export interface Process {
   created_at: string
 }
 
+export interface Module {
+  id: string
+  type: string
+  variant: string
+  content_type: string
+  memory_limit: string
+  compute_limit: number
+  data_protocol: string
+  module_format: string
+  input_encoding: string
+  output_encoding: string
+  created_at: string
+  processes: number
+  incoming_messages: number
+  process_ids: string[]
+}
+
 export const targetEmptyValue = "                                           "
 
 export async function getLatestAoEvents(
@@ -149,6 +166,37 @@ export async function getProcesses(limit = 1000, skip = 0) {
     .order("created_at", { ascending: false })
     .range(skip, skip + limit - 1)
     .returns<Process[]>()
+
+  if (error || !data) {
+    console.error(error)
+    return []
+  }
+
+  return data
+}
+
+export async function getModuleById(id: string) {
+  const { data, error } = await supabase
+    .from("modules_extended")
+    .select("*")
+    .eq("id", id)
+    .returns<Module[]>()
+
+  if (error || !data) {
+    console.error(error)
+    return null
+  }
+
+  return data[0]
+}
+
+export async function getModules(limit = 1000, skip = 0) {
+  const { data, error } = await supabase
+    .from("modules_extended")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .range(skip, skip + limit - 1)
+    .returns<Module[]>()
 
   if (error || !data) {
     console.error(error)
