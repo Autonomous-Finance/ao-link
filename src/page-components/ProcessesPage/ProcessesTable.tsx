@@ -18,10 +18,11 @@ import { IdBlock } from "../../components/IdBlock"
 type ProcessesTableProps = {
   initialData: Process[]
   pageSize: number
+  moduleId?: string
 }
 
 const ProcessesTable = (props: ProcessesTableProps) => {
-  const { initialData, pageSize } = props
+  const { initialData, pageSize, moduleId } = props
 
   const loaderRef = useRef(null)
   const listSizeRef = useRef(pageSize)
@@ -35,22 +36,24 @@ const ProcessesTable = (props: ProcessesTableProps) => {
         const first = entries[0]
         if (first.isIntersecting) {
           console.log("Intersecting - Fetching more data")
-          getProcesses(pageSize, listSizeRef.current).then((processes) => {
-            console.log(`Fetched another page of ${processes.length} records`)
-            if (processes.length === 0) {
-              console.log("No more records to fetch")
-              observer.disconnect()
-              setEndReached(true)
-              return
-            }
+          getProcesses(pageSize, listSizeRef.current, moduleId).then(
+            (processes) => {
+              console.log(`Fetched another page of ${processes.length} records`)
+              if (processes.length === 0) {
+                console.log("No more records to fetch")
+                observer.disconnect()
+                setEndReached(true)
+                return
+              }
 
-            setData((prevData) => {
-              const newData = processes
-              const newList = [...prevData, ...newData]
-              listSizeRef.current = newList.length
-              return newList
-            })
-          })
+              setData((prevData) => {
+                const newData = processes
+                const newList = [...prevData, ...newData]
+                listSizeRef.current = newList.length
+                return newList
+              })
+            },
+          )
         } else {
           console.log("Not intersecting")
         }
@@ -72,7 +75,7 @@ const ProcessesTable = (props: ProcessesTableProps) => {
     function handleVisibilityChange() {
       if (document.visibilityState === "visible") {
         console.log("Resuming realtime streaming")
-        getProcesses(listSizeRef.current, 0).then((processes) => {
+        getProcesses(listSizeRef.current, 0, moduleId).then((processes) => {
           console.log(
             `Fetched ${processes.length} records, listSize=${listSizeRef.current}`,
           )
@@ -110,8 +113,8 @@ const ProcessesTable = (props: ProcessesTableProps) => {
                 <th className="text-start p-2 w-[220px]">Id</th>
                 <th className="text-start p-2">Name</th>
                 <th className="text-start p-2 w-[220px]">Module</th>
-                <th className="text-end p-2 w-[140px]">Incoming messages</th>
-                <th className="text-end p-2 w-[160px]">Latest message</th>
+                <th className="text-end p-2 w-[180px]">Incoming messages</th>
+                <th className="text-end p-2 w-[180px]">Latest message</th>
                 <th className="text-end p-2 w-[160px]">Created</th>
               </tr>
             </thead>

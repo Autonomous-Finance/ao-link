@@ -159,11 +159,17 @@ export async function getProcessById(id: string) {
   return data[0]
 }
 
-export async function getProcesses(limit = 1000, skip = 0) {
-  const { data, error } = await supabase
+export async function getProcesses(limit = 1000, skip = 0, moduleId?: string) {
+  let supabaseRq = supabase
     .from("processes")
     .select("*")
-    .order("created_at", { ascending: false })
+    .order("incoming_messages", { ascending: false, nullsFirst: false })
+
+  if (moduleId) {
+    supabaseRq = supabaseRq.eq("module", moduleId)
+  }
+
+  const { data, error } = await supabaseRq
     .range(skip, skip + limit - 1)
     .returns<Process[]>()
 
@@ -194,7 +200,7 @@ export async function getModules(limit = 1000, skip = 0) {
   const { data, error } = await supabase
     .from("modules_extended")
     .select("*")
-    .order("created_at", { ascending: false })
+    .order("incoming_messages", { ascending: false, nullsFirst: false })
     .range(skip, skip + limit - 1)
     .returns<Module[]>()
 
