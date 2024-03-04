@@ -87,7 +87,6 @@ const ProcessesTable = (props: ProcessesTableProps) => {
   }, [endReached, moduleId, pageSize, sortAscending, sortField])
 
   const [loading, setLoading] = useState(false)
-
   const [firstRender, setFirstRender] = useState(true)
 
   useEffect(() => {

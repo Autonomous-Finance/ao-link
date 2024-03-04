@@ -202,11 +202,16 @@ export async function getModuleById(id: string) {
   return data[0]
 }
 
-export async function getModules(limit = 1000, skip = 0) {
+export async function getModules(
+  limit = 1000,
+  skip = 0,
+  orderBy = "incoming_messages",
+  ascending = false,
+) {
   const { data, error } = await supabase
     .from("modules_extended")
     .select("*")
-    .order("incoming_messages", { ascending: false, nullsFirst: false })
+    .order(orderBy, { ascending, nullsFirst: ascending })
     .range(skip, skip + limit - 1)
     .returns<Module[]>()
 

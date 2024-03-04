@@ -1,5 +1,12 @@
 "use client"
-import { CircularProgress, Stack, Typography } from "@mui/material"
+import {
+  Box,
+  CircularProgress,
+  LinearProgress,
+  Stack,
+  TableSortLabel,
+  Typography,
+} from "@mui/material"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useRef, useState } from "react"
 
@@ -28,6 +35,13 @@ const ModulesTable = (props: ModulesTableProps) => {
 
   const [endReached, setEndReached] = useState(false)
 
+  const [sortAscending, setSortAscending] = useState<boolean>(false)
+  const [sortField, setSortField] = useState<
+    "created_at" | "processes" | "incoming_messages"
+  >("incoming_messages")
+
+  const [data, setData] = useState<Module[]>(initialData)
+
   useEffect(() => {
     if (endReached) return
     const observer = new IntersectionObserver(
@@ -35,7 +49,12 @@ const ModulesTable = (props: ModulesTableProps) => {
         const first = entries[0]
         if (first.isIntersecting) {
           console.log("Intersecting - Fetching more data")
-          getModules(pageSize, listSizeRef.current).then((processes) => {
+          getModules(
+            pageSize,
+            listSizeRef.current,
+            sortField,
+            sortAscending,
+          ).then((processes) => {
             console.log(`Fetched another page of ${processes.length} records`)
             if (processes.length === 0) {
               console.log("No more records to fetch")
@@ -63,34 +82,52 @@ const ModulesTable = (props: ModulesTableProps) => {
     }
 
     return () => observer.disconnect()
-  }, [])
+  }, [endReached, pageSize, sortAscending, sortField])
 
-  const [data, setData] = useState<Module[]>(initialData)
-  const [streamingPaused, setStreamingPaused] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [firstRender, setFirstRender] = useState(true)
 
   useEffect(() => {
-    function handleVisibilityChange() {
-      if (document.visibilityState === "visible") {
-        console.log("Resuming realtime streaming")
-        getModules(listSizeRef.current, 0).then((processes) => {
-          console.log(
-            `Fetched ${processes.length} records, listSize=${listSizeRef.current}`,
-          )
-          setData(processes)
-          setStreamingPaused(false)
-        })
-      } else {
-        console.log("Pausing realtime streaming")
-        setStreamingPaused(true)
-      }
+    if (firstRender) {
+      setFirstRender(false)
+      return
     }
+    setLoading(true)
+    console.log("Sorting changed - Fetching data")
+    getModules(listSizeRef.current, 0, sortField, sortAscending)
+      .then((processes) => {
+        setData(processes)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortField, sortAscending])
 
-    document.addEventListener("visibilitychange", handleVisibilityChange)
+  // const [streamingPaused, setStreamingPaused] = useState(false)
+  // useEffect(() => {
+  //   function handleVisibilityChange() {
+  //     if (document.visibilityState === "visible") {
+  //       console.log("Resuming realtime streaming")
+  //       getModules(listSizeRef.current, 0).then((processes) => {
+  //         console.log(
+  //           `Fetched ${processes.length} records, listSize=${listSizeRef.current}`,
+  //         )
+  //         setData(processes)
+  //         setStreamingPaused(false)
+  //       })
+  //     } else {
+  //       console.log("Pausing realtime streaming")
+  //       setStreamingPaused(true)
+  //     }
+  //   }
 
-    return function cleanup() {
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
-    }
-  }, [])
+  //   document.addEventListener("visibilitychange", handleVisibilityChange)
+
+  //   return function cleanup() {
+  //     document.removeEventListener("visibilitychange", handleVisibilityChange)
+  //   }
+  // }, [])
 
   const router = useRouter()
 
@@ -110,9 +147,64 @@ const ModulesTable = (props: ModulesTableProps) => {
                 <th className="text-start p-2 ">Id</th>
                 <th className="text-end p-2 w-[240px]">Memory limit</th>
                 <th className="text-end p-2 w-[240px]">Compute limit</th>
-                <th className="text-end p-2 w-[180px]">Incoming messages</th>
-                <th className="text-end p-2 w-[180px]">Processes</th>
-                <th className="text-end p-2 w-[160px]">Created</th>
+                <th className="text-end p-2 w-[180px]">
+                  <TableSortLabel
+                    active={sortField === "incoming_messages"}
+                    direction={sortAscending ? "asc" : "desc"}
+                    onClick={() => {
+                      if (sortField !== "incoming_messages") {
+                        setSortField("incoming_messages")
+                      } else {
+                        setSortAscending(!sortAscending)
+                      }
+                    }}
+                  >
+                    Incoming messages
+                  </TableSortLabel>
+                </th>
+                <th className="text-end p-2 w-[180px]">
+                  <TableSortLabel
+                    active={sortField === "processes"}
+                    direction={sortAscending ? "asc" : "desc"}
+                    onClick={() => {
+                      if (sortField !== "processes") {
+                        setSortField("processes")
+                      } else {
+                        setSortAscending(!sortAscending)
+                      }
+                    }}
+                  >
+                    Processes
+                  </TableSortLabel>
+                </th>
+                <th className="text-end p-2 w-[160px]">
+                  <TableSortLabel
+                    active={sortField === "created_at"}
+                    direction={sortAscending ? "asc" : "desc"}
+                    onClick={() => {
+                      if (sortField !== "created_at") {
+                        setSortField("created_at")
+                      } else {
+                        setSortAscending(!sortAscending)
+                      }
+                    }}
+                  >
+                    Created
+                  </TableSortLabel>
+                </th>
+              </tr>
+              <tr>
+                <td colSpan={99}>
+                  {loading ? (
+                    <LinearProgress
+                      color="primary"
+                      variant="indeterminate"
+                      sx={{ height: 2, marginX: 1 }}
+                    />
+                  ) : (
+                    <Box sx={{ height: 2 }} />
+                  )}
+                </td>
               </tr>
             </thead>
             <tbody>
