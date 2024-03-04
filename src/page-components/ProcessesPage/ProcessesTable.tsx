@@ -1,5 +1,12 @@
 "use client"
-import { CircularProgress, Stack, Typography } from "@mui/material"
+import {
+  Box,
+  CircularProgress,
+  LinearProgress,
+  Stack,
+  TableSortLabel,
+  Typography,
+} from "@mui/material"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useRef, useState } from "react"
 
@@ -29,6 +36,13 @@ const ProcessesTable = (props: ProcessesTableProps) => {
 
   const [endReached, setEndReached] = useState(false)
 
+  const [sortAscending, setSortAscending] = useState<boolean>(false)
+  const [sortField, setSortField] = useState<
+    "created_at" | "latest_message" | "incoming_messages"
+  >("incoming_messages")
+
+  const [data, setData] = useState<Process[]>(initialData)
+
   useEffect(() => {
     if (endReached) return
     const observer = new IntersectionObserver(
@@ -36,24 +50,28 @@ const ProcessesTable = (props: ProcessesTableProps) => {
         const first = entries[0]
         if (first.isIntersecting) {
           console.log("Intersecting - Fetching more data")
-          getProcesses(pageSize, listSizeRef.current, moduleId).then(
-            (processes) => {
-              console.log(`Fetched another page of ${processes.length} records`)
-              if (processes.length === 0) {
-                console.log("No more records to fetch")
-                observer.disconnect()
-                setEndReached(true)
-                return
-              }
+          getProcesses(
+            pageSize,
+            listSizeRef.current,
+            moduleId,
+            sortField,
+            sortAscending,
+          ).then((processes) => {
+            console.log(`Fetched another page of ${processes.length} records`)
+            if (processes.length === 0) {
+              console.log("No more records to fetch")
+              observer.disconnect()
+              setEndReached(true)
+              return
+            }
 
-              setData((prevData) => {
-                const newData = processes
-                const newList = [...prevData, ...newData]
-                listSizeRef.current = newList.length
-                return newList
-              })
-            },
-          )
+            setData((prevData) => {
+              const newData = processes
+              const newList = [...prevData, ...newData]
+              listSizeRef.current = newList.length
+              return newList
+            })
+          })
         } else {
           console.log("Not intersecting")
         }
@@ -66,34 +84,60 @@ const ProcessesTable = (props: ProcessesTableProps) => {
     }
 
     return () => observer.disconnect()
-  }, [])
+  }, [endReached, moduleId, pageSize, sortAscending, sortField])
 
-  const [data, setData] = useState<Process[]>(initialData)
-  const [streamingPaused, setStreamingPaused] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const [firstRender, setFirstRender] = useState(true)
 
   useEffect(() => {
-    function handleVisibilityChange() {
-      if (document.visibilityState === "visible") {
-        console.log("Resuming realtime streaming")
-        getProcesses(listSizeRef.current, 0, moduleId).then((processes) => {
-          console.log(
-            `Fetched ${processes.length} records, listSize=${listSizeRef.current}`,
-          )
-          setData(processes)
-          setStreamingPaused(false)
-        })
-      } else {
-        console.log("Pausing realtime streaming")
-        setStreamingPaused(true)
-      }
+    if (firstRender) {
+      setFirstRender(false)
+      return
     }
+    setLoading(true)
+    console.log("Sorting changed - Fetching data")
+    getProcesses(listSizeRef.current, 0, moduleId, sortField, sortAscending)
+      .then((processes) => {
+        setData(processes)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortField, sortAscending, moduleId])
 
-    document.addEventListener("visibilitychange", handleVisibilityChange)
+  // const [streamingPaused, setStreamingPaused] = useState(false)
+  // useEffect(() => {
+  //   function handleVisibilityChange() {
+  //     if (document.visibilityState === "visible") {
+  //       console.log("Resuming realtime streaming")
+  //       getProcesses(
+  //         listSizeRef.current,
+  //         0,
+  //         moduleId,
 
-    return function cleanup() {
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
-    }
-  }, [])
+  //         sortField,
+  //         sortAscending,
+  //       ).then((processes) => {
+  //         console.log(
+  //           `Fetched ${processes.length} records, listSize=${listSizeRef.current}`,
+  //         )
+  //         setData(processes)
+  //         setStreamingPaused(false)
+  //       })
+  //     } else {
+  //       console.log("Pausing realtime streaming")
+  //       setStreamingPaused(true)
+  //     }
+  //   }
+
+  //   document.addEventListener("visibilitychange", handleVisibilityChange)
+
+  //   return function cleanup() {
+  //     document.removeEventListener("visibilitychange", handleVisibilityChange)
+  //   }
+  // }, [])
 
   const router = useRouter()
 
@@ -113,9 +157,64 @@ const ProcessesTable = (props: ProcessesTableProps) => {
                 <th className="text-start p-2 w-[220px]">Id</th>
                 <th className="text-start p-2">Name</th>
                 <th className="text-start p-2 w-[220px]">Module</th>
-                <th className="text-end p-2 w-[180px]">Incoming messages</th>
-                <th className="text-end p-2 w-[180px]">Latest message</th>
-                <th className="text-end p-2 w-[160px]">Created</th>
+                <th className="text-end p-2 w-[180px]">
+                  <TableSortLabel
+                    active={sortField === "incoming_messages"}
+                    direction={sortAscending ? "asc" : "desc"}
+                    onClick={() => {
+                      if (sortField !== "incoming_messages") {
+                        setSortField("incoming_messages")
+                      } else {
+                        setSortAscending(!sortAscending)
+                      }
+                    }}
+                  >
+                    Incoming messages
+                  </TableSortLabel>
+                </th>
+                <th className="text-end p-2 w-[180px]">
+                  <TableSortLabel
+                    active={sortField === "latest_message"}
+                    direction={sortAscending ? "asc" : "desc"}
+                    onClick={() => {
+                      if (sortField !== "latest_message") {
+                        setSortField("latest_message")
+                      } else {
+                        setSortAscending(!sortAscending)
+                      }
+                    }}
+                  >
+                    Latest message
+                  </TableSortLabel>
+                </th>
+                <th className="text-end p-2 w-[160px]">
+                  <TableSortLabel
+                    active={sortField === "created_at"}
+                    direction={sortAscending ? "asc" : "desc"}
+                    onClick={() => {
+                      if (sortField !== "created_at") {
+                        setSortField("created_at")
+                      } else {
+                        setSortAscending(!sortAscending)
+                      }
+                    }}
+                  >
+                    Created
+                  </TableSortLabel>
+                </th>
+              </tr>
+              <tr>
+                <td colSpan={99}>
+                  {loading ? (
+                    <LinearProgress
+                      color="primary"
+                      variant="indeterminate"
+                      sx={{ height: 2, marginX: 1 }}
+                    />
+                  ) : (
+                    <Box sx={{ height: 2 }} />
+                  )}
+                </td>
               </tr>
             </thead>
             <tbody>

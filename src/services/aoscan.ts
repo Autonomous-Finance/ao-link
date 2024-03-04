@@ -159,11 +159,17 @@ export async function getProcessById(id: string) {
   return data[0]
 }
 
-export async function getProcesses(limit = 1000, skip = 0, moduleId?: string) {
+export async function getProcesses(
+  limit = 1000,
+  skip = 0,
+  moduleId?: string,
+  orderBy = "incoming_messages",
+  ascending = false,
+) {
   let supabaseRq = supabase
     .from("processes")
     .select("*")
-    .order("incoming_messages", { ascending: false, nullsFirst: false })
+    .order(orderBy, { ascending, nullsFirst: ascending })
 
   if (moduleId) {
     supabaseRq = supabaseRq.eq("module", moduleId)
