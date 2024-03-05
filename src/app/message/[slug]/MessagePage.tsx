@@ -19,7 +19,7 @@ import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import { supabase } from "@/lib/supabase"
-import MessagesTable from "@/page-components/ProcessPage/MessagesTable"
+
 import { AoEvent } from "@/services/aoscan"
 import {
   NormalizedAoEvent,
@@ -31,6 +31,7 @@ import { formatRelative } from "@/utils/date-utils"
 import { getColorFromText } from "@/utils/tailwind-utils"
 
 import { ComputeResult } from "./ComputeResult"
+import MessagesTable from "./MessagesTable"
 
 type MessagePageProps = {
   event: AoEvent

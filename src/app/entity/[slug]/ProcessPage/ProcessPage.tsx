@@ -1,12 +1,5 @@
 "use client"
-import {
-  Button,
-  CircularProgress,
-  Grid,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material"
+import { CircularProgress, Grid, Paper, Stack, Typography } from "@mui/material"
 
 import { useCallback, useEffect, useState } from "react"
 
@@ -16,17 +9,15 @@ import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import { supabase } from "@/lib/supabase"
-import MessagesTable from "@/page-components/ProcessPage/MessagesTable"
+
 import { AoEvent, Process } from "@/services/aoscan"
-import {
-  NormalizedAoEvent,
-  normalizeAoEvent,
-  normalizeTags,
-} from "@/utils/ao-event-utils"
+import { normalizeAoEvent, normalizeTags } from "@/utils/ao-event-utils"
 import { truncateId } from "@/utils/data-utils"
 import { formatRelative } from "@/utils/date-utils"
 import { formatNumber } from "@/utils/number-utils"
 import { getColorFromText } from "@/utils/tailwind-utils"
+
+import MessagesTable from "./MessagesTable"
 
 type ProcessPageProps = {
   event: AoEvent
@@ -49,7 +40,6 @@ export function ProcessPage(props: ProcessPageProps) {
 
   const [loading, setLoading] = useState(true)
   const [graphData, setChartData] = useState<ChartDataItem[]>([])
-  const [linkedMessages, setLinkedMessages] = useState<NormalizedAoEvent[]>([])
 
   useEffect(() => {
     setLoading(true)
@@ -57,6 +47,7 @@ export function ProcessPage(props: ProcessPageProps) {
       .rpc("get_message_network_v2", {
         p_id: processId,
         is_process: true,
+        p_include_messages: false,
       })
       .returns<{ graph: ChartDataItem[]; messages: AoEvent[] }>()
       .then(({ data, error }) => {
@@ -65,14 +56,10 @@ export function ProcessPage(props: ProcessPageProps) {
           return
         }
 
-        const { graph, messages } = data
+        const { graph } = data
 
         setChartData(graph)
-        setLinkedMessages(
-          messages
-            .map(normalizeAoEvent)
-            .sort((a, b) => b.created.getTime() - a.created.getTime()),
-        )
+
         setLoading(false)
       })
   }, [processId])
@@ -188,32 +175,11 @@ export function ProcessPage(props: ProcessPageProps) {
           </Stack>
         </Grid>
       </Grid>
-      {linkedMessages.length > 0 && (
-        <>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Typography
-              variant="subtitle1"
-              sx={{ textTransform: "uppercase", marginBottom: 3, marginTop: 6 }}
-            >
-              Linked messages
-            </Typography>
-            {tableFilter && (
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() => setTableFilter(null)}
-              >
-                Clear filter
-              </Button>
-            )}
-          </Stack>
-          <MessagesTable data={linkedMessages} tableFilter={tableFilter} />
-        </>
-      )}
+      <MessagesTable
+        processId={processId}
+        tableFilter={tableFilter}
+        setTableFilter={setTableFilter}
+      />
     </main>
   )
 }

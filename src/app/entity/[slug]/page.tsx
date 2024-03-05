@@ -9,7 +9,7 @@ import {
 
 import { normalizeAoEvent } from "@/utils/ao-event-utils"
 
-import { ProcessPage } from "./ProcessPage"
+import { ProcessPage } from "./ProcessPage/ProcessPage"
 
 type EntityPageServerProps = {
   params: { slug: string }

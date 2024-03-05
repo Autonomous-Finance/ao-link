@@ -46,7 +46,6 @@ const ProcessesTable = (props: ProcessesTableProps) => {
   >("incoming_messages")
 
   const [data, setData] = useState<Process[]>(initialData)
-  console.log("📜 LOG > ProcessesTable > data:", data[0])
 
   useEffect(() => {
     if (endReached) return

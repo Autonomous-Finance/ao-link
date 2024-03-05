@@ -3,6 +3,7 @@ import { CircularProgress, Stack, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useMemo, useRef, useState } from "react"
 
+import { IdBlock } from "@/components/IdBlock"
 import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { TypeBadge } from "@/components/TypeBadge"
 import { type NormalizedAoEvent } from "@/utils/ao-event-utils"
@@ -12,8 +13,6 @@ import { TYPE_PATH_MAP, truncateId } from "@/utils/data-utils"
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
 
 import { formatNumber } from "@/utils/number-utils"
-
-import { IdBlock } from "../../components/IdBlock"
 
 type MessagesTableProps = {
   data: NormalizedAoEvent[]

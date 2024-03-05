@@ -222,3 +222,49 @@ export async function getModules(
 
   return data
 }
+
+type LinkedMsgFilter = {
+  from: string
+  to: string
+}
+
+export async function getLinkedMessages(
+  limit = 1000,
+  skip = 0,
+  processId: string,
+  filter?: LinkedMsgFilter | null,
+) {
+  let supabaseRq = supabase
+    .from("ao_events")
+    .select("owner,id,tags_flat,target,owner_address,height,created_at")
+    .order("created_at", { ascending: false })
+
+  if (filter) {
+    supabaseRq = supabaseRq
+      .or(
+        `tags_flat ->> Forwarded-For.eq.${filter.from},tags_flat ->> Forwarded-For.is.null`,
+      )
+      .or(
+        `tags_flat ->> From-Process.eq.${filter.from},tags_flat ->> From-Process.is.null`,
+      )
+      .or(`owner_address.eq.${filter.from}`)
+      .eq("target", filter.to)
+  } else {
+    supabaseRq = supabaseRq.or(
+      `target.eq.${processId},owner_address.eq.${processId},tags_flat ->> From-Process.eq.${processId}`,
+    )
+  }
+
+  const { data, error } = await supabaseRq
+    .range(skip, skip + limit - 1)
+    .returns<AoEvent[]>()
+
+  if (error || !data) {
+    console.error(error)
+    return []
+  }
+
+  console.log("📜 LOG > getLinkedMessages data:", filter, data[0])
+
+  return data
+}
