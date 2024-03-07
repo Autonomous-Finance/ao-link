@@ -12,6 +12,7 @@ export const theme = extendTheme({
         secondary: {
           main: "rgb(200,200,200)",
         },
+        // @ts-ignore
         accent: {
           main: "rgba(41, 204, 0, 1)",
         },
@@ -29,6 +30,7 @@ export const theme = extendTheme({
         secondary: {
           main: "rgb(230, 230, 230)",
         },
+        // @ts-ignore
         accent: {
           main: "rgba(41, 204, 0, 1)",
         },
