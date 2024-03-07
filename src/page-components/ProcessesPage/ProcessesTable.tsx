@@ -2,6 +2,7 @@
 import {
   Box,
   CircularProgress,
+  FormControlLabel,
   LinearProgress,
   Stack,
   TableSortLabel,
@@ -10,9 +11,10 @@ import {
 import { useRouter } from "next/navigation"
 import React, { useEffect, useRef, useState } from "react"
 
+import { AntSwitch } from "@/components/AntSwitch"
 import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { TypeBadge } from "@/components/TypeBadge"
-import { Process, getProcesses } from "@/services/aoscan"
+import { Process, getProcesses, subscribeToProcesses } from "@/services/aoscan"
 
 import { TYPE_PATH_MAP, truncateId } from "@/utils/data-utils"
 
@@ -110,37 +112,62 @@ const ProcessesTable = (props: ProcessesTableProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortField, sortAscending, moduleId])
 
-  // const [streamingPaused, setStreamingPaused] = useState(false)
-  // useEffect(() => {
-  //   function handleVisibilityChange() {
-  //     if (document.visibilityState === "visible") {
-  //       console.log("Resuming realtime streaming")
-  //       getProcesses(
-  //         listSizeRef.current,
-  //         0,
-  //         moduleId,
+  const [streamingPaused, setStreamingPaused] = useState(false)
+  const [realtime, setRealtime] = useState(true)
 
-  //         sortField,
-  //         sortAscending,
-  //       ).then((processes) => {
-  //         console.log(
-  //           `Fetched ${processes.length} records, listSize=${listSizeRef.current}`,
-  //         )
-  //         setData(processes)
-  //         setStreamingPaused(false)
-  //       })
-  //     } else {
-  //       console.log("Pausing realtime streaming")
-  //       setStreamingPaused(true)
-  //     }
-  //   }
+  useEffect(() => {
+    if (!realtime) return
 
-  //   document.addEventListener("visibilitychange", handleVisibilityChange)
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        console.log("Resuming realtime streaming")
+        getProcesses(
+          listSizeRef.current,
+          0,
+          moduleId,
+          sortField,
+          sortAscending,
+        ).then((processes) => {
+          console.log(
+            `Fetched ${processes.length} records, listSize=${listSizeRef.current}`,
+          )
+          setData(processes)
+          setStreamingPaused(false)
+        })
+      } else {
+        console.log("Pausing realtime streaming")
+        setStreamingPaused(true)
+      }
+    }
 
-  //   return function cleanup() {
-  //     document.removeEventListener("visibilitychange", handleVisibilityChange)
-  //   }
-  // }, [])
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    return function cleanup() {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [realtime])
+
+  useEffect(() => {
+    if (streamingPaused) return
+    if (!realtime) return
+
+    const unsubscribe = subscribeToProcesses((event: Process) => {
+      if (moduleId && event.name !== moduleId) return
+
+      console.log("New realtime event", event.id)
+      setData((prevData) => {
+        listSizeRef.current = prevData.length + 1
+        return [event, ...prevData]
+      })
+    })
+    console.log("Subscribed to realtime updates")
+
+    return function cleanup() {
+      console.log("Unsubscribed from realtime updates")
+      unsubscribe()
+    }
+  }, [streamingPaused, pageSize, realtime, moduleId])
 
   const router = useRouter()
 
@@ -150,6 +177,24 @@ const ProcessesTable = (props: ProcessesTableProps) => {
         <Typography variant="subtitle1" sx={{ textTransform: "uppercase" }}>
           Processes
         </Typography>
+        <FormControlLabel
+          sx={{ marginY: 0.5 }}
+          slotProps={{ typography: { variant: "body2" } }}
+          onChange={() => {
+            setSortField("created_at")
+            setSortAscending(false)
+            setRealtime(!realtime)
+          }}
+          control={
+            <AntSwitch
+              sx={{ m: 1 }}
+              checked={realtime}
+              color={realtime ? "info" : "error"}
+            />
+          }
+          labelPlacement="start"
+          label="Live data"
+        />
       </Stack>
       {data.length ? (
         <div>
@@ -164,6 +209,7 @@ const ProcessesTable = (props: ProcessesTableProps) => {
                   <TableSortLabel
                     active={sortField === "incoming_messages"}
                     direction={sortAscending ? "asc" : "desc"}
+                    disabled={realtime}
                     onClick={() => {
                       if (sortField !== "incoming_messages") {
                         setSortField("incoming_messages")
@@ -179,6 +225,7 @@ const ProcessesTable = (props: ProcessesTableProps) => {
                   <TableSortLabel
                     active={sortField === "latest_message"}
                     direction={sortAscending ? "asc" : "desc"}
+                    disabled={realtime}
                     onClick={() => {
                       if (sortField !== "latest_message") {
                         setSortField("latest_message")
@@ -194,6 +241,7 @@ const ProcessesTable = (props: ProcessesTableProps) => {
                   <TableSortLabel
                     active={sortField === "created_at"}
                     direction={sortAscending ? "asc" : "desc"}
+                    disabled={realtime}
                     onClick={() => {
                       if (sortField !== "created_at") {
                         setSortField("created_at")

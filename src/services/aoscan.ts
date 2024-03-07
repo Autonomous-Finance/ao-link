@@ -264,7 +264,22 @@ export async function getLinkedMessages(
     return []
   }
 
-  console.log("📜 LOG > getLinkedMessages data:", filter, data[0])
-
   return data
+}
+
+export function subscribeToProcesses(callback: (data: Process) => void) {
+  const channel = supabase
+    .channel("processes")
+    .on<Process>(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "processes" },
+      (payload) => {
+        callback(payload.new)
+      },
+    )
+    .subscribe()
+
+  return function unsubscribe() {
+    supabase.removeChannel(channel)
+  }
 }
