@@ -12,6 +12,9 @@ export const theme = extendTheme({
         secondary: {
           main: "rgb(200,200,200)",
         },
+        accent: {
+          main: "rgba(41, 204, 0, 1)",
+        },
         background: {
           paper: "#252424",
           default: "rgb(24, 25, 26)",
@@ -25,6 +28,9 @@ export const theme = extendTheme({
         },
         secondary: {
           main: "rgb(230, 230, 230)",
+        },
+        accent: {
+          main: "rgba(41, 204, 0, 1)",
         },
         background: {
           default: "rgb(255,255,255)",

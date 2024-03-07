@@ -1,6 +1,7 @@
 "use client"
 import {
   CircularProgress,
+  FormControlLabel,
   MenuItem,
   Select,
   Stack,
@@ -9,6 +10,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useRef, useState } from "react"
 
+import { AntSwitch } from "@/components/AntSwitch"
 import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { TypeBadge } from "@/components/TypeBadge"
 import { useUpdateSearch } from "@/hooks/useUpdateSearch"
@@ -98,8 +100,11 @@ const EventsTable = (props: EventTablesProps) => {
 
   const [data, setData] = useState<NormalizedAoEvent[]>(initialData)
   const [streamingPaused, setStreamingPaused] = useState(false)
+  const [realtime, setRealtime] = useState(true)
 
   useEffect(() => {
+    if (!realtime) return
+
     function handleVisibilityChange() {
       if (document.visibilityState === "visible") {
         console.log("Resuming realtime streaming")
@@ -127,10 +132,12 @@ const EventsTable = (props: EventTablesProps) => {
     return function cleanup() {
       document.removeEventListener("visibilitychange", handleVisibilityChange)
     }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [realtime])
 
   useEffect(() => {
     if (streamingPaused) return
+    if (!realtime) return
 
     const unsubscribe = subscribeToEvents((event: AoEvent) => {
       if (blockHeight && event.height !== blockHeight) return
@@ -161,7 +168,7 @@ const EventsTable = (props: EventTablesProps) => {
       console.log("Unsubscribed from realtime updates")
       unsubscribe()
     }
-  }, [streamingPaused, blockHeight, pageSize, ownerId])
+  }, [streamingPaused, blockHeight, pageSize, ownerId, realtime])
 
   const router = useRouter()
   const updateSearch = useUpdateSearch()
@@ -172,39 +179,58 @@ const EventsTable = (props: EventTablesProps) => {
         <Typography variant="subtitle1" sx={{ textTransform: "uppercase" }}>
           Latest events
         </Typography>
-        <Select
-          size="small"
-          sx={{
-            width: 160,
-            lineHeight: "normal",
-            "& .MuiSelect-select": { paddingY: "4px !important" },
-          }}
-          displayEmpty
-          value={filterRef.current}
-          onChange={(event) => {
-            const newValue = event.target.value as FilterOption
-            filterRef.current = newValue
-            updateSearch("filter", newValue)
-            getLatestAoEvents(
-              listSizeRef.current,
-              0,
-              newValue,
-              blockHeight,
-              ownerId,
-            ).then((events) => {
-              console.log(
-                `Fetched ${events.length} records, listSize=${listSizeRef.current} (filter changed)`,
-              )
-              setData(events.map(normalizeAoEvent))
-            })
-          }}
-        >
-          <MenuItem value="">
-            <em>All</em>
-          </MenuItem>
-          <MenuItem value="message">Messages</MenuItem>
-          <MenuItem value="process">Processes</MenuItem>
-        </Select>
+        <Stack direction="row" gap={2} alignItems="center">
+          <FormControlLabel
+            sx={{ marginY: 0.5 }}
+            slotProps={{ typography: { variant: "body2" } }}
+            onChange={() => {
+              setRealtime(!realtime)
+            }}
+            control={
+              <AntSwitch
+                sx={{ m: 1 }}
+                checked={realtime}
+                color={realtime ? "info" : "error"}
+              />
+            }
+            labelPlacement="start"
+            label="Live data"
+          />
+          <Select
+            size="small"
+            sx={{
+              height: "fit-content",
+              width: 160,
+              lineHeight: "normal",
+              "& .MuiSelect-select": { paddingY: "4px !important" },
+            }}
+            displayEmpty
+            value={filterRef.current}
+            onChange={(event) => {
+              const newValue = event.target.value as FilterOption
+              filterRef.current = newValue
+              updateSearch("filter", newValue)
+              getLatestAoEvents(
+                listSizeRef.current,
+                0,
+                newValue,
+                blockHeight,
+                ownerId,
+              ).then((events) => {
+                console.log(
+                  `Fetched ${events.length} records, listSize=${listSizeRef.current} (filter changed)`,
+                )
+                setData(events.map(normalizeAoEvent))
+              })
+            }}
+          >
+            <MenuItem value="">
+              <em>All</em>
+            </MenuItem>
+            <MenuItem value="message">Messages</MenuItem>
+            <MenuItem value="process">Processes</MenuItem>
+          </Select>
+        </Stack>
       </Stack>
       {data.length ? (
         <div>
