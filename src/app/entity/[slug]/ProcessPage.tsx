@@ -26,9 +26,10 @@ import { normalizeAoEvent, normalizeTags } from "@/utils/ao-event-utils"
 import { truncateId } from "@/utils/data-utils"
 import { formatRelative } from "@/utils/date-utils"
 
+import { EntityMessages } from "./EntityMessages"
+import { FetchInfoHandler } from "./ProcessPage/FetchInfoHandler"
 import { TokenBalances } from "./TokenBalances"
 import { TokenTransfers } from "./TokenTransfers"
-import { EntityMessages } from "./EntityMessages"
 
 type ProcessPageProps = {
   event: AoEvent
@@ -148,6 +149,7 @@ export function ProcessPage(props: ProcessPageProps) {
         <Grid2 xs={12} lg={6}>
           <Stack gap={4}>
             <TagsSection tags={tags} />
+            <FetchInfoHandler processId={entityId} />
             <Stack gap={1} justifyContent="stretch">
               <Typography variant="subtitle2" color="text.secondary">
                 Result Type
