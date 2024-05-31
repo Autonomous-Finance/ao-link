@@ -53,7 +53,7 @@ export type TransactionEdge = {
 
 export type TransactionsResponse = {
   transactions: {
-    count: number
+    count: number | undefined
     edges: TransactionEdge[]
   }
 }

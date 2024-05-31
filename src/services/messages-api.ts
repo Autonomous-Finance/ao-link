@@ -48,9 +48,34 @@ export async function getTokenTransfers(
 // { name: "Forwarded-For", values: [$entityId] }
 // { name: "Pushed-For", values: [$entityId] }
 // tags: [{ name: "From-Process", values: [$entityId] }]
-// count
 
-const getOutgoingMessagesQuery = gql`
+const messageFields = gql`
+  fragment MessageFields on TransactionConnection {
+    edges {
+      cursor
+      node {
+        id
+        recipient
+        block {
+          timestamp
+          height
+        }
+        tags {
+          name
+          value
+        }
+        owner {
+          address
+        }
+      }
+    }
+  }
+`
+
+/**
+ * WARN This query fails if both count and cursor are set
+ */
+const outgoingMessagesQuery = (includeCount = false) => gql`
   query (
     $entityId: String!
     $limit: Int!
@@ -65,26 +90,12 @@ const getOutgoingMessagesQuery = gql`
       tags: [{ name: "SDK", values: ["aoconnect"] }]
       owners: [$entityId]
     ) {
-      edges {
-        cursor
-        node {
-          id
-          recipient
-          block {
-            timestamp
-            height
-          }
-          tags {
-            name
-            value
-          }
-          owner {
-            address
-          }
-        }
-      }
+      ${includeCount ? "count" : ""}
+      ...MessageFields
     }
   }
+
+  ${messageFields}
 `
 
 export async function getOutgoingMessages(
@@ -93,10 +104,10 @@ export async function getOutgoingMessages(
   ascending: boolean,
   //
   entityId: string,
-): Promise<[number, NormalizedAoEvent[]]> {
+): Promise<[number | undefined, NormalizedAoEvent[]]> {
   try {
     const result = await goldsky
-      .query<TransactionsResponse>(getOutgoingMessagesQuery, {
+      .query<TransactionsResponse>(outgoingMessagesQuery(!cursor), {
         limit,
         sortOrder: ascending ? "HEIGHT_ASC" : "HEIGHT_DESC",
         cursor,
@@ -117,13 +128,10 @@ export async function getOutgoingMessages(
   }
 }
 
-// { name: "owner_address", values: [$entityId] }
-// { name: "target", values: [$entityId] }
-// { name: "Forwarded-For", values: [$entityId] }
-// { name: "Pushed-For", values: [$entityId] }
-// count
-
-const getIncomingMessagesQuery = gql`
+/**
+ * WARN This query fails if both count and cursor are set
+ */
+const getIncomingMessagesQuery = (includeCount = false) => gql`
   query (
     $entityId: String!
     $limit: Int!
@@ -137,26 +145,12 @@ const getIncomingMessagesQuery = gql`
 
       recipients: [$entityId]
     ) {
-      edges {
-        cursor
-        node {
-          id
-          recipient
-          block {
-            timestamp
-            height
-          }
-          tags {
-            name
-            value
-          }
-          owner {
-            address
-          }
-        }
-      }
+      ${includeCount ? "count" : ""}
+      ...MessageFields
     }
   }
+
+  ${messageFields}
 `
 
 export async function getIncomingMessages(
@@ -165,10 +159,10 @@ export async function getIncomingMessages(
   ascending: boolean,
   //
   entityId: string,
-): Promise<[number, NormalizedAoEvent[]]> {
+): Promise<[number | undefined, NormalizedAoEvent[]]> {
   try {
     const result = await goldsky
-      .query<TransactionsResponse>(getIncomingMessagesQuery, {
+      .query<TransactionsResponse>(getIncomingMessagesQuery(!cursor), {
         limit,
         sortOrder: ascending ? "HEIGHT_ASC" : "HEIGHT_DESC",
         cursor,

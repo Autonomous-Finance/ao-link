@@ -7,10 +7,11 @@ import { EntityMessagesTable } from "./EntityMessagesTable"
 type EntityMessagesProps = {
   entityId: string
   open: boolean
+  onCountReady?: (count: number) => void
 }
 
 export function OutgoingMessagesTable(props: EntityMessagesProps) {
-  const { entityId, open } = props
+  const { entityId, open, onCountReady } = props
 
   const pageSize = 25
 
@@ -27,6 +28,10 @@ export function OutgoingMessagesTable(props: EntityMessagesProps) {
           ascending,
           entityId,
         )
+
+        if (count !== undefined && onCountReady) {
+          onCountReady(count)
+        }
 
         return records
       }}

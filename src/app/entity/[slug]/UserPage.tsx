@@ -1,10 +1,12 @@
 "use client"
-import { Paper, Stack, Tab, Tabs } from "@mui/material"
+import { Box, Stack, Tab, Tabs } from "@mui/material"
 import React, { useState } from "react"
 
 import { BalanceSection } from "@/components/BalanceSection"
 import { IdBlock } from "@/components/IdBlock"
 import { Subheading } from "@/components/Subheading"
+
+import { TabWithCount } from "@/components/TabWithCount"
 
 import { IncomingMessagesTable } from "./IncomingMessagesTable"
 import { OutgoingMessagesTable } from "./OutgoingMessagesTable"
@@ -23,23 +25,42 @@ export function UserPage(props: UserPageProps) {
     setActiveTab(newValue)
   }
 
+  const [outgoingCount, setOutgoingCount] = useState<number>()
+  const [incomingCount, setIncomingCount] = useState<number>()
+
   return (
     <Stack component="main" gap={6} paddingY={4}>
       <Subheading type="USER" value={<IdBlock label={entityId} />} />
       <BalanceSection entityId={entityId} />
       <div>
         <Tabs value={activeTab} onChange={handleChange} textColor="primary">
-          <Tab value={0} label="Outgoing messages" />
-          <Tab value={1} label="Incoming messages" />
+          <TabWithCount
+            value={0}
+            label="Outgoing messages"
+            chipValue={outgoingCount}
+          />
+          <TabWithCount
+            value={1}
+            label="Incoming messages"
+            chipValue={incomingCount}
+          />
           <Tab value={2} label="Token transfers" />
           <Tab value={3} label="Token balances" />
         </Tabs>
-        <Paper sx={{ marginX: -2 }}>
-          <OutgoingMessagesTable entityId={entityId} open={activeTab === 0} />
-          <IncomingMessagesTable entityId={entityId} open={activeTab === 1} />
+        <Box sx={{ marginX: -2 }}>
+          <OutgoingMessagesTable
+            entityId={entityId}
+            open={activeTab === 0}
+            onCountReady={setOutgoingCount}
+          />
+          <IncomingMessagesTable
+            entityId={entityId}
+            open={activeTab === 1}
+            onCountReady={setIncomingCount}
+          />
           <TokenTransfers entityId={entityId} open={activeTab === 2} />
           <TokenBalances entityId={entityId} open={activeTab === 3} />
-        </Paper>
+        </Box>
       </div>
     </Stack>
   )
