@@ -11,6 +11,8 @@ export type NormalizedAoEvent = {
   schedulerId: string
   created: Date
   action: string
+  tags?: Record<string, any>
+  cursor?: string
 }
 
 export function normalizeAoEvent(event: AoEvent): NormalizedAoEvent {

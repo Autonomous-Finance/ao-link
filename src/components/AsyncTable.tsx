@@ -5,21 +5,22 @@ import {
   TableBody,
   TableCell,
   TableHead,
+  TableProps,
   TableRow,
   TableSortLabel,
   Typography,
 } from "@mui/material"
-import React, { useEffect, useRef, useState } from "react"
+import React, { ReactNode, useEffect, useRef, useState } from "react"
 
 export type HeaderCell = {
   field?: string
   sortable?: boolean
   sx?: any
-  label: string
+  label: ReactNode
   align?: "center" | "left" | "right"
 }
 
-export type AsyncTableProps = {
+export type AsyncTableProps = TableProps & {
   headerCells: HeaderCell[]
   pageSize: number
   renderRow: (row: any) => React.ReactNode
@@ -29,6 +30,7 @@ export type AsyncTableProps = {
     offset: number,
     ascending: boolean,
     sortField: string,
+    lastRecord?: any,
   ) => Promise<any[]>
 }
 
@@ -40,6 +42,7 @@ export function AsyncTable(props: AsyncTableProps) {
     initialSortField,
     initialSortDir,
     fetchFunction,
+    ...rest
   } = props
 
   const loaderRef = useRef(null)
@@ -60,24 +63,27 @@ export function AsyncTable(props: AsyncTableProps) {
         const first = entries[0]
         if (first.isIntersecting) {
           console.log("Intersecting - Fetching more data")
-          fetchFunction(listSizeRef.current, sortAscending, sortField).then(
-            (newPage) => {
-              console.log(`Fetched another page of ${newPage.length} records`)
+          fetchFunction(
+            listSizeRef.current,
+            sortAscending,
+            sortField,
+            data[data.length - 1],
+          ).then((newPage) => {
+            console.log(`Fetched another page of ${newPage.length} records`)
 
-              if (newPage.length === 0) {
-                console.log("No more records to fetch")
-                observer.disconnect()
-                setEndReached(true)
-                return
-              }
+            if (newPage.length === 0) {
+              console.log("No more records to fetch")
+              observer.disconnect()
+              setEndReached(true)
+              return
+            }
 
-              setData((prevData) => {
-                const newList = [...prevData, ...newPage]
-                listSizeRef.current = newList.length
-                return newList
-              })
-            },
-          )
+            setData((prevData) => {
+              const newList = [...prevData, ...newPage]
+              listSizeRef.current = newList.length
+              return newList
+            })
+          })
         } else {
           console.log("Not intersecting")
         }
@@ -94,16 +100,16 @@ export function AsyncTable(props: AsyncTableProps) {
   }, [data.length, endReached, pageSize, sortAscending, sortField])
 
   useEffect(() => {
-    fetchFunction(0, sortAscending, sortField).then((newPage) => {
+    fetchFunction(0, sortAscending, sortField, undefined).then((newPage) => {
       setData(newPage)
       listSizeRef.current = newPage.length
-      setEndReached(false)
+      setEndReached(newPage.length < pageSize)
     })
-  }, [fetchFunction, sortAscending, sortField])
+  }, [fetchFunction, sortAscending, sortField, pageSize])
 
   return (
     <Stack>
-      <Table>
+      <Table {...rest}>
         <TableHead>
           <TableRow hover={false}>
             {headerCells.map((cell, index) => (
@@ -149,23 +155,25 @@ export function AsyncTable(props: AsyncTableProps) {
           )}
         </TableBody>
       </Table>
-      <Stack
-        marginY={1.5}
-        marginX={2}
-        ref={loaderRef}
-        sx={{ width: "100%" }}
-        direction="row"
-        gap={1}
-        alignItems="center"
-        // justifyContent="center"
-      >
-        {!endReached && <CircularProgress size={12} color="primary" />}
-        <Typography variant="body2" color="text.secondary">
-          {endReached
-            ? `Total rows: ${data.length}`
-            : "Loading more records..."}
-        </Typography>
-      </Stack>
+      {!endReached && data.length > 0 && (
+        <Stack
+          marginY={1.5}
+          marginX={2}
+          ref={loaderRef}
+          sx={{ width: "100%" }}
+          direction="row"
+          gap={1}
+          alignItems="center"
+          // justifyContent="center"
+        >
+          {!endReached && <CircularProgress size={12} color="primary" />}
+          <Typography variant="body2" color="text.secondary">
+            {endReached
+              ? `Total rows: ${data.length}` // TODO remove
+              : "Loading more records..."}
+          </Typography>
+        </Stack>
+      )}
     </Stack>
   )
 }

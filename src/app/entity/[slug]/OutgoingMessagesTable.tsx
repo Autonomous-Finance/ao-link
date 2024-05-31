@@ -12,7 +12,7 @@ type EntityMessagesProps = {
 export function OutgoingMessagesTable(props: EntityMessagesProps) {
   const { entityId, open } = props
 
-  const pageSize = 10
+  const pageSize = 25
 
   if (!open) return null
 
@@ -20,15 +20,15 @@ export function OutgoingMessagesTable(props: EntityMessagesProps) {
     <EntityMessagesTable
       entityId={entityId}
       pageSize={pageSize}
-      fetchFunction={async (offset, ascending) => {
-        const result = await getOutgoingMessages(
+      fetchFunction={async (offset, ascending, sortField, lastRecord) => {
+        const [count, records] = await getOutgoingMessages(
           pageSize,
-          offset,
-          entityId,
+          lastRecord?.cursor,
           ascending,
+          entityId,
         )
 
-        return result[1]
+        return records
       }}
     />
   )

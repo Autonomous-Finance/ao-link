@@ -2,7 +2,7 @@ import { gql } from "urql"
 
 import { supabase } from "@/lib/supabase"
 
-import { NormalizedAoEvent, normalizeAoEvent } from "@/utils/ao-event-utils"
+import { NormalizedAoEvent } from "@/utils/ao-event-utils"
 
 import {
   TransactionsResponse,
@@ -12,36 +12,6 @@ import {
 import { AoEvent } from "./aoscan"
 
 import { goldsky } from "./graphql-client"
-
-// TODO
-export async function getMessagesByEntityId(
-  limit = 1000,
-  skip = 0,
-  entityId: string,
-  ascending: boolean,
-): Promise<NormalizedAoEvent[]> {
-  try {
-    let supabaseRq
-
-    supabaseRq = supabase
-      .from("ao_events")
-      .select("owner,id,tags_flat,target,owner_address,height,created_at")
-      .order("created_at", { ascending })
-      .or(
-        `owner_address.eq.${entityId},target.eq.${entityId},tags_flat ->> Forwarded-For.eq.${entityId},tags_flat ->> From-Process.eq.${entityId},tags_flat ->> Pushed-For.eq.${entityId}`,
-      )
-
-    supabaseRq = supabaseRq.range(skip, skip + limit - 1).returns<AoEvent[]>()
-
-    const { data } = await supabaseRq
-
-    if (!data) return []
-
-    return data.map(normalizeAoEvent)
-  } catch (error) {
-    return []
-  }
-}
 
 // TODO
 export async function getTokenTransfers(
@@ -77,34 +47,39 @@ export async function getTokenTransfers(
 // { name: "target", values: [$entityId] }
 // { name: "Forwarded-For", values: [$entityId] }
 // { name: "Pushed-For", values: [$entityId] }
+// tags: [{ name: "From-Process", values: [$entityId] }]
+// count
 
 const getOutgoingMessagesQuery = gql`
-  query ($entityId: String!, $limit: Int!, $ascending: SortOrder!) {
+  query (
+    $entityId: String!
+    $limit: Int!
+    $sortOrder: SortOrder!
+    $cursor: String
+  ) {
     transactions(
-      tags: [{ name: "From-Process", values: [$entityId] }]
-      sort: $ascending
+      sort: $sortOrder
       first: $limit
+      after: $cursor
+
+      tags: [{ name: "SDK", values: ["aoconnect"] }]
+      owners: [$entityId]
     ) {
-      count
       edges {
         cursor
         node {
           id
           recipient
-          owner {
-            address
+          block {
+            timestamp
+            height
           }
           tags {
             name
             value
           }
-          block {
-            id
-            timestamp
-            height
-          }
-          bundledIn {
-            id
+          owner {
+            address
           }
         }
       }
@@ -114,18 +89,19 @@ const getOutgoingMessagesQuery = gql`
 
 export async function getOutgoingMessages(
   limit = 100,
-  skip = 0,
-  entityId: string,
+  cursor = "",
   ascending: boolean,
+  //
+  entityId: string,
 ): Promise<[number, NormalizedAoEvent[]]> {
-  if (skip > 0) return [0, []] // TODO
   try {
     const result = await goldsky
       .query<TransactionsResponse>(getOutgoingMessagesQuery, {
-        entityId,
         limit,
-        // skip,
-        ascending: ascending ? "HEIGHT_ASC" : "HEIGHT_DESC",
+        sortOrder: ascending ? "HEIGHT_ASC" : "HEIGHT_DESC",
+        cursor,
+        //
+        entityId,
       })
       .toPromise()
     const { data } = result
@@ -145,34 +121,37 @@ export async function getOutgoingMessages(
 // { name: "target", values: [$entityId] }
 // { name: "Forwarded-For", values: [$entityId] }
 // { name: "Pushed-For", values: [$entityId] }
+// count
 
 const getIncomingMessagesQuery = gql`
-  query ($entityId: String!, $limit: Int!, $ascending: SortOrder!) {
+  query (
+    $entityId: String!
+    $limit: Int!
+    $sortOrder: SortOrder!
+    $cursor: String
+  ) {
     transactions(
-      sort: $ascending
-      recipients: [$entityId]
-
+      sort: $sortOrder
       first: $limit
+      after: $cursor
+
+      recipients: [$entityId]
     ) {
       edges {
         cursor
         node {
           id
           recipient
-          owner {
-            address
+          block {
+            timestamp
+            height
           }
           tags {
             name
             value
           }
-          block {
-            id
-            timestamp
-            height
-          }
-          bundledIn {
-            id
+          owner {
+            address
           }
         }
       }
@@ -182,18 +161,19 @@ const getIncomingMessagesQuery = gql`
 
 export async function getIncomingMessages(
   limit = 100,
-  skip = 0,
-  entityId: string,
+  cursor = "",
   ascending: boolean,
+  //
+  entityId: string,
 ): Promise<[number, NormalizedAoEvent[]]> {
-  if (skip > 0) return [0, []] // TODO
   try {
     const result = await goldsky
       .query<TransactionsResponse>(getIncomingMessagesQuery, {
-        entityId,
         limit,
-        // skip,
-        ascending: ascending ? "HEIGHT_ASC" : "HEIGHT_DESC",
+        sortOrder: ascending ? "HEIGHT_ASC" : "HEIGHT_DESC",
+        cursor,
+        //
+        entityId,
       })
       .toPromise()
     const { data } = result

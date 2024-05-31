@@ -11,7 +11,7 @@ export type Owner = {
 }
 
 export type Block = {
-  id: string
+  id?: string
   timestamp: number
   height: number
   previous?: string
@@ -61,7 +61,7 @@ export type TransactionsResponse = {
 export function parseNormalizedAoEvent(
   edge: TransactionEdge,
 ): NormalizedAoEvent {
-  const { node } = edge
+  const { node, cursor } = edge
 
   const tags = node.tags.reduce((acc: Record<string, string>, tag: Tag) => {
     acc[tag.name] = tag.value
@@ -88,5 +88,7 @@ export function parseNormalizedAoEvent(
     schedulerId,
     created,
     action,
+    tags,
+    cursor,
   }
 }
