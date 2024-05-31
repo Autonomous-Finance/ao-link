@@ -47,7 +47,6 @@ export async function getTokenTransfers(
 // { name: "target", values: [$entityId] }
 // { name: "Forwarded-For", values: [$entityId] }
 // { name: "Pushed-For", values: [$entityId] }
-// tags: [{ name: "From-Process", values: [$entityId] }]
 
 const messageFields = gql`
   fragment MessageFields on TransactionConnection {
@@ -72,10 +71,22 @@ const messageFields = gql`
   }
 `
 
+const processIdentifier = `
+  tags: [{ name: "From-Process", values: [$entityId] }]
+`
+
+const userIdentifier = `
+  tags: [{ name: "SDK", values: ["aoconnect"] }]
+  owners: [$entityId]
+`
+
 /**
  * WARN This query fails if both count and cursor are set
  */
-const outgoingMessagesQuery = (includeCount = false) => gql`
+const outgoingMessagesQuery = (
+  includeCount = false,
+  isProcess?: boolean,
+) => gql`
   query (
     $entityId: String!
     $limit: Int!
@@ -87,8 +98,7 @@ const outgoingMessagesQuery = (includeCount = false) => gql`
       first: $limit
       after: $cursor
 
-      tags: [{ name: "SDK", values: ["aoconnect"] }]
-      owners: [$entityId]
+      ${isProcess ? processIdentifier : userIdentifier}
     ) {
       ${includeCount ? "count" : ""}
       ...MessageFields
@@ -104,10 +114,11 @@ export async function getOutgoingMessages(
   ascending: boolean,
   //
   entityId: string,
+  isProcess?: boolean,
 ): Promise<[number | undefined, NormalizedAoEvent[]]> {
   try {
     const result = await goldsky
-      .query<TransactionsResponse>(outgoingMessagesQuery(!cursor), {
+      .query<TransactionsResponse>(outgoingMessagesQuery(!cursor, isProcess), {
         limit,
         sortOrder: ascending ? "HEIGHT_ASC" : "HEIGHT_DESC",
         cursor,

@@ -8,10 +8,11 @@ type EntityMessagesProps = {
   entityId: string
   open: boolean
   onCountReady?: (count: number) => void
+  isProcess?: boolean
 }
 
 export function OutgoingMessagesTable(props: EntityMessagesProps) {
-  const { entityId, open, onCountReady } = props
+  const { entityId, open, onCountReady, isProcess } = props
 
   const pageSize = 25
 
@@ -27,6 +28,7 @@ export function OutgoingMessagesTable(props: EntityMessagesProps) {
           lastRecord?.cursor,
           ascending,
           entityId,
+          isProcess,
         )
 
         if (count !== undefined && onCountReady) {
