@@ -1,9 +1,19 @@
+import { gql } from "urql"
+
 import { supabase } from "@/lib/supabase"
 
 import { NormalizedAoEvent, normalizeAoEvent } from "@/utils/ao-event-utils"
 
+import {
+  TransactionsResponse,
+  parseNormalizedAoEvent,
+} from "@/utils/arweave-utils"
+
 import { AoEvent } from "./aoscan"
 
+import { goldsky } from "./graphql-client"
+
+// TODO
 export async function getMessagesByEntityId(
   limit = 1000,
   skip = 0,
@@ -33,6 +43,7 @@ export async function getMessagesByEntityId(
   }
 }
 
+// TODO
 export async function getTokenTransfers(
   limit = 1000,
   skip = 0,
@@ -59,5 +70,141 @@ export async function getTokenTransfers(
     return data
   } catch (error) {
     return []
+  }
+}
+
+// { name: "owner_address", values: [$entityId] }
+// { name: "target", values: [$entityId] }
+// { name: "Forwarded-For", values: [$entityId] }
+// { name: "Pushed-For", values: [$entityId] }
+
+const getOutgoingMessagesQuery = gql`
+  query ($entityId: String!, $limit: Int!, $ascending: SortOrder!) {
+    transactions(
+      tags: [{ name: "From-Process", values: [$entityId] }]
+      sort: $ascending
+      first: $limit
+    ) {
+      count
+      edges {
+        cursor
+        node {
+          id
+          recipient
+          owner {
+            address
+          }
+          tags {
+            name
+            value
+          }
+          block {
+            id
+            timestamp
+            height
+          }
+          bundledIn {
+            id
+          }
+        }
+      }
+    }
+  }
+`
+
+export async function getOutgoingMessages(
+  limit = 100,
+  skip = 0,
+  entityId: string,
+  ascending: boolean,
+): Promise<[number, NormalizedAoEvent[]]> {
+  if (skip > 0) return [0, []] // TODO
+  try {
+    const result = await goldsky
+      .query<TransactionsResponse>(getOutgoingMessagesQuery, {
+        entityId,
+        limit,
+        // skip,
+        ascending: ascending ? "HEIGHT_ASC" : "HEIGHT_DESC",
+      })
+      .toPromise()
+    const { data } = result
+
+    if (!data) return [0, []]
+
+    const { count, edges } = data.transactions
+    const events = edges.map(parseNormalizedAoEvent)
+
+    return [count, events]
+  } catch (error) {
+    return [0, []]
+  }
+}
+
+// { name: "owner_address", values: [$entityId] }
+// { name: "target", values: [$entityId] }
+// { name: "Forwarded-For", values: [$entityId] }
+// { name: "Pushed-For", values: [$entityId] }
+
+const getIncomingMessagesQuery = gql`
+  query ($entityId: String!, $limit: Int!, $ascending: SortOrder!) {
+    transactions(
+      sort: $ascending
+      recipients: [$entityId]
+
+      first: $limit
+    ) {
+      edges {
+        cursor
+        node {
+          id
+          recipient
+          owner {
+            address
+          }
+          tags {
+            name
+            value
+          }
+          block {
+            id
+            timestamp
+            height
+          }
+          bundledIn {
+            id
+          }
+        }
+      }
+    }
+  }
+`
+
+export async function getIncomingMessages(
+  limit = 100,
+  skip = 0,
+  entityId: string,
+  ascending: boolean,
+): Promise<[number, NormalizedAoEvent[]]> {
+  if (skip > 0) return [0, []] // TODO
+  try {
+    const result = await goldsky
+      .query<TransactionsResponse>(getIncomingMessagesQuery, {
+        entityId,
+        limit,
+        // skip,
+        ascending: ascending ? "HEIGHT_ASC" : "HEIGHT_DESC",
+      })
+      .toPromise()
+    const { data } = result
+
+    if (!data) return [0, []]
+
+    const { count, edges } = data.transactions
+    const events = edges.map(parseNormalizedAoEvent)
+
+    return [count, events]
+  } catch (error) {
+    return [0, []]
   }
 }

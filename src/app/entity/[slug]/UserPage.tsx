@@ -6,7 +6,8 @@ import { BalanceSection } from "@/components/BalanceSection"
 import { IdBlock } from "@/components/IdBlock"
 import { Subheading } from "@/components/Subheading"
 
-import { EntityMessages } from "./EntityMessages"
+import { IncomingMessagesTable } from "./IncomingMessagesTable"
+import { OutgoingMessagesTable } from "./OutgoingMessagesTable"
 import { TokenBalances } from "./TokenBalances"
 import { TokenTransfers } from "./TokenTransfers"
 
@@ -28,14 +29,16 @@ export function UserPage(props: UserPageProps) {
       <BalanceSection entityId={entityId} />
       <div>
         <Tabs value={activeTab} onChange={handleChange} textColor="primary">
-          <Tab value={0} label="Messages" />
-          <Tab value={1} label="Token transfers" />
-          <Tab value={2} label="Token balances" />
+          <Tab value={0} label="Outgoing messages" />
+          <Tab value={1} label="Incoming messages" />
+          <Tab value={2} label="Token transfers" />
+          <Tab value={3} label="Token balances" />
         </Tabs>
         <Paper sx={{ marginX: -2 }}>
-          <EntityMessages entityId={entityId} open={activeTab === 0} />
-          <TokenTransfers entityId={entityId} open={activeTab === 1} />
-          <TokenBalances entityId={entityId} open={activeTab === 2} />
+          <OutgoingMessagesTable entityId={entityId} open={activeTab === 0} />
+          <IncomingMessagesTable entityId={entityId} open={activeTab === 1} />
+          <TokenTransfers entityId={entityId} open={activeTab === 2} />
+          <TokenBalances entityId={entityId} open={activeTab === 3} />
         </Paper>
       </div>
     </Stack>

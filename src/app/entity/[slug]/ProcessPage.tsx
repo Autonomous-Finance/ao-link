@@ -26,7 +26,8 @@ import { normalizeAoEvent, normalizeTags } from "@/utils/ao-event-utils"
 import { truncateId } from "@/utils/data-utils"
 import { formatRelative } from "@/utils/date-utils"
 
-import { EntityMessages } from "./EntityMessages"
+import { IncomingMessagesTable } from "./IncomingMessagesTable"
+import { OutgoingMessagesTable } from "./OutgoingMessagesTable"
 import { FetchInfoHandler } from "./ProcessPage/FetchInfoHandler"
 import { TokenBalances } from "./TokenBalances"
 import { TokenTransfers } from "./TokenTransfers"
@@ -166,19 +167,14 @@ export function ProcessPage(props: ProcessPageProps) {
       </Grid2>
       <div>
         <Tabs value={activeTab} onChange={handleChange} textColor="primary">
-          <Tab value={0} label="Messages" />
+          <Tab value={0} label="Outgoing messages" />
+          <Tab value={1} label="Incoming messages" />
           <Tab value={2} label="Token transfers" />
           <Tab value={3} label="Token balances" />
         </Tabs>
         <Paper sx={{ marginX: -2 }}>
-          <EntityMessages entityId={entityId} open={activeTab === 0} />
-          {/* {activeTab === 0 && (
-            <MessagesTable
-              processId={entityId}
-              tableFilter={tableFilter}
-              setTableFilter={setTableFilter}
-            />
-          )} */}
+          <OutgoingMessagesTable entityId={entityId} open={activeTab === 0} />
+          <IncomingMessagesTable entityId={entityId} open={activeTab === 1} />
           <TokenTransfers entityId={entityId} open={activeTab === 2} />
           <TokenBalances entityId={entityId} open={activeTab === 3} />
         </Paper>
