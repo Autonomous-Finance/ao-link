@@ -1,3 +1,4 @@
+import { Paper } from "@mui/material"
 import { useEffect, useState } from "react"
 
 import { InMemoryTable } from "@/components/InMemoryTable"
@@ -32,7 +33,7 @@ export function TokenBalances(props: TokenBalancesProps) {
   if (!open) return null
 
   return (
-    <>
+    <Paper>
       <InMemoryTable
         initialSortField="tokenId"
         initialSortDir="asc"
@@ -53,6 +54,6 @@ export function TokenBalances(props: TokenBalancesProps) {
           />
         )}
       />
-    </>
+    </Paper>
   )
 }

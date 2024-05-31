@@ -1,4 +1,4 @@
-import { TableCell, TableRow, Tooltip, Typography } from "@mui/material"
+import { Paper, TableCell, TableRow, Tooltip, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
 import React from "react"
 
@@ -26,6 +26,7 @@ export function EntityMessagesTable(props: EntityMessagesTableProps) {
   return (
     <AsyncTable
       {...rest}
+      component={Paper}
       initialSortDir="desc"
       initialSortField="created"
       headerCells={[

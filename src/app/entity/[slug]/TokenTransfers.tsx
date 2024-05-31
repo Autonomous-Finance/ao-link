@@ -1,3 +1,4 @@
+import { Paper } from "@mui/material"
 import React, { useEffect, useState } from "react"
 
 import { getTokenTransfers } from "@/services/messages-api"
@@ -25,5 +26,9 @@ export function TokenTransfers(props: TokenTransfersProps) {
 
   if (!open) return null
 
-  return <TokenTransfersTable data={data} />
+  return (
+    <Paper>
+      <TokenTransfersTable data={data} />
+    </Paper>
+  )
 }
