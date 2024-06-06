@@ -121,8 +121,14 @@ export function MessagePage(props: MessagePageProps) {
                   <Stack justifyContent="center" alignItems="center" sx={{ height: "100%" }}>
                     <CircularProgress size={24} color="primary" />
                   </Stack>
-                ) : (
+                ) : graphData.length > 0 ? (
                   <Graph data={graphData} />
+                ) : (
+                  <Stack justifyContent="center" alignItems="center" sx={{ height: "100%" }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Nothing to see here.
+                    </Typography>
+                  </Stack>
                 )}
               </Paper>
               <SectionInfoWithChip title="Type" value={type} />

@@ -212,21 +212,6 @@ function BaseGraph(props: GraphProps) {
           .attr("visibility", "hidden")
       })
 
-    const linkText = svg
-      .append("g")
-      .attr("class", "link-texts")
-      .selectAll("text")
-      .data(links)
-      .join("text")
-      .attr("id", (d) => `link-text-${d.source.id}-${d.target.id}`)
-      .style("font-size", sizes.fontSize)
-      .style("font-weight", "bold")
-      .style("paint-order", "stroke")
-      .style("stroke", "#fff")
-      .style("stroke-width", "4px")
-      .attr("visibility", "hidden")
-      .text((d) => d.action) // Use the 'action' property for labeling
-
     // Node circles
     svg
       .append("defs")
@@ -255,6 +240,7 @@ function BaseGraph(props: GraphProps) {
       .style("cursor", "pointer")
       .call(drag(simulation, largeGraph))
 
+    // Nodes
     node
       .append("circle")
       .attr("stroke", "white")
@@ -277,10 +263,29 @@ function BaseGraph(props: GraphProps) {
       .style("font-size", sizes.fontSize)
       .style("font-weight", "bold")
       .style("paint-order", "stroke")
-      .style("stroke", "#fff")
+      .style("fill", "var(--mui-palette-text-primary)")
+      .style("stroke", "var(--mui-palette-background-paper)")
       .style("stroke-width", "4px")
-      .style("visibility", "hidden") // Initially hide the text
+      .attr("visibility", "hidden") // Initially hide the text
       .style("pointer-events", "none") // Ensure the text doesn't interfere with mouse events
+
+    // Add text to links
+    const linkText = svg
+      .append("g")
+      .attr("class", "link-texts")
+      .selectAll("text")
+      .data(links)
+      .join("text")
+      .attr("id", (d) => `link-text-${d.source.id}-${d.target.id}`)
+      .style("font-size", sizes.fontSize)
+      .style("font-weight", "bold")
+      .style("paint-order", "stroke")
+      .style("fill", "var(--mui-palette-text-primary)")
+      .style("stroke", "var(--mui-palette-background-paper)")
+      .style("stroke-width", "4px")
+      .attr("visibility", "hidden") // Initially hide the text
+      .style("pointer-events", "none") // Ensure the text doesn't interfere with mouse events
+      .text((d) => d.action) // Use the 'action' property for labeling
 
     node
       .on("mouseover", function () {
