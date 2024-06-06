@@ -2,7 +2,7 @@
 import { Box, CircularProgress, Paper, Stack, Tabs, Tooltip, Typography } from "@mui/material"
 
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
-import { useCallback, useEffect, useState } from "react"
+import { useMemo, useState } from "react"
 
 import { BalanceSection } from "@/components/BalanceSection"
 import { ChartDataItem, Graph } from "@/components/Graph"
@@ -13,7 +13,6 @@ import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import { Subheading } from "@/components/Subheading"
 import { TabWithCount } from "@/components/TabWithCount"
 import { TagsSection } from "@/components/TagsSection"
-import { supabase } from "@/lib/supabase"
 
 import { AoMessage } from "@/types"
 import { truncateId } from "@/utils/data-utils"
@@ -38,47 +37,12 @@ export function ProcessPage(props: ProcessPageProps) {
     id: entityId,
     from: owner,
     type,
-    blockHeight,
+    //
     created,
     tags,
     userTags,
     systemTags,
   } = message
-
-  const [loading, setLoading] = useState(true)
-  const [graphData, setChartData] = useState<ChartDataItem[]>([])
-
-  useEffect(() => {
-    setLoading(true)
-    supabase
-      .rpc("get_message_network_v2", {
-        p_id: entityId,
-        is_process: true,
-        p_include_messages: false,
-      })
-      .returns<{ graph: ChartDataItem[]; messages: any[] }>()
-      .then(({ data, error }) => {
-        if (error || !data) {
-          console.error("Error calling Supabase RPC:", error.message)
-          return
-        }
-
-        const { graph } = data
-
-        setChartData(graph)
-
-        setLoading(false)
-      })
-  }, [entityId])
-
-  const [tableFilter, setTableFilter] = useState<{
-    from: string
-    to: string
-  } | null>(null)
-
-  const handleLinkClick = useCallback((from: string, to: string) => {
-    setTableFilter({ from, to })
-  }, [])
 
   const [activeTab, setActiveTab] = useState(0)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -91,6 +55,36 @@ export function ProcessPage(props: ProcessPageProps) {
   const [transfersCount, setTransfersCount] = useState<number>()
   const [balancesCount, setBalancesCount] = useState<number>()
 
+  const [outgoingMessages, setOutgoingMessages] = useState<AoMessage[] | null>(null)
+  const graphData = useMemo<ChartDataItem[] | null>(() => {
+    if (outgoingMessages === null) return null
+
+    const results: ChartDataItem[] = outgoingMessages.map((x) => {
+      const source_type = x.tags["From-Process"] === x.from ? "Process" : "User"
+      const target_type = x.tags["From-Process"] === x.to ? "Process" : "User"
+
+      return {
+        id: x.id,
+        highlight: true,
+        source: `${source_type} ${truncateId(x.from)}`,
+        source_id: x.from,
+        target: `${target_type} ${truncateId(x.to)}`,
+        target_id: x.to,
+        type: "Cranked Message",
+        action: x.tags["Action"] || "No Action Tag",
+      }
+    })
+
+    // return unique results only
+    const targetIdMap: Record<string, boolean> = {}
+
+    return results.filter((x) => {
+      if (targetIdMap[x.target_id]) return false
+      targetIdMap[x.target_id] = true
+      return true
+    })
+  }, [outgoingMessages])
+
   return (
     <Stack component="main" gap={6} paddingY={4}>
       <Subheading type="PROCESS" value={<IdBlock label={entityId} />} />
@@ -98,12 +92,12 @@ export function ProcessPage(props: ProcessPageProps) {
         <Grid2 xs={12} lg={6}>
           <Stack gap={4}>
             <Paper sx={{ height: 428, width: 428 }}>
-              {loading ? (
+              {graphData === null ? (
                 <Stack justifyContent="center" alignItems="center" sx={{ height: "100%" }}>
                   <CircularProgress size={24} color="primary" />
                 </Stack>
               ) : (
-                <Graph data={graphData} onLinkClick={handleLinkClick} />
+                <Graph data={graphData} />
               )}
             </Paper>
             <SectionInfoWithChip title="Type" value={type} />
@@ -170,6 +164,7 @@ export function ProcessPage(props: ProcessPageProps) {
             entityId={entityId}
             open={activeTab === 0}
             onCountReady={setOutgoingCount}
+            onDataReady={setOutgoingMessages}
             isProcess
           />
           <IncomingMessagesTable

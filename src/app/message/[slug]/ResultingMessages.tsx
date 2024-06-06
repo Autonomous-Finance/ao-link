@@ -1,17 +1,19 @@
-import React from "react"
+import React, { memo } from "react"
 
 import { EntityMessagesTable } from "@/app/entity/[slug]/EntityMessagesTable"
 import { getResultingMessages } from "@/services/messages-api"
+import { AoMessage } from "@/types"
 
-type EntityMessagesProps = {
+type Props = {
   entityId: string
   messageId: string
   open: boolean
   onCountReady?: (count: number) => void
+  onDataReady?: (data: AoMessage[]) => void
 }
 
-export function ResultingMessages(props: EntityMessagesProps) {
-  const { messageId, entityId, open, onCountReady } = props
+function BaseResultingMessages(props: Props) {
+  const { messageId, entityId, open, onCountReady, onDataReady } = props
 
   if (!open) return null
 
@@ -33,8 +35,15 @@ export function ResultingMessages(props: EntityMessagesProps) {
           onCountReady(count)
         }
 
+        if (onDataReady) {
+          onDataReady(records)
+        }
+
         return records
       }}
     />
   )
 }
+
+// TODO FIXME
+export const ResultingMessages = memo(BaseResultingMessages)

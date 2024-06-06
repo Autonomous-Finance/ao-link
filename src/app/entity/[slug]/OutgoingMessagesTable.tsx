@@ -1,6 +1,8 @@
-import React from "react"
+import React, { memo } from "react"
 
 import { getOutgoingMessages } from "@/services/messages-api"
+
+import { AoMessage } from "@/types"
 
 import { EntityMessagesTable } from "./EntityMessagesTable"
 
@@ -9,10 +11,11 @@ type EntityMessagesProps = {
   open: boolean
   onCountReady?: (count: number) => void
   isProcess?: boolean
+  onDataReady?: (data: AoMessage[]) => void
 }
 
-export function OutgoingMessagesTable(props: EntityMessagesProps) {
-  const { entityId, open, onCountReady, isProcess } = props
+function BaseOutgoingMessagesTable(props: EntityMessagesProps) {
+  const { entityId, open, onCountReady, isProcess, onDataReady } = props
 
   const pageSize = 25
 
@@ -35,8 +38,15 @@ export function OutgoingMessagesTable(props: EntityMessagesProps) {
           onCountReady(count)
         }
 
+        if (onDataReady) {
+          onDataReady(records)
+        }
+
         return records
       }}
     />
   )
 }
+
+// TODO FIXME
+export const OutgoingMessagesTable = memo(BaseOutgoingMessagesTable)

@@ -2,7 +2,6 @@
 
 import {
   Box,
-  Button,
   CircularProgress,
   Paper,
   Stack,
@@ -13,7 +12,7 @@ import {
 } from "@mui/material"
 
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { ChartDataItem, Graph } from "@/components/Graph"
 import { IdBlock } from "@/components/IdBlock"
@@ -24,8 +23,8 @@ import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import { Subheading } from "@/components/Subheading"
 import { TabWithCount } from "@/components/TabWithCount"
 import { TagsSection } from "@/components/TagsSection"
-import { supabase } from "@/lib/supabase"
 
+import { getMessageById } from "@/services/messages-api"
 import { AoMessage } from "@/types"
 import { truncateId } from "@/utils/data-utils"
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
@@ -57,46 +56,58 @@ export function MessagePage(props: MessagePageProps) {
 
   const pushedFor = tags["Pushed-For"]
 
-  const [loading, setLoading] = useState(true)
-  const [graphData, setChartData] = useState<ChartDataItem[]>([])
-
-  useEffect(() => {
-    setLoading(true)
-    console.log("fetching graph")
-    supabase
-      .rpc("get_message_network_v2", {
-        p_id: messageId,
-        is_process: false,
-      })
-      .returns<{ graph: ChartDataItem[]; messages: any[] }>()
-      .then(({ data, error }) => {
-        if (error || !data) {
-          console.error("Error calling Supabase RPC:", error.message)
-          return
-        }
-
-        const { graph, messages } = data
-
-        setChartData(graph)
-        setLoading(false)
-      })
-  }, [messageId])
-
-  const [tableFilter, setTableFilter] = useState<{
-    from: string
-    to: string
-  } | null>(null)
-
-  const handleLinkClick = useCallback((from: string, to: string) => {
-    setTableFilter({ from, to })
-  }, [])
-
   const [activeTab, setActiveTab] = useState(0)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue)
   }
 
+  const [pushedForMsg, setPushedForMsg] = useState<AoMessage>()
+
+  useEffect(() => {
+    if (pushedFor) {
+      getMessageById(pushedFor).then(setPushedForMsg)
+    }
+  }, [pushedFor])
+
   const [resultingCount, setResultingCount] = useState<number>()
+  const [resultingMessages, setResultingMessages] = useState<AoMessage[] | null>(null)
+  const graphData = useMemo<ChartDataItem[] | null>(() => {
+    const originatingMessage = pushedFor ? pushedForMsg : message
+
+    if (resultingMessages === null || !originatingMessage) return null
+
+    const results: ChartDataItem[] = resultingMessages.map((x) => {
+      const source_type = x.tags["From-Process"] === x.from ? "Process" : "User"
+      const target_type = x.tags["From-Process"] === x.to ? "Process" : "User"
+
+      return {
+        highlight: message.id === x.id,
+        id: x.id,
+        source: `${source_type} ${truncateId(x.from)}`,
+        source_id: x.from,
+        target: `${target_type} ${truncateId(x.to)}`,
+        target_id: x.to,
+        type: "Cranked Message",
+        action: x.tags["Action"] || "No Action Tag",
+      }
+    })
+
+    const firstTargetType = resultingMessages.length === 0 ? "User" : "Process"
+
+    return [
+      {
+        highlight: message.id === originatingMessage.id,
+        id: originatingMessage.id,
+        source: "User",
+        source_id: originatingMessage.from,
+        target: `${firstTargetType} ${truncateId(originatingMessage.to)}`,
+        target_id: originatingMessage.to,
+        type: "User Message",
+        action: originatingMessage.tags["Action"] || "No Action Tag",
+      },
+      ...results,
+    ]
+  }, [resultingMessages, message, pushedForMsg, pushedFor])
 
   return (
     <>
@@ -106,12 +117,12 @@ export function MessagePage(props: MessagePageProps) {
           <Grid2 xs={12} lg={6}>
             <Stack gap={4}>
               <Paper sx={{ height: 428, width: 428 }}>
-                {loading ? (
+                {graphData === null ? (
                   <Stack justifyContent="center" alignItems="center" sx={{ height: "100%" }}>
                     <CircularProgress size={24} color="primary" />
                   </Stack>
                 ) : (
-                  <Graph data={graphData} onLinkClick={handleLinkClick} />
+                  <Graph data={graphData} />
                 )}
               </Paper>
               <SectionInfoWithChip title="Type" value={type} />
@@ -205,22 +216,16 @@ export function MessagePage(props: MessagePageProps) {
           </Grid2>
         </Grid2>
         <div>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Tabs value={activeTab} onChange={handleChange} textColor="primary">
-              <TabWithCount value={0} label="Resulting messages" chipValue={resultingCount} />
-            </Tabs>
-            {tableFilter && (
-              <Button size="small" variant="outlined" onClick={() => setTableFilter(null)}>
-                Clear filter
-              </Button>
-            )}
-          </Stack>
+          <Tabs value={activeTab} onChange={handleChange} textColor="primary">
+            <TabWithCount value={0} label="Linked messages" chipValue={resultingCount} />
+          </Tabs>
           <Box sx={{ marginX: -2 }}>
             <ResultingMessages
-              messageId={messageId}
+              messageId={pushedFor || messageId}
               entityId={from}
               open={activeTab === 0}
               onCountReady={setResultingCount}
+              onDataReady={setResultingMessages}
             />
           </Box>
         </div>
