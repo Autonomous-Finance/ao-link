@@ -120,8 +120,10 @@ const LARGE_GRAPH = {
 function BaseGraph(props: GraphProps) {
   const { data: chartData } = props
 
-  const sizes =
-    chartData.length < 4 ? LARGE_GRAPH : chartData.length < 8 ? MEDIUM_GRAPH : SMALL_GRAPH
+  // const sizes =
+  //   chartData.length < 4 ? LARGE_GRAPH : chartData.length < 8 ? MEDIUM_GRAPH : SMALL_GRAPH
+
+  const sizes = SMALL_GRAPH
 
   const svgRef = useRef<SVGSVGElement>(null)
   const router = useRouter()
@@ -180,7 +182,7 @@ function BaseGraph(props: GraphProps) {
           .distance(sizes.distance),
       )
       .force("charge", d3.forceManyBody().strength(sizes.chargeStrength))
-      .force("collision", d3.forceCollide().radius(sizes.nodeRadius * 7))
+      .force("collision", d3.forceCollide().radius((sizes.distance * 2) / nodes.length))
       .force("center", d3.forceCenter(0, 0))
       .force("x", d3.forceX())
       .force("y", d3.forceY())
@@ -305,6 +307,12 @@ function BaseGraph(props: GraphProps) {
         .attr("x", (d) => (d.source.x + d.target.x) / 2)
         .attr("y", (d) => (d.source.y + d.target.y) / 2)
     })
+
+    // center the first node
+    if (nodes[0]) {
+      nodes[0].fx = 0
+      nodes[0].fy = 0
+    }
 
     // invalidation.then(() => simulation.stop());
     // Clean up the effect

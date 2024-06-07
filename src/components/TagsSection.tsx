@@ -6,6 +6,8 @@ import { TagChip } from "./TagChip"
 export function TagsSection({ tags, label }: { tags: Record<string, string>; label: string }) {
   const entries = Object.entries(tags).sort((a, b) => a[0].localeCompare(b[0]))
 
+  if (entries.length === 0) return null
+
   return (
     <Stack gap={1} justifyContent="stretch">
       <Typography variant="subtitle2" color="text.secondary">
