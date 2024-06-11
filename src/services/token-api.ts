@@ -1,7 +1,7 @@
 import { dryrun } from "@permaweb/aoconnect/browser"
 
-import { nativeTokenInfo } from "@/utils/native-token"
-import { wait } from "@/utils/utils"
+import { nativeTokenInfo } from "../utils/native-token"
+import { isAddress } from "../utils/utils"
 
 export type TokenInfo = {
   processId: string
@@ -23,11 +23,13 @@ export async function getBalance(tokenId: string, entityId: string, tokenV2 = tr
     data: "",
     tags: [
       { name: "Action", value: "Balance" },
+      // TODO FIXME combine these tags?
       { name: tokenV2 ? "Recipient" : "Target", value: entityId },
     ],
   })
 
   try {
+    if (result.Messages.length === 0) throw new Error(`No response from (get) Balance (${tokenId})`)
     const message = result.Messages[0]
     const account = message.Tags?.find((tag: any) => tag.name === "Account")?.value
     if (account !== entityId) {
@@ -56,6 +58,8 @@ export async function getTokenHolders(tokenInfo: TokenInfo): Promise<TokenHolder
   })
 
   try {
+    if (result.Messages.length === 0)
+      throw new Error(`No response from (get) Balances (${tokenInfo.name})`)
     const balanceMap = JSON.parse(result.Messages[0].Data) as BalanceMap
     const tokenHolders = Object.keys(balanceMap)
       .filter((entityId) => balanceMap[entityId] !== "0" && balanceMap[entityId] !== 0)
@@ -79,57 +83,37 @@ type Tag = {
   value: string
 }
 
-export async function getTokenInfo(processId: string): Promise<TokenInfo | undefined> {
+export async function getTokenInfo(processId: string): Promise<TokenInfo> {
+  if (!isAddress(processId)) {
+    throw new Error("Invalid tokenId")
+  }
+  if (nativeTokenInfo.processId === processId) return nativeTokenInfo
+
   const result = await dryrun({
     process: processId,
     data: "",
     tags: [{ name: "Action", value: "Info" }],
   })
 
-  try {
-    const tags = result.Messages[0].Tags as Tag[]
-    const tagMap = tags.reduce(
-      (acc, tag) => {
-        acc[tag.name] = tag.value
-        return acc
-      },
-      {} as { [key: string]: string },
-    )
-
-    const denomination = parseInt(tagMap["Denomination"])
-
-    if (isNaN(denomination)) throw new Error("Denomination is not a number")
-
-    return {
-      processId,
-      denomination,
-      ticker: tagMap["Ticker"],
-      logo: tagMap["Logo"],
-      name: tagMap["Name"],
-    }
-  } catch (err) {
-    console.error(err)
-  }
-}
-
-export type TokenInfoMap = Record<string, TokenInfo>
-
-export async function getTokenInfoMap(processIds: string[]): Promise<TokenInfoMap> {
-  const map: TokenInfoMap = {}
-
-  const results = await Promise.all(
-    processIds.map((processId) =>
-      processId === nativeTokenInfo.processId
-        ? nativeTokenInfo
-        : Promise.race([getTokenInfo(processId), wait(5_000)]),
-    ),
+  if (result.Messages.length === 0) throw new Error(`No response from (get) Info (${processId})`)
+  const tags = result.Messages[0].Tags as Tag[]
+  const tagMap = tags.reduce(
+    (acc, tag) => {
+      acc[tag.name] = tag.value
+      return acc
+    },
+    {} as { [key: string]: string },
   )
 
-  for (const info of results) {
-    if (info) {
-      map[info.processId] = info
-    }
-  }
+  const denomination = parseInt(tagMap["Denomination"])
 
-  return map
+  if (isNaN(denomination)) throw new Error("Denomination is not a number")
+
+  return {
+    processId: processId,
+    denomination,
+    ticker: tagMap["Ticker"],
+    logo: tagMap["Logo"],
+    name: tagMap["Name"],
+  }
 }

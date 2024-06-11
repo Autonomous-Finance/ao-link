@@ -1,6 +1,7 @@
 import { Paper, TableCell, TableRow, Tooltip } from "@mui/material"
-import { useRouter } from "next/navigation"
 import React from "react"
+
+import { useNavigate } from "react-router-dom"
 
 import { AsyncTable, AsyncTableProps, HeaderCell } from "@/components/AsyncTable"
 import { EntityBlock } from "@/components/EntityBlock"
@@ -18,8 +19,8 @@ type ProcessesTableProps = Pick<AsyncTableProps, "fetchFunction" | "pageSize"> &
 }
 
 export function ProcessesTable(props: ProcessesTableProps) {
-  const { hideModuleColumn } = props
-  const router = useRouter()
+  const { hideModuleColumn, ...rest } = props
+  const navigate = useNavigate()
 
   const headerCells: HeaderCell[] = [
     { label: "Type", sx: { width: 140 } },
@@ -48,7 +49,7 @@ export function ProcessesTable(props: ProcessesTableProps) {
 
   return (
     <AsyncTable
-      {...props}
+      {...rest}
       component={Paper}
       initialSortDir="desc"
       initialSortField="blockHeight"
@@ -58,7 +59,7 @@ export function ProcessesTable(props: ProcessesTableProps) {
           sx={{ cursor: "pointer" }}
           key={item.id}
           onClick={() => {
-            router.push(`/${TYPE_PATH_MAP[item.type]}/${item.id}`)
+            navigate(`/${TYPE_PATH_MAP[item.type]}/${item.id}`)
           }}
         >
           <TableCell>

@@ -1,22 +1,22 @@
 "use client"
 
-import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
+import { useLocation, useSearchParams } from "react-router-dom"
 
 import Mixpanel from "@/components/Mixpanel"
 
 export function NavigationEvents() {
-  const pathname = usePathname()
+  const location = useLocation()
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    const url = `${pathname}?${searchParams}`
+    const url = `${location.pathname}?${searchParams}`
     Mixpanel.track("Page View", {
       url: url,
     })
     // You can now use the current URL
     // ...
-  }, [pathname, searchParams])
+  }, [location, searchParams])
 
   return null
 }

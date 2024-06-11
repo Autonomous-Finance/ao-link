@@ -1,27 +1,25 @@
 "use client"
 import { Box, Stack, Tabs, Tooltip } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+
+import { useParams } from "react-router-dom"
 
 import { ProcessesByModule } from "@/app/entity/[slug]/ProcessesByModule"
 import { IdBlock } from "@/components/IdBlock"
+import { LoadingSkeletons } from "@/components/LoadingSkeletons"
 import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import { Subheading } from "@/components/Subheading"
 
 import { TabWithCount } from "@/components/TabWithCount"
+import { getMessageById } from "@/services/messages-api"
 import { AoMessage } from "@/types"
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
 import { formatNumber } from "@/utils/number-utils"
 
-type ModulePageProps = {
-  message: AoMessage
-}
-
-export function ModulePage(props: ModulePageProps) {
-  const { message } = props
-
-  const { id: moduleId, created } = message
+export function ModulePage() {
+  const { moduleId } = useParams()
 
   const [activeTab, setActiveTab] = useState(0)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -29,6 +27,19 @@ export function ModulePage(props: ModulePageProps) {
   }
 
   const [processesCount, setProcessesCount] = useState<number>()
+  const [message, setMessage] = useState<AoMessage | undefined | null>(null)
+
+  useEffect(() => {
+    if (!moduleId) return
+
+    getMessageById(moduleId).then(setMessage)
+  }, [moduleId])
+
+  if (message === null) return <LoadingSkeletons />
+
+  if (!moduleId || !message) {
+    return <div>Not Found</div>
+  }
 
   return (
     <Stack component="main" gap={6} paddingY={4}>
@@ -40,11 +51,11 @@ export function ModulePage(props: ModulePageProps) {
             <SectionInfo
               title="Created"
               value={
-                created === null ? (
+                message.created === null ? (
                   "Processing"
                 ) : (
-                  <Tooltip title={formatFullDate(created)}>
-                    <span>{formatRelative(created)}</span>
+                  <Tooltip title={formatFullDate(message.created)}>
+                    <span>{formatRelative(message.created)}</span>
                   </Tooltip>
                 )
               }

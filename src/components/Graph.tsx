@@ -1,8 +1,8 @@
 "use client"
 import * as d3 from "d3"
 import { type Simulation, type SimulationNodeDatum } from "d3-force"
-import { useRouter } from "next/navigation"
 import React, { memo, useEffect, useRef } from "react"
+import { useNavigate } from "react-router-dom"
 
 function linkArc(d: CustomLink) {
   const dx = d.target.x - d.source.x
@@ -125,7 +125,7 @@ function BaseGraph(props: GraphProps) {
   const sizes = SMALL_GRAPH
 
   const svgRef = useRef<SVGSVGElement>(null)
-  const router = useRouter()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!chartData || chartData.length === 0) return
@@ -211,7 +211,7 @@ function BaseGraph(props: GraphProps) {
       .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.type}`, location.href)})`)
       .style("cursor", "pointer")
       .on("click", function (event, d) {
-        router.push(`/message/${d.id}`)
+        navigate(`/message/${d.id}`)
       })
       .on("mouseover", function (event, d) {
         svg
@@ -307,7 +307,7 @@ function BaseGraph(props: GraphProps) {
         d3.select(this).select("text").style("visibility", "hidden")
       })
       .on("click", function (event, d) {
-        router.push(`/entity/${d.id}`)
+        navigate(`/entity/${d.id}`)
       })
 
     simulation.on("tick", () => {

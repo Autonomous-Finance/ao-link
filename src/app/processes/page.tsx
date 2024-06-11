@@ -10,7 +10,7 @@ import { formatNumber } from "@/utils/number-utils"
 
 import { AllProcesses } from "./AllProcesses"
 
-export default function ModulesPage() {
+export default function ProcessesPage() {
   const [totalCount, setTotalCount] = useState<number>()
 
   return (

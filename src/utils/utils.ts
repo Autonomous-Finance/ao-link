@@ -5,3 +5,12 @@ export function wait(time: number): Promise<null> {
 export function timeout(time: number) {
   return new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), time))
 }
+
+/**
+ * Returns if this is a valid arweave address
+ */
+export const isAddress = (addr: string) => /[a-z0-9_-]{43}/i.test(addr)
+
+export const isBrowser = typeof window !== "undefined"
+export const isStaging = isBrowser && window.location.toString().includes("staging")
+export const isDevelopment = isBrowser && window.location.toString().includes("localhost")

@@ -2,33 +2,48 @@
 
 import { Avatar, Paper, Stack, Tab, Tabs, Tooltip, Typography } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+
+import { useParams } from "react-router-dom"
 
 import { IdBlock } from "@/components/IdBlock"
+import { LoadingSkeletons } from "@/components/LoadingSkeletons"
 import { SectionInfo } from "@/components/SectionInfo"
 import { Subheading } from "@/components/Subheading"
 import { TokenAmountBlock } from "@/components/TokenAmountBlock"
-import { TokenInfo, TokenHolder } from "@/services/token-api"
+import { useTokenInfo } from "@/hooks/useTokenInfo"
+import { TokenHolder, getTokenHolders } from "@/services/token-api"
 
 import { TokenHolderChart } from "./TokenHolderChart"
 import { TokenHolderTable } from "./TokenHolderTable"
 
-type TokenPageProps = {
-  tokenInfo: TokenInfo
-  tokenHolders: TokenHolder[]
-}
+export default function TokenPage() {
+  const { tokenId } = useParams()
 
-export const dynamic = "force-dynamic"
+  const tokenInfo = useTokenInfo(tokenId)
 
-export default function TokenPage(props: TokenPageProps) {
-  const { tokenInfo, tokenHolders } = props
+  const [tokenHolders, setTokenHolders] = useState<TokenHolder[] | null>(null)
 
-  const circulatingSupply = tokenHolders.reduce((acc, holder) => acc + holder.balance, 0)
+  useEffect(() => {
+    if (!tokenInfo) return
+
+    getTokenHolders(tokenInfo).then(setTokenHolders)
+  }, [tokenInfo])
 
   const [activeTab, setActiveTab] = useState(0)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue)
   }
+
+  if (!tokenInfo) {
+    return <>Not a valid token</>
+  }
+
+  if (tokenHolders === null) {
+    return <LoadingSkeletons />
+  }
+
+  const circulatingSupply = tokenHolders.reduce((acc, holder) => acc + holder.balance, 0)
 
   return (
     <Stack component="main" gap={6} paddingY={4}>

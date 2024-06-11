@@ -1,5 +1,4 @@
 import { Stack, Typography } from "@mui/material"
-import Image from "next/image"
 import React from "react"
 
 import { TYPE_COLOR_MAP, TYPE_ICON_MAP } from "@/utils/data-utils"
@@ -29,7 +28,7 @@ export function TypeBadge(props: TypeBadgeProps) {
         >
           {type}
         </Typography>
-        {TYPE_ICON_MAP[type] && <Image alt="icon" width={8} height={8} src={TYPE_ICON_MAP[type]} />}
+        {TYPE_ICON_MAP[type] && <img alt="icon" width={8} height={8} src={TYPE_ICON_MAP[type]} />}
       </Stack>
     </>
   )

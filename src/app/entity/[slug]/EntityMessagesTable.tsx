@@ -1,6 +1,7 @@
 import { Paper, TableCell, TableRow, Tooltip } from "@mui/material"
-import { useRouter } from "next/navigation"
 import React from "react"
+
+import { useNavigate } from "react-router-dom"
 
 import { AsyncTable, AsyncTableProps, HeaderCell } from "@/components/AsyncTable"
 import { EntityBlock } from "@/components/EntityBlock"
@@ -19,7 +20,7 @@ type EntityMessagesTableProps = Pick<AsyncTableProps, "fetchFunction" | "pageSiz
 
 export function EntityMessagesTable(props: EntityMessagesTableProps) {
   const { entityId, hideBlockColumn, ...rest } = props
-  const router = useRouter()
+  const navigate = useNavigate()
 
   const headerCells: HeaderCell[] = [
     { label: "Type", sx: { width: 140 } },
@@ -58,7 +59,7 @@ export function EntityMessagesTable(props: EntityMessagesTableProps) {
           sx={{ cursor: "pointer" }}
           key={item.id}
           onClick={() => {
-            router.push(`/${TYPE_PATH_MAP[item.type]}/${item.id}`)
+            navigate(`/${TYPE_PATH_MAP[item.type]}/${item.id}`)
           }}
         >
           <TableCell>

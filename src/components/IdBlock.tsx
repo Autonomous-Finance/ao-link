@@ -1,8 +1,9 @@
 "use client"
 
 import { Box, Tooltip } from "@mui/material"
-import Link from "next/link"
 import React from "react"
+
+import { Link } from "react-router-dom"
 
 import { CopyToClipboard } from "./CopyToClipboard"
 
@@ -27,7 +28,7 @@ export function IdBlock(props: IdBlockProps) {
         }}
       >
         <Link
-          href={href}
+          to={href}
           onClick={(event) => {
             event.stopPropagation()
           }}

@@ -14,7 +14,8 @@ import {
 } from "@mui/material"
 import { Moon, Sun } from "@phosphor-icons/react"
 import { ConnectButton } from "arweave-wallet-kit"
-import Link from "next/link"
+
+import { Link } from "react-router-dom"
 
 import SearchBar from "@/app/SearchBar"
 
@@ -58,12 +59,12 @@ const Header = () => {
             sx={{ width: "100%" }}
           >
             <Stack direction="row" gap={2} alignItems="baseline">
-              <Button component={Link} href="/" sx={{ marginLeft: -1 }}>
+              <Button component={Link} to="/" sx={{ marginLeft: -1 }}>
                 <Logo color="var(--mui-palette-text-primary)" />
               </Button>
               <MuiLink
                 component={Link}
-                href="/processes"
+                to="/processes"
                 sx={{
                   color: "#9EA2AA",
                   "&:hover": {
@@ -78,7 +79,7 @@ const Header = () => {
               </MuiLink>
               <MuiLink
                 component={Link}
-                href="/modules"
+                to="/modules"
                 sx={{
                   color: "#9EA2AA",
                   "&:hover": {
@@ -93,7 +94,7 @@ const Header = () => {
               </MuiLink>
               <MuiLink
                 component={Link}
-                href="/blocks"
+                to="/blocks"
                 sx={{
                   color: "#9EA2AA",
                   "&:hover": {

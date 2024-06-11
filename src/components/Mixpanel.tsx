@@ -2,11 +2,8 @@
 import mixpanel, { Dict } from "mixpanel-browser"
 
 function getMixpanelUrl() {
-  if (process.env.NEXT_PUBLIC_VERCEL_ENV === "production") {
+  if (import.meta.env.PROD) {
     return "https://www.dataos.so/mp"
-  }
-  if (process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") {
-    return process.env.NEXT_PUBLIC_VERCEL_URL + "/mp"
   }
   return "http://localhost:3000/mp"
 }
@@ -15,7 +12,7 @@ function getMixpanelUrl() {
 mixpanel.init("c3ccb32f164e2539cfe3d743876efa97", {
   // Use your project's URL, adding a slug for all Mixpanel requests
   api_host: getMixpanelUrl(),
-  debug: true,
+  // debug: true,
   persistence: "localStorage",
 })
 

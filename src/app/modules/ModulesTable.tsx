@@ -1,6 +1,7 @@
 import { Paper, TableCell, TableRow, Tooltip } from "@mui/material"
-import { useRouter } from "next/navigation"
 import React from "react"
+
+import { useNavigate } from "react-router-dom"
 
 import { AsyncTable, AsyncTableProps } from "@/components/AsyncTable"
 import { IdBlock } from "@/components/IdBlock"
@@ -15,7 +16,7 @@ import { RetryableProcessCount } from "./RetryableProcessCount"
 type ModulesTableProps = Pick<AsyncTableProps, "fetchFunction" | "pageSize">
 
 export function ModulesTable(props: ModulesTableProps) {
-  const router = useRouter()
+  const navigate = useNavigate()
 
   return (
     <AsyncTable
@@ -47,7 +48,7 @@ export function ModulesTable(props: ModulesTableProps) {
           sx={{ cursor: "pointer" }}
           key={item.id}
           onClick={() => {
-            router.push(`/${TYPE_PATH_MAP[item.type]}/${item.id}`)
+            navigate(`/${TYPE_PATH_MAP[item.type]}/${item.id}`)
           }}
         >
           <TableCell>

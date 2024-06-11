@@ -1,6 +1,7 @@
 import { TableCell, TableRow, Tooltip, Typography } from "@mui/material"
-import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
+
+import { useNavigate } from "react-router-dom"
 
 import { EntityBlock } from "@/components/EntityBlock"
 import { IdBlock } from "@/components/IdBlock"
@@ -20,7 +21,7 @@ type TokenTransfersTableRowProps = {
 }
 
 export function TokenTransfersTableRow(props: TokenTransfersTableRowProps) {
-  const router = useRouter()
+  const navigate = useNavigate()
 
   const { item, entityId } = props
 
@@ -40,7 +41,7 @@ export function TokenTransfersTableRow(props: TokenTransfersTableRowProps) {
       sx={{ cursor: "pointer" }}
       key={item.id}
       onClick={() => {
-        router.push(`/${TYPE_PATH_MAP[item.type]}/${item.id}`)
+        navigate(`/${TYPE_PATH_MAP[item.type]}/${item.id}`)
       }}
     >
       <TableCell>

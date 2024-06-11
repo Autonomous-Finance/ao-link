@@ -4,6 +4,8 @@ import { Box, Stack, Tabs } from "@mui/material"
 
 import { useState } from "react"
 
+import { useParams } from "react-router-dom"
+
 import { IdBlock } from "@/components/IdBlock"
 import { Subheading } from "@/components/Subheading"
 
@@ -13,15 +15,9 @@ import { formatNumber } from "@/utils/number-utils"
 
 import { BlockMessagesTable } from "./BlockMessagesTable"
 
-type BlockPageProps = {
-  params: { slug: string }
-}
-
-export const dynamic = "force-dynamic"
-
-export default function BlockPage(props: BlockPageProps) {
-  const { slug } = props.params
-  const blockHeight = parseInt(slug)
+export default function BlockPage() {
+  const params = useParams()
+  const blockHeight = params.blockHeight ? parseInt(params.blockHeight) : 0
 
   const [activeTab, setActiveTab] = useState(0)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {

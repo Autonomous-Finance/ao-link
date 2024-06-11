@@ -6,7 +6,7 @@ import { Subheading } from "@/components/Subheading"
 
 import { AllBlocks } from "./AllBlocks"
 
-export default function ModulesPage() {
+export default function BlocksPage() {
   return (
     <Stack component="main" gap={2} paddingY={4}>
       <Subheading type="Blocks" />

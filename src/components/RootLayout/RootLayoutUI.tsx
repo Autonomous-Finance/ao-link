@@ -4,10 +4,13 @@ import { Container, Stack } from "@mui/material"
 import CssBaseline from "@mui/material/CssBaseline"
 import { Experimental_CssVarsProvider as CssVarsProvider } from "@mui/material/styles"
 
+import { Suspense } from "react"
+
 import { ArweaveProvider } from "./ArweaveProvider"
 import { theme } from "./theme"
 import { Footer } from "../Footer"
 import Header from "../Header"
+import { NavigationEvents } from "../NavigationEvents"
 
 export default function RootLayoutUI({ children }: { children: React.ReactNode }) {
   return (
@@ -24,6 +27,9 @@ export default function RootLayoutUI({ children }: { children: React.ReactNode }
           </Stack>
         </ArweaveProvider>
       </CssVarsProvider>
+      <Suspense fallback={null}>
+        <NavigationEvents />
+      </Suspense>
     </>
   )
 }

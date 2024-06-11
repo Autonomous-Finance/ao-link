@@ -1,20 +1,27 @@
-import { redirect } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
 
 import { getMessageById } from "@/services/messages-api"
+
+import { AoMessage } from "@/types"
 
 import { ProcessPage } from "./ProcessPage"
 import { UserPage } from "./UserPage"
 
-type EntityPageServerProps = {
-  params: { slug: string }
-}
+export default function EntityPage() {
+  const { entityId } = useParams()
 
-export const dynamic = "force-dynamic"
+  const [message, setMessage] = useState<AoMessage | undefined | null>(null)
 
-export default async function EntityPageServer(props: EntityPageServerProps) {
-  const { slug: entityId } = props.params
+  useEffect(() => {
+    if (!entityId) return
 
-  const message = await getMessageById(entityId)
+    getMessageById(entityId).then(setMessage)
+  }, [entityId])
+
+  if (!entityId) {
+    return <div>Not Found</div>
+  }
 
   if (!message) {
     return <UserPage entityId={entityId} />
@@ -24,5 +31,6 @@ export default async function EntityPageServer(props: EntityPageServerProps) {
     return <ProcessPage message={message} />
   }
 
-  return redirect(`/message/${entityId}`)
+  // return redirect(`/message/${entityId}`) // FIXME
+  return null
 }
