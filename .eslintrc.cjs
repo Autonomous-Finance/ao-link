@@ -3,12 +3,11 @@ const config = {
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint", "prettier", "import", "unused-imports"],
   extends: [
-    "next/core-web-vitals",
     // "plugin:@typescript-eslint/recommended-type-checked",
     // "plugin:@typescript-eslint/stylistic-type-checked",
     "prettier",
   ],
-  ignorePatterns: [".next"],
+  ignorePatterns: [".next", "dist"],
   rules: {
     // "@typescript-eslint/array-type": "off",
     // "@typescript-eslint/consistent-type-definitions": "off",

@@ -2,6 +2,7 @@
 
 import { Box, Skeleton, Stack } from "@mui/material"
 
+import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
 import { useEffect, useState } from "react"
 
 import { AreaChart } from "@/components/Charts/AreaChart"
@@ -47,34 +48,35 @@ export default function HomePage() {
   return (
     <Stack component="main" gap={2}>
       {messages.length === 0 ? (
-        <div className="flex justify-between flex-wrap mt-[24px] mx-[-24px]">
-          <div className="container px-4 min-h-[150px] relative">
-            <Stack gap={10} direction="row">
-              <Skeleton width={"100%"} />
-              <Skeleton width={"100%"} />
-              <Skeleton width={"100%"} />
-              <Skeleton width={"100%"} />
-            </Stack>
-          </div>
-        </div>
+        <Grid2 container spacing={{ xs: 1, lg: 2 }}>
+          <Grid2 xs={6} lg={3}>
+            <Skeleton height={150} variant="rectangular" />
+          </Grid2>
+          <Grid2 xs={6} lg={3}>
+            <Skeleton height={150} variant="rectangular" />
+          </Grid2>
+          <Grid2 xs={6} lg={3}>
+            <Skeleton height={150} variant="rectangular" />
+          </Grid2>
+          <Grid2 xs={6} lg={3}>
+            <Skeleton height={150} variant="rectangular" />
+          </Grid2>
+        </Grid2>
       ) : (
-        <div className="flex justify-between flex-wrap mt-[24px] mx-[-24px]">
-          <div className="container w-1/2 lg:w-1/4 px-4 min-h-[150px] relative">
+        <Grid2 container spacing={{ xs: 1, lg: 2 }}>
+          <Grid2 xs={6} lg={3}>
             <AreaChart data={messages} titleText="TOTAL MESSAGES" overrideValue={totalMessages} />
-            <div className="separator"></div>
-          </div>
-          <div className="container w-1/2 lg:w-1/4 px-4 min-h-[150px] relative">
+          </Grid2>
+          <Grid2 xs={6} lg={3}>
             <AreaChart data={users} titleText="USERS" />
-            <div className="separator hidden lg:block"></div>
-          </div>
-          <div className="container w-1/2 lg:w-1/4 px-4 min-h-[150px] relative">
+          </Grid2>
+          <Grid2 xs={6} lg={3}>
             <AreaChart data={processes} titleText="PROCESSES" />
-            <div className="separator"></div>
-          </div>
-          <div className="container w-1/2 lg:w-1/4 px-4 min-h-[150px] relative">
+          </Grid2>
+          <Grid2 xs={6} lg={3}>
             <AreaChart data={modules} titleText="MODULES" />
-          </div>
-        </div>
+          </Grid2>
+        </Grid2>
       )}
       <Subheading type="Latest messages" />
       <Box sx={{ marginX: -2 }}>

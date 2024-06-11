@@ -1,7 +1,8 @@
 {
-  "name": "test",
+  "name": "ao-link",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite --port 3005 --host",
     "build": "vite build",
@@ -14,6 +15,8 @@
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
+    "@fontsource/dm-sans": "^5.0.21",
+    "@fontsource/roboto-mono": "^5.0.18",
     "@monaco-editor/react": "^4.6.0",
     "@mui/material": "^5.15.10",
     "@nanostores/persistent": "^0.10.1",

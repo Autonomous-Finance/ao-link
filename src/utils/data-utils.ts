@@ -20,15 +20,15 @@ export const TYPE_ICON_MAP: Record<string, any> = {
 }
 
 export const TYPE_COLOR_MAP: Record<string, string> = {
-  Module: "bg-[#d1b8e0]",
-  Assignment: "bg-[#e0b8b8]",
-  Checkpoint: "bg-[#80deea]",
-  Process: "bg-[#B8C3E0]",
-  Message: "bg-[#E2F0DC]",
-  Owner: "bg-[#FFADAD]",
-  Block: "bg-[#FEEEE5]",
-  Entity: "bg-[#9EA2AA]",
-  Token: "bg-[#ffeb84]",
+  Module: "#d1b8e0",
+  Assignment: "#e0b8b8",
+  Checkpoint: "#80deea",
+  Process: "#B8C3E0",
+  Message: "#E2F0DC",
+  Owner: "#FFADAD",
+  Block: "#FEEEE5",
+  Entity: "#9EA2AA",
+  Token: "#ffeb84",
 }
 
 export const TYPE_PATH_MAP: Record<string, string> = {

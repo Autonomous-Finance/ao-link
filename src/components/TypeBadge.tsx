@@ -1,9 +1,8 @@
 import { Stack, Typography } from "@mui/material"
 import React from "react"
 
-import { TYPE_COLOR_MAP, TYPE_ICON_MAP } from "@/utils/data-utils"
-
 import { MonoFontFF } from "./RootLayout/fonts"
+import { TYPE_COLOR_MAP, TYPE_ICON_MAP } from "@/utils/data-utils"
 
 type TypeBadgeProps = {
   type: string
@@ -17,8 +16,12 @@ export function TypeBadge(props: TypeBadgeProps) {
       <Stack
         direction="row"
         gap={1}
-        className={` ${TYPE_COLOR_MAP[type]}`}
-        sx={{ padding: "4px 8px", width: "fit-content" }}
+        sx={{
+          background: TYPE_COLOR_MAP[type],
+          padding: "4px 8px",
+          width: "fit-content",
+        }}
+        alignItems="center"
       >
         <Typography
           textTransform="uppercase"

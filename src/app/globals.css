@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 html[data-mui-color-scheme="dark"]:root {
   color-scheme: dark;
 }
@@ -9,7 +5,6 @@ html[data-mui-color-scheme="dark"]:root {
 body {
   overflow-y: scroll;
 }
-
 
 :root {
   --background-color: 255, 255, 255;
@@ -22,10 +17,6 @@ html[data-mui-color-scheme="dark"] :root {
   --background-color: #252424;
   --gradient-start-color: 84, 91, 255;
   --gradient-stop-color: 168, 171, 255;
-}
-
-.highcharts-credits {
-  @apply hidden;
 }
 
 .separator {

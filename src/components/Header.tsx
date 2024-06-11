@@ -108,10 +108,11 @@ const Header = () => {
                 BLOCKS
               </MuiLink>
             </Stack>
-            <Stack direction="row" gap={2} alignItems="stretch">
+            <Stack direction="row" gap={2} alignItems="center">
               <SearchBar />
               <Box
                 sx={{
+                  height: 40,
                   "&.MuiBox-root > button > div": {
                     height: "fit-content",
                     padding: 0,
@@ -142,7 +143,7 @@ const Header = () => {
                     fontSize: "0.8125rem",
                     padding: 0,
                   },
-                  "& button  svg": {
+                  "& button svg": {
                     marginY: -1,
                   },
                 }}

@@ -6,14 +6,13 @@ import { useState } from "react"
 
 import { useParams } from "react-router-dom"
 
+import { BlockMessagesTable } from "./BlockMessagesTable"
 import { IdBlock } from "@/components/IdBlock"
 import { Subheading } from "@/components/Subheading"
 
 import { TabWithCount } from "@/components/TabWithCount"
 
 import { formatNumber } from "@/utils/number-utils"
-
-import { BlockMessagesTable } from "./BlockMessagesTable"
 
 export default function BlockPage() {
   const params = useParams()
@@ -28,7 +27,10 @@ export default function BlockPage() {
 
   return (
     <Stack component="main" gap={4} paddingY={4}>
-      <Subheading type="Block" value={<IdBlock label={formatNumber(blockHeight)} />} />
+      <Subheading
+        type="Block"
+        value={<IdBlock label={formatNumber(blockHeight)} value={params.blockHeight} />}
+      />
       <div>
         <Tabs value={activeTab} onChange={handleChange} textColor="primary">
           <TabWithCount value={0} label="Messages" chipValue={messagesCount} />

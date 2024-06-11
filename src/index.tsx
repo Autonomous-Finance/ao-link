@@ -1,4 +1,12 @@
 import "./app/globals.css"
+import "@fontsource/roboto-mono/300.css"
+import "@fontsource/roboto-mono/400.css"
+import "@fontsource/roboto-mono/500.css"
+import "@fontsource/roboto-mono/700.css"
+import "@fontsource/dm-sans/300.css"
+import "@fontsource/dm-sans/400.css"
+import "@fontsource/dm-sans/500.css"
+import "@fontsource/dm-sans/700.css"
 
 import * as React from "react"
 import * as ReactDOM from "react-dom/client"
