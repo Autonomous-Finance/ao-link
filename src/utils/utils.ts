@@ -7,9 +7,9 @@ export function timeout(time: number) {
 }
 
 /**
- * Returns if this is a valid arweave address
+ * Returns if this is a valid arweave id
  */
-export const isAddress = (addr: string) => /[a-z0-9_-]{43}/i.test(addr)
+export const isArweaveId = (addr: string) => /[a-z0-9_-]{43}/i.test(addr)
 
 export const isBrowser = typeof window !== "undefined"
 export const isStaging = isBrowser && window.location.toString().includes("staging")

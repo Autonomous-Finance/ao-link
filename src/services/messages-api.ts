@@ -1,10 +1,11 @@
 import { gql } from "urql"
 
+import { goldsky } from "./graphql-client"
 import { AoMessage, TokenTransferMessage } from "@/types"
 
 import { TransactionsResponse, parseAoMessage, parseTokenEvent } from "@/utils/arweave-utils"
 
-import { goldsky } from "./graphql-client"
+import { isArweaveId } from "@/utils/utils"
 
 // const AO_NETWORK_IDENTIFIER = '{ name: "SDK", values: ["aoconnect"] }'
 // const AO_NETWORK_IDENTIFIER = '{ name: "Variant", values: ["ao.TN.1"] }'
@@ -271,6 +272,9 @@ export async function getSpawnedProcesses(
 }
 
 export async function getMessageById(id: string): Promise<AoMessage | undefined> {
+  if (!isArweaveId(id)) {
+    throw new Error("Invalid Arweave ID")
+  }
   const { data, error } = await goldsky
     .query<TransactionsResponse>(
       gql`

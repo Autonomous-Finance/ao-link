@@ -1,7 +1,7 @@
 import { dryrun } from "@permaweb/aoconnect/browser"
 
 import { nativeTokenInfo } from "../utils/native-token"
-import { isAddress } from "../utils/utils"
+import { isArweaveId } from "../utils/utils"
 
 export type TokenInfo = {
   processId: string
@@ -84,8 +84,8 @@ type Tag = {
 }
 
 export async function getTokenInfo(processId: string): Promise<TokenInfo> {
-  if (!isAddress(processId)) {
-    throw new Error("Invalid tokenId")
+  if (!isArweaveId(processId)) {
+    throw new Error("Invalid Arweave ID")
   }
   if (nativeTokenInfo.processId === processId) return nativeTokenInfo
 

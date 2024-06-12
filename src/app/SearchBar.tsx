@@ -20,6 +20,7 @@ import { TypeBadge } from "@/components/TypeBadge"
 import { getMessageById } from "@/services/messages-api"
 import { getTokenInfo } from "@/services/token-api"
 import { TYPE_PATH_MAP } from "@/utils/data-utils"
+import { isArweaveId } from "@/utils/utils"
 
 type ResultType = "Message" | "Entity" | "Block" | "Checkpoint" | "Assignment" | "Process" | "Token"
 
@@ -34,12 +35,14 @@ async function findByText(text: string): Promise<Result[]> {
 
   const [msg, tokenInfo] = await Promise.all([
     getMessageById(text),
-    getTokenInfo(text).catch(console.error),
+    getTokenInfo(text).catch(() => {
+      console.log("Token not found")
+    }),
   ])
 
   const results = []
 
-  if (msg) {
+  if (msg && msg.type) {
     results.push({
       label: text,
       id: msg.id,
@@ -55,7 +58,7 @@ async function findByText(text: string): Promise<Result[]> {
     })
   }
 
-  if (!msg) {
+  if (!msg && isArweaveId(text)) {
     results.push({
       label: text,
       id: text,
@@ -115,16 +118,23 @@ const SearchBar = () => {
   return (
     <Box sx={{ width: 640 }}>
       <Autocomplete
+        id="search-bar"
         size="small"
         disableClearable
+        clearOnEscape
         freeSolo
         options={results}
         value={inputValue}
-        onChange={(event, newValue, reason, details) => {
-          if (typeof newValue !== "string") {
+        onChange={(event, newValue, reason) => {
+          if (reason === "selectOption" && typeof newValue !== "string") {
             setInputValue("")
             setResults([])
             navigate(`/${TYPE_PATH_MAP[newValue.type]}/${newValue.id}`)
+            document.getElementById("search-bar")?.blur()
+          }
+
+          if (reason === "clear") {
+            document.getElementById("search-bar")?.blur()
           }
         }}
         onFocus={handleInputFocus}
