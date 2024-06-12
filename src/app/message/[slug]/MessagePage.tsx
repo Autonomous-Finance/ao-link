@@ -12,10 +12,12 @@ import {
 } from "@mui/material"
 
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
-import { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 
 import { useParams } from "react-router-dom"
 
+import { ComputeResult } from "./ComputeResult"
+import { ResultingMessages } from "./ResultingMessages"
 import { EntityBlock } from "@/components/EntityBlock"
 import { ChartDataItem, Graph } from "@/components/Graph"
 import { IdBlock } from "@/components/IdBlock"
@@ -34,9 +36,6 @@ import { truncateId } from "@/utils/data-utils"
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
 
 import { formatNumber } from "@/utils/number-utils"
-
-import { ComputeResult } from "./ComputeResult"
-import { ResultingMessages } from "./ResultingMessages"
 
 export function MessagePage() {
   const { messageId } = useParams()
@@ -128,7 +127,7 @@ export function MessagePage() {
   const { from, type, blockHeight, created, to, systemTags, userTags } = message
 
   return (
-    <>
+    <React.Fragment key={messageId}>
       <Stack component="main" gap={6} paddingY={4}>
         <Subheading type="MESSAGE" value={<IdBlock label={messageId} />} />
         <Grid2 container spacing={{ xs: 2, lg: 12 }}>
@@ -245,6 +244,6 @@ export function MessagePage() {
           </Box>
         </div>
       </Stack>
-    </>
+    </React.Fragment>
   )
 }

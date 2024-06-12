@@ -26,7 +26,7 @@ export default function BlockPage() {
   const [messagesCount, setMessagesCount] = useState<number>()
 
   return (
-    <Stack component="main" gap={4} paddingY={4}>
+    <Stack component="main" gap={4} paddingY={4} key={blockHeight}>
       <Subheading
         type="Block"
         value={<IdBlock label={formatNumber(blockHeight)} value={params.blockHeight} />}

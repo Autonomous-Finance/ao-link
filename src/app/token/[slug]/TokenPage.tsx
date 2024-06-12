@@ -6,6 +6,8 @@ import React, { useEffect, useState } from "react"
 
 import { useParams } from "react-router-dom"
 
+import { TokenHolderChart } from "./TokenHolderChart"
+import { TokenHolderTable } from "./TokenHolderTable"
 import { IdBlock } from "@/components/IdBlock"
 import { LoadingSkeletons } from "@/components/LoadingSkeletons"
 import { SectionInfo } from "@/components/SectionInfo"
@@ -13,9 +15,6 @@ import { Subheading } from "@/components/Subheading"
 import { TokenAmountBlock } from "@/components/TokenAmountBlock"
 import { useTokenInfo } from "@/hooks/useTokenInfo"
 import { TokenHolder, getTokenHolders } from "@/services/token-api"
-
-import { TokenHolderChart } from "./TokenHolderChart"
-import { TokenHolderTable } from "./TokenHolderTable"
 
 export default function TokenPage() {
   const { tokenId } = useParams()
@@ -46,7 +45,7 @@ export default function TokenPage() {
   const circulatingSupply = tokenHolders.reduce((acc, holder) => acc + holder.balance, 0)
 
   return (
-    <Stack component="main" gap={6} paddingY={4}>
+    <Stack component="main" gap={6} paddingY={4} key={tokenId}>
       <Subheading type="TOKEN" value={<IdBlock label={tokenInfo.processId} />} />
       <Grid2 container spacing={{ xs: 4 }}>
         <Grid2 xs={12} lg={6}>

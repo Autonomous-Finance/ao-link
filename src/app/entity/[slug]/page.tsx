@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 
+import { ProcessPage } from "./ProcessPage"
+import { UserPage } from "./UserPage"
 import { getMessageById } from "@/services/messages-api"
 
 import { AoMessage } from "@/types"
-
-import { ProcessPage } from "./ProcessPage"
-import { UserPage } from "./UserPage"
 
 export default function EntityPage() {
   const { entityId } = useParams()
@@ -24,11 +23,11 @@ export default function EntityPage() {
   }
 
   if (!message) {
-    return <UserPage entityId={entityId} />
+    return <UserPage key={entityId} entityId={entityId} />
   }
 
   if (message.type === "Process") {
-    return <ProcessPage message={message} />
+    return <ProcessPage key={entityId} message={message} />
   }
 
   // return redirect(`/message/${entityId}`) // FIXME

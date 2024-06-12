@@ -42,7 +42,7 @@ export function ModulePage() {
   }
 
   return (
-    <Stack component="main" gap={6} paddingY={4}>
+    <Stack component="main" gap={6} paddingY={4} key={moduleId}>
       <Subheading type="MODULE" value={<IdBlock label={moduleId} />} />
       <Grid2 container spacing={{ xs: 2, lg: 12 }}>
         <Grid2 xs={12} lg={6}>
