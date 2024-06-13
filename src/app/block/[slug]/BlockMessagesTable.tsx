@@ -18,6 +18,7 @@ export function BlockMessagesTable(props: EntityMessagesProps) {
 
   return (
     <EntityMessagesTable
+      allowTypeFilter
       hideBlockColumn
       pageSize={pageSize}
       fetchFunction={async (offset, ascending, sortField, lastRecord) => {

@@ -29,11 +29,11 @@ export type HighchartAreaDataServer = [string, number]
 export type HighchartAreaData = [number, number]
 export type HighchartPieData = { y: number; name: string }
 
-export type FilterOption = "" | "message" | "process"
+export const MSG_TYPES = ["Message", "Process", "Checkpoint", "Assignment"] as const
 
 export type AoMessage = {
   id: string
-  type: "Message" | "Process" | "Checkpoint" | "Assignment"
+  type: (typeof MSG_TYPES)[number]
   to: string
   from: string
   blockHeight: number | null

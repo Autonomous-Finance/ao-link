@@ -517,17 +517,13 @@ export async function getMessagesForBlock(
 }
 
 const allMessagesQuery = gql`
-  query (
-    $limit: Int!
-    $sortOrder: SortOrder!
-    $cursor: String
-  ) {
+  query ($limit: Int!, $sortOrder: SortOrder!, $cursor: String, $tags: [TagFilter!]) {
     transactions(
       sort: $sortOrder
       first: $limit
       after: $cursor
 
-      tags: [${AO_NETWORK_IDENTIFIER}]
+      tags: $tags
     ) {
       edges {
         cursor
@@ -555,7 +551,23 @@ export async function getAllMessages(
   limit = 100,
   cursor = "",
   ascending: boolean,
+  //
+  extraFilters?: Record<string, string>,
 ): Promise<[number | undefined, AoMessage[]]> {
+  const tags = [
+    {
+      // AO_NETWORK_IDENTIFIER
+      name: "Data-Protocol",
+      values: ["ao"],
+    },
+  ]
+
+  if (extraFilters) {
+    for (const [name, value] of Object.entries(extraFilters)) {
+      tags.push({ name, values: [value] })
+    }
+  }
+
   try {
     const result = await goldsky
       .query<TransactionsResponse>(allMessagesQuery, {
@@ -563,6 +575,7 @@ export async function getAllMessages(
         sortOrder: ascending ? "HEIGHT_ASC" : "HEIGHT_DESC",
         cursor,
         //
+        tags,
       })
       .toPromise()
     const { data } = result

@@ -1,5 +1,7 @@
 import {
+  Box,
   CircularProgress,
+  LinearProgress,
   Stack,
   StackProps,
   Table,
@@ -35,7 +37,9 @@ export type AsyncTableProps = Omit<TableProps, "component"> &
       ascending: boolean,
       sortField: string,
       lastRecord?: any,
+      extraFilters?: Record<string, string>,
     ) => Promise<any[]>
+    extraFilters?: Record<string, string>
   }
 
 export function AsyncTable(props: AsyncTableProps) {
@@ -47,6 +51,7 @@ export function AsyncTable(props: AsyncTableProps) {
     initialSortDir,
     fetchFunction,
     component,
+    extraFilters,
     ...rest
   } = props
 
@@ -60,6 +65,8 @@ export function AsyncTable(props: AsyncTableProps) {
   const [sortAscending, setSortAscending] = useState<boolean>(initialSortDir === "asc")
   const [sortField, setSortField] = useState<string>(initialSortField)
 
+  const [loading, setLoading] = useState(false)
+
   useEffect(() => {
     if (endReached) return
     const observer = new IntersectionObserver(
@@ -67,25 +74,31 @@ export function AsyncTable(props: AsyncTableProps) {
         const first = entries[0]
         if (first.isIntersecting) {
           console.log("Intersecting - Fetching more data")
-          fetchFunction(listSizeRef.current, sortAscending, sortField, data[data.length - 1]).then(
-            (newPage) => {
-              console.log(`Fetched another page of ${newPage.length} records`)
+          setLoading(true)
+          fetchFunction(
+            listSizeRef.current,
+            sortAscending,
+            sortField,
+            data[data.length - 1],
+            extraFilters,
+          ).then((newPage) => {
+            console.log(`Fetched another page of ${newPage.length} records`)
 
-              if (newPage.length === 0) {
-                console.log("No more records to fetch")
-                observer.disconnect()
-                setEndReached(true)
-                return
-              }
+            if (newPage.length === 0) {
+              console.log("No more records to fetch")
+              observer.disconnect()
+              setEndReached(true)
+              return
+            }
 
-              setData((prevData) => {
-                const newList = [...prevData, ...newPage]
-                listSizeRef.current = newList.length
-                return newList
-              })
-              isFirstFetch.current = false
-            },
-          )
+            setLoading(false)
+            setData((prevData) => {
+              const newList = [...prevData, ...newPage]
+              listSizeRef.current = newList.length
+              return newList
+            })
+            isFirstFetch.current = false
+          })
         } else {
           console.log("Not intersecting")
         }
@@ -99,16 +112,18 @@ export function AsyncTable(props: AsyncTableProps) {
 
     return () => observer.disconnect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, endReached, pageSize, sortAscending, sortField])
+  }, [data, endReached, pageSize, sortAscending, sortField, extraFilters])
 
   useEffect(() => {
-    fetchFunction(0, sortAscending, sortField, undefined).then((newPage) => {
+    setLoading(true)
+    fetchFunction(0, sortAscending, sortField, undefined, extraFilters).then((newPage) => {
+      setLoading(false)
       setData(newPage)
       listSizeRef.current = newPage.length
       setEndReached(newPage.length < pageSize)
       isFirstFetch.current = false
     })
-  }, [fetchFunction, sortAscending, sortField, pageSize])
+  }, [fetchFunction, sortAscending, sortField, pageSize, extraFilters])
 
   if (isFirstFetch.current) return <LoadingSkeletons />
 
@@ -148,6 +163,15 @@ export function AsyncTable(props: AsyncTableProps) {
           </TableRow>
         </TableHead>
         <TableBody>
+          <TableRow hover={false}>
+            <TableCell colSpan={99} sx={{ padding: 0, border: 0 }}>
+              {loading ? (
+                <LinearProgress color="primary" variant="indeterminate" sx={{ height: 2 }} />
+              ) : (
+                <Box sx={{ height: 2 }} />
+              )}
+            </TableCell>
+          </TableRow>
           {data.map(renderRow)}
           {data.length === 0 && endReached && (
             <TableRow hover={false}>

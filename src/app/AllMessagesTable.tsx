@@ -17,9 +17,15 @@ export function AllMessagesTable(props: EntityMessagesProps) {
 
   return (
     <EntityMessagesTable
+      allowTypeFilter
       pageSize={pageSize}
-      fetchFunction={async (offset, ascending, sortField, lastRecord) => {
-        const [count, records] = await getAllMessages(pageSize, lastRecord?.cursor, ascending)
+      fetchFunction={async (offset, ascending, sortField, lastRecord, extraFilters) => {
+        const [count, records] = await getAllMessages(
+          pageSize,
+          lastRecord?.cursor,
+          ascending,
+          extraFilters,
+        )
 
         if (count && onCountReady) {
           onCountReady(count)
