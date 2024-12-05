@@ -34,7 +34,7 @@ export default function HomePage() {
   )
 
   const totalMessages = useMemo(
-    () => (stats ? stats[stats.length - 1].tx_count_rolling : 0),
+    () => (stats?.length ? stats[stats.length - 1].tx_count_rolling : 0),
     [stats],
   )
 
