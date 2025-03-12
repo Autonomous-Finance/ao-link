@@ -26,6 +26,7 @@ import ProcessesPage from "./app/processes/ProcessesPage"
 import TokenPage from "./app/token/[slug]/TokenPage"
 import RootLayoutUI from "./components/RootLayout/RootLayoutUI"
 import { FourZeroFourPage } from "./pages/404"
+import { SwapPage } from "./app/swap/[slug]/SwapPage"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <HashRouter>
@@ -33,6 +34,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/message/:messageId" element={<MessagePage />} />
+        <Route path="/swap/:messageId" element={<SwapPage />} />
         <Route path="/blocks" element={<BlocksPage />} />
         <Route path="/block/:blockHeight" element={<BlockPage />} />
         <Route path="/modules" element={<ModulesPage />} />
