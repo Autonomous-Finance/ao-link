@@ -108,7 +108,7 @@ export async function getAllRecords() {
     // NOTE: smaller page sizes are recommended
     tags: [
       { name: "Action", value: "Records" },
-      { name: "Limit", value: "10000" },
+      { name: "Limit", value: "1000" },
     ],
   })
 
