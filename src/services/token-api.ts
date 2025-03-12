@@ -1,7 +1,6 @@
-import { dryrun } from "@permaweb/aoconnect"
-
 import { nativeTokenInfo, tokenMirrors } from "../utils/native-token"
 import { isArweaveId } from "../utils/utils"
+import { getTokenCu } from "@/settings"
 
 export type TokenInfo = {
   processId: string
@@ -20,7 +19,7 @@ export type TokenHolder = {
 export async function getBalance(tokenId: string, entityId: string, tokenV2 = true) {
   const mirror = tokenMirrors[tokenId]
 
-  const result = await dryrun({
+  const result = await getTokenCu(tokenId).dryrun({
     process: mirror || tokenId,
     data: "",
     tags: [
@@ -55,7 +54,7 @@ type BalanceMap = {
 
 export async function getTokenHolders(tokenInfo: TokenInfo): Promise<TokenHolder[]> {
   const mirror = tokenMirrors[tokenInfo.processId]
-  const result = await dryrun({
+  const result = await getTokenCu(tokenInfo.processId).dryrun({
     process: mirror || tokenInfo.processId,
     data: "",
     tags: [{ name: "Action", value: "Balances" }],
@@ -93,7 +92,7 @@ export async function getTokenInfo(processId: string): Promise<TokenInfo> {
   }
   if (nativeTokenInfo.processId === processId) return nativeTokenInfo
 
-  const result = await dryrun({
+  const result = await getTokenCu(processId).dryrun({
     process: processId,
     data: "",
     tags: [{ name: "Action", value: "Info" }],
