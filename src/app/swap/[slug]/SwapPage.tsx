@@ -31,6 +31,8 @@ import { formatNumber } from "@/utils/number-utils"
 import { isArweaveId } from "@/utils/utils"
 import { result } from "@permaweb/aoconnect"
 import { prettifyResult } from "@/utils/ao-utils"
+import { TokenAmountSection } from "@/components/TokenAmountSection"
+import { useTokenInfo } from "@/hooks/useTokenInfo"
 
 const defaultTab = "resulting"
 
@@ -54,6 +56,9 @@ export function SwapPage() {
 
   const [swapLoading, setSwapLoading] = useState<boolean>(true)
   const [swapData, setSwapData] = useState<Swap | undefined>(undefined)
+
+  const tokenInInfo = useTokenInfo(swapData?.tokenIn ?? "")
+  const tokenOutInfo = useTokenInfo(swapData?.tokenOut ?? "")
 
   const isValidId = useMemo(() => isArweaveId(String(messageId)), [messageId])
 
@@ -208,14 +213,8 @@ export function SwapPage() {
           <SectionInfo title="AMM" value={<EntityBlock entityId={amm} />} />
           <SectionInfo title="Token In" value={<EntityBlock entityId={tokenIn} />} />
           <SectionInfo title="Token Out" value={<EntityBlock entityId={tokenOut} />} />
-          {/* <SectionInfo
-            title="Quantity In"
-            value={
-              <Tooltip title={formatFullDate(ingestedAt)}>
-                <span>{formatNumber(quantityIn)}</span>
-              </Tooltip>
-            }
-          /> */}
+          <TokenAmountSection tokenInfo={tokenInInfo} amount={quantityIn} label="Quantity In" />
+          <TokenAmountSection tokenInfo={tokenOutInfo} amount={quantityOut} label="Quantity Out" />
           <SectionInfo
             title="Block Height"
             value={
