@@ -35,6 +35,8 @@ import { prettifyResult } from "@/utils/ao-utils"
 const defaultTab = "resulting"
 
 interface Swap {
+  blockHeight: number | null
+  ingestedAt: Date
   transferInMessageId: string
   transferOutMessageId: string
   creditNoticeMessageId: string
@@ -44,7 +46,7 @@ interface Swap {
   amm: string
   quantityIn: string
   quantityOut: string
-  swapRecipient: string
+  recipient: string
 }
 
 export function SwapPage() {
@@ -67,6 +69,7 @@ export function SwapPage() {
 
   const getSwap = async (transferInMessage: AoMessage) => {
     try {
+      setSwapLoading(true)
       // If original message has no Swap tag => not a swap
       if (transferInMessage.tags["X-Action"] !== "Swap")
         throw new Error("Message does not initiate a swap")
@@ -133,11 +136,13 @@ export function SwapPage() {
       ])
       const {
         id: transferOutMessageId,
-        tags: { Quantity: quantityOut, Recipient: swapRecipient },
+        tags: { Quantity: quantityOut, Recipient: recipient },
         to: tokenOut,
       } = transferOutMessage
 
       const data: Swap = {
+        ingestedAt: transferInMessage.ingestedAt,
+        blockHeight: transferInMessage?.blockHeight,
         transferInMessageId: transferInMessage.id,
         creditNoticeMessageId,
         transferOutMessageId,
@@ -147,13 +152,15 @@ export function SwapPage() {
         amm: ammProcessId,
         quantityIn,
         quantityOut,
-        swapRecipient
+        recipient,
       }
       console.log(`data:`, data)
-      
+
       setSwapData(data)
     } catch (e) {
       console.error(e)
+    } finally {
+      setSwapLoading(false)
     }
   }
 
@@ -168,24 +175,75 @@ export function SwapPage() {
     return <LoadingSkeletons />
   }
 
-  if (!isValidId || error || !message) {
+  if (!isValidId || error || !swapData) {
     return (
       <Stack component="main" gap={4} paddingY={4}>
-        <Typography>{error?.message || "Message not found."}</Typography>
+        <Typography>{error?.message || "Swap not found."}</Typography>
       </Stack>
     )
   }
 
-  const { from, type, blockHeight, ingestedAt, to, systemTags, userTags } = message
-
-  if (type === "Process") {
-    return <Navigate to={`/entity/${messageId}`} />
-  }
+  const {
+    blockHeight,
+    ingestedAt,
+    transferInMessageId,
+    creditNoticeMessageId,
+    transferOutMessageId,
+    tokenIn,
+    tokenOut,
+    initiator,
+    amm,
+    quantityIn,
+    quantityOut,
+    recipient,
+  } = swapData
 
   return (
     <React.Fragment key={messageId}>
       <Stack component="main" gap={6} paddingY={4}>
         <Subheading type="SWAP" value={<IdBlock label={messageId} />} />
+        <Stack gap={4}>
+          <SectionInfo title="Initiator" value={<EntityBlock entityId={initiator} />} />
+          <SectionInfo title="Recipient" value={<EntityBlock entityId={recipient} />} />
+          <SectionInfo title="AMM" value={<EntityBlock entityId={amm} />} />
+          <SectionInfo title="Token In" value={<EntityBlock entityId={tokenIn} />} />
+          <SectionInfo title="Token Out" value={<EntityBlock entityId={tokenOut} />} />
+          {/* <SectionInfo
+            title="Quantity In"
+            value={
+              <Tooltip title={formatFullDate(ingestedAt)}>
+                <span>{formatNumber(quantityIn)}</span>
+              </Tooltip>
+            }
+          /> */}
+          <SectionInfo
+            title="Block Height"
+            value={
+              blockHeight === null ? (
+                "Processing"
+              ) : (
+                <IdBlock
+                  label={formatNumber(blockHeight)}
+                  value={String(blockHeight)}
+                  href={`/block/${blockHeight}`}
+                />
+              )
+            }
+          />
+          <SectionInfo
+            title="Seen at"
+            value={
+              ingestedAt === null ? (
+                "Processing"
+              ) : (
+                <Tooltip title={formatFullDate(ingestedAt)}>
+                  <span>{formatRelative(ingestedAt)}</span>
+                </Tooltip>
+              )
+            }
+          />
+          <SectionInfo title="Result Type" value="JSON" />
+        </Stack>
       </Stack>
     </React.Fragment>
   )
