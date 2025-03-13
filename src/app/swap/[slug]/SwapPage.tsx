@@ -35,12 +35,16 @@ import { prettifyResult } from "@/utils/ao-utils"
 const defaultTab = "resulting"
 
 interface Swap {
-  originalTransaction: string
+  transferInMessageId: string
+  transferOutMessageId: string
+  creditNoticeMessageId: string
   tokenIn: string
   tokenOut: string
   initiator: string
   amm: string
   quantityIn: string
+  quantityOut: string
+  swapRecipient: string
 }
 
 export function SwapPage() {
@@ -61,18 +65,19 @@ export function SwapPage() {
     queryFn: () => getMessageById(messageId),
   })
 
-  const getSwap = async (originalMessage: AoMessage) => {
+  const getSwap = async (transferInMessage: AoMessage) => {
     try {
       // If original message has no Swap tag => not a swap
-      if (originalMessage.tags["X-Action"] !== "Swap")
+      if (transferInMessage.tags["X-Action"] !== "Swap")
         throw new Error("Message does not initiate a swap")
+      // A - GET CREDIT NOTICE TO AMM
       // Get resulting messages from original message
-      const { Messages } = await result({
-        message: originalMessage.id,
-        process: originalMessage.to,
+      const { Messages: originalResultingMessages } = await result({
+        message: transferInMessage.id,
+        process: transferInMessage.to,
       })
       // Get resulting Credit Notice message from the token in to the AMM
-      const creditNotice = Messages.find((m) => {
+      const creditNotice = originalResultingMessages.find((m) => {
         const { Tags } = m
         const requiredTags = new Map([
           ["Action", "Credit-Notice"],
@@ -88,24 +93,64 @@ export function SwapPage() {
       const { value: creditNoticeRef } = creditNotice.Tags.find(
         (tag: Tag) => tag.name === "Reference",
       )
-      const [count, [creditNoticeMessage]] = await getResultingMessages(1, "", true, "", originalMessage.to, [creditNoticeRef])
-      console.log(`getResultingRecords creditNoticeMessage:`, creditNoticeMessage)
+      const [, [creditNoticeMessage]] = await getResultingMessages(
+        1,
+        "",
+        true,
+        "",
+        transferInMessage.to,
+        [creditNoticeRef],
+      )
       const {
-        tags: {
-          Quantity: quantityIn,
-        },
+        id: creditNoticeMessageId,
+        tags: { Quantity: quantityIn },
         to: ammProcessId,
       } = creditNoticeMessage
 
+      // B - GET TRANSFER TO TOKEN OUT
+      // Get resulting messages from credit notice to the AMM
+      const { Messages: creditNoticeResultingMessages } = await result({
+        message: creditNoticeMessageId,
+        process: ammProcessId,
+      })
+      // Get resulting Transfer message from the AMM to the token out
+      const transferOut = creditNoticeResultingMessages.find((m) => {
+        const { Tags } = m
+        const requiredTags = new Map([
+          ["Action", "Transfer"],
+          ["X-Action", "Swap-Output"],
+        ])
+        return [...requiredTags].every(([key, value]) =>
+          Tags.some(({ name, value: tagValue }: Tag) => name === key && tagValue === value),
+        )
+      })
+      // If no transfer message is sent from the AMM => not a swap
+      if (!transferOut) throw new Error("No transfer message sent from AMM to token out")
+      // Get transfer message ID from graph using message ref
+      const { value: transferRef } = transferOut.Tags.find((tag: Tag) => tag.name === "Reference")
+      const [, [transferOutMessage]] = await getResultingMessages(1, "", true, "", ammProcessId, [
+        transferRef,
+      ])
+      const {
+        id: transferOutMessageId,
+        tags: { Quantity: quantityOut, Recipient: swapRecipient },
+        to: tokenOut,
+      } = transferOutMessage
+
       const data: Swap = {
-        originalTransaction: originalMessage.id,
-        tokenIn: originalMessage.to,
-        tokenOut: "",
-        initiator: originalMessage.from,
+        transferInMessageId: transferInMessage.id,
+        creditNoticeMessageId,
+        transferOutMessageId,
+        tokenIn: transferInMessage.to,
+        tokenOut,
+        initiator: transferInMessage.from,
         amm: ammProcessId,
         quantityIn,
+        quantityOut,
+        swapRecipient
       }
-
+      console.log(`data:`, data)
+      
       setSwapData(data)
     } catch (e) {
       console.error(e)
@@ -114,6 +159,7 @@ export function SwapPage() {
 
   useEffect(() => {
     if (!!message) {
+      console.log(`message:`, message)
       getSwap(message)
     }
   }, [message])
