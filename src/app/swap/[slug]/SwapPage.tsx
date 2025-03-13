@@ -59,7 +59,7 @@ export function SwapPage() {
 
   const {
     data: message,
-    isLoading,
+    // isLoading,
     error,
   } = useQuery({
     enabled: Boolean(messageId) && isValidId,
@@ -171,7 +171,7 @@ export function SwapPage() {
     }
   }, [message])
 
-  if (isLoading) {
+  if (swapLoading) {
     return <LoadingSkeletons />
   }
 
