@@ -48,7 +48,7 @@ interface Swap {
   amm: string
   quantityIn: string
   quantityOut: string
-  recipient: string
+  feeBps: number
 }
 
 export function SwapPage() {
@@ -134,14 +134,17 @@ export function SwapPage() {
       })
       // If no transfer message is sent from the AMM => not a swap
       if (!transferOut) throw new Error("No transfer message sent from AMM to token out")
+      console.log(`transferOut:`, transferOut)
       // Get transfer message ID from graph using message ref
       const { value: transferRef } = transferOut.Tags.find((tag: Tag) => tag.name === "Reference")
+      const { value: feeBpsStr } = transferOut.Tags.find((tag: Tag) => tag.name === "X-Fee-Bps")
       const [, [transferOutMessage]] = await getResultingMessages(1, "", true, "", ammProcessId, [
         transferRef,
       ])
+      console.log(`transferOutMessage:`, transferOutMessage)
       const {
         id: transferOutMessageId,
-        tags: { Quantity: quantityOut, Recipient: recipient },
+        tags: { Quantity: quantityOut },
         to: tokenOut,
       } = transferOutMessage
 
@@ -157,7 +160,7 @@ export function SwapPage() {
         amm: ammProcessId,
         quantityIn,
         quantityOut,
-        recipient,
+        feeBps: Number(feeBpsStr)
       }
       console.log(`data:`, data)
 
@@ -200,7 +203,7 @@ export function SwapPage() {
     amm,
     quantityIn,
     quantityOut,
-    recipient,
+    feeBps,
   } = swapData
 
   return (
@@ -208,11 +211,20 @@ export function SwapPage() {
       <Stack component="main" gap={6} paddingY={4}>
         <Subheading type="SWAP" value={<IdBlock label={messageId} />} />
         <Stack gap={4}>
-          <SectionInfo title="Initiator" value={<EntityBlock entityId={initiator} />} />
-          <SectionInfo title="Recipient" value={<EntityBlock entityId={recipient} />} />
+          <SectionInfo title="Swapper" value={<EntityBlock entityId={initiator} />} />
           <SectionInfo title="AMM" value={<EntityBlock entityId={amm} />} />
           <SectionInfo title="Token In" value={<EntityBlock entityId={tokenIn} />} />
           <SectionInfo title="Token Out" value={<EntityBlock entityId={tokenOut} />} />
+          <SectionInfo
+            title="Fee"
+            value={
+
+                <Tooltip title={`${feeBps} bps`}>
+                  <span>{feeBps * 0.01}%</span>
+                </Tooltip>
+              
+            }
+          />
           <TokenAmountSection tokenInfo={tokenInInfo} amount={quantityIn} label="Quantity In" />
           <TokenAmountSection tokenInfo={tokenOutInfo} amount={quantityOut} label="Quantity Out" />
           <SectionInfo
