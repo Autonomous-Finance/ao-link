@@ -1,7 +1,7 @@
 import { Stack, Tooltip, Typography } from "@mui/material"
 
 import { useQuery } from "@tanstack/react-query"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { Fragment, useEffect, useMemo, useState } from "react"
 
 import { useParams } from "react-router-dom"
 
@@ -139,7 +139,7 @@ export function SwapPage() {
       const [, [CreditNoticeTokenInMessage]] = await getResultingMessages(
         1,
         "",
-        true,
+        false,
         "",
         transferInMessage.to,
         [CreditNoticeTokenInRef],
@@ -187,7 +187,7 @@ export function SwapPage() {
 
       // Get transfer message ID from graph using message ref
       const transferRef = getTagValue(transferOut.Tags, "Reference")
-      const [, [transferOutMessage]] = await getResultingMessages(1, "", true, "", lpProcessId, [
+      const [, [transferOutMessage]] = await getResultingMessages(1, "", false, "", lpProcessId, [
         transferRef,
       ])
       const {
@@ -244,9 +244,6 @@ export function SwapPage() {
   const {
     blockHeight,
     ingestedAt,
-    transferInMessageId,
-    creditNoticeMessageId,
-    transferOutMessageId,
     tokenIn,
     tokenOut,
     initiator,
@@ -260,6 +257,9 @@ export function SwapPage() {
     <React.Fragment key={messageId}>
       <Stack component="main" gap={6} paddingY={4}>
         <Subheading type="SWAP" value={<IdBlock label={messageId} />} />
+        {!!failingMessage ? (
+          <SectionInfo title="Failing Message" value={<EntityBlock entityId={failingMessage.id} />} />
+        ) : null}
         <Stack gap={4}>
           <SectionInfo title="Swapper" value={<EntityBlock entityId={initiator} />} />
           <SectionInfo title="AMM Factory" value={<EntityBlock entityId={ammFactory} />} />
@@ -275,18 +275,22 @@ export function SwapPage() {
             }
           />
           <TokenAmountSection tokenInfo={tokenInInfo} amount={quantityIn} label="Quantity In" />
-          <TokenAmountSection
-            tokenInfo={tokenOutInfo}
-            amount={swapData?.quantityOut ?? "0"}
-            label="Quantity Out"
-            loading={!swapData?.quantityOut}
-          />
-          <TokenAmountSection
-            tokenInfo={tokenInInfo}
-            amount={swapData?.totalFee ?? "0"}
-            label="Total Fee"
-            loading={!swapData?.totalFee}
-          />
+          {!failingMessage ? (
+            <Fragment>
+              <TokenAmountSection
+                tokenInfo={tokenOutInfo}
+                amount={swapData?.quantityOut ?? "0"}
+                label="Quantity Out"
+                loading={!swapData?.quantityOut}
+              />
+              <TokenAmountSection
+                tokenInfo={tokenInInfo}
+                amount={swapData?.totalFee ?? "0"}
+                label="Total Fee"
+                loading={!swapData?.totalFee}
+              />
+            </Fragment>
+          ) : null}
           <SectionInfo
             title="Block Height"
             value={
