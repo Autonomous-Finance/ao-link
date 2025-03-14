@@ -36,11 +36,9 @@ interface Swap {
   quantityIn: string
   feeBps: number
   quantityOut?: string
-  creditNoticeMessageId?: string
+  CreditNoticeTokenInMessageId?: string
   transferOutMessageId?: string
   totalFee?: string
-  failingMessageId?: string
-  error?: string
 }
 
 const getResultingMessageByTags = (resultingMessages: any[], tags: [string, string][]) => {
@@ -61,6 +59,7 @@ export function SwapPage() {
 
   const [swapLoading, setSwapLoading] = useState<boolean>(true)
   const [swapData, setSwapData] = useState<Swap | undefined>(undefined)
+  const [failingMessage, setFailingMessage] = useState<AoMessage | undefined>(undefined)
 
   const tokenInInfo = useTokenInfo(swapData?.tokenIn ?? "")
   const tokenOutInfo = useTokenInfo(swapData?.tokenOut ?? "")
@@ -119,55 +118,73 @@ export function SwapPage() {
 
       // GET CREDIT NOTICE TO LP
       // Get resulting messages from transfer in message
-      const { Messages: transferInResultingMessages, Error: transferInError } = await result({
+      const transferInResults = await result({
         message: transferInMessage.id,
         process: transferInMessage.to,
       })
+      // Check success
+      // TODO: solve the MessageResult type issue with lowercase error
+      if (!!transferInResults?.Error || !!transferInResults?.error) {
+        setFailingMessage(transferInMessage)
+        throw new Error("Swap fails at initial transfer message")
+      }
       // Get resulting Credit Notice message from the token in to the LP
-      const creditNotice = getResultingMessageByTags(transferInResultingMessages, [
+      const CreditNoticeTokenIn = getResultingMessageByTags(transferInResults.Messages, [
         ["Action", "Credit-Notice"],
         ["X-Action", "Swap"],
       ])
-      // If no credit notice message is sent to the LP => not a swap
-      if (!creditNotice) throw new Error("No credit notice message sent to LP")
+
       // Get credit notice message ID from graph using message ref
-      const creditNoticeRef = getTagValue(creditNotice.Tags, "Reference")
-      const [, [creditNoticeMessage]] = await getResultingMessages(
+      const CreditNoticeTokenInRef = getTagValue(CreditNoticeTokenIn.Tags, "Reference")
+      const [, [CreditNoticeTokenInMessage]] = await getResultingMessages(
         1,
         "",
         false,
         "",
         transferInMessage.to,
-        [creditNoticeRef],
+        [CreditNoticeTokenInRef],
       )
-      const { id: creditNoticeMessageId } = creditNoticeMessage
-      console.log(`creditNoticeMessage:`, creditNoticeMessage)
+      const { id: CreditNoticeTokenInMessageId } = CreditNoticeTokenInMessage
+      // Update swap data with credit notice message id
+      setSwapData((prev) => {
+        if (!prev) return
+        return {
+          ...prev,
+          CreditNoticeTokenInMessageId,
+        }
+      })
 
       // GET TRANSFER TO TOKEN OUT
       // Get resulting messages from credit notice to the AMM
-      const creditNoticeResult = await result({
-        message: creditNoticeMessageId,
+      const CreditNoticeTokenInResult = await result({
+        message: CreditNoticeTokenInMessageId,
         process: lpProcessId,
       })
-      console.log(`creditNoticeResult:`, creditNoticeResult?.error)
-      if (!!creditNoticeResult?.error) throw new Error(creditNoticeResult?.error)
-      const { Messages: creditNoticeResultingMessages, Error: creditNoticeError } =
-        creditNoticeResult
-      console.log(`creditNoticeError:`, creditNoticeError)
-      console.log(`creditNoticeResultingMessages:`, creditNoticeResultingMessages)
+      // Check success
+      // TODO: solve the MessageResult type issue with lowercase error
+      if (!!CreditNoticeTokenInResult?.Error || !!CreditNoticeTokenInResult?.error) {
+        setFailingMessage(CreditNoticeTokenInMessage)
+        throw new Error("Swap fails at credit notice message for token in")
+      }
       // Get resulting Transfer message from the AMM to the token out
-      const transferOut = getResultingMessageByTags(creditNoticeResultingMessages, [
+      const transferOut = getResultingMessageByTags(CreditNoticeTokenInResult.Messages, [
         ["Action", "Transfer"],
         ["X-Action", "Swap-Output"],
       ])
       // Get resulting Order Confirmation from the pool to the AMM
-      const orderConfirmation = getResultingMessageByTags(creditNoticeResultingMessages, [
+      const orderConfirmation = getResultingMessageByTags(CreditNoticeTokenInResult.Messages, [
         ["Action", "Order-Confirmation"],
       ])
       const totalFee = getTagValue(orderConfirmation.Tags, "Total-Fee")
+      // Update swap data with total fee
+      setSwapData((prev) => {
+        if (!prev) return
+        return {
+          ...prev,
+          totalFee,
+        }
+      })
 
-      // If no transfer message is sent from the AMM => not a swap
-      if (!transferOut) throw new Error("No transfer message sent from AMM to token out")
       // Get transfer message ID from graph using message ref
       const transferRef = getTagValue(transferOut.Tags, "Reference")
       const [, [transferOutMessage]] = await getResultingMessages(1, "", false, "", lpProcessId, [
@@ -179,15 +196,26 @@ export function SwapPage() {
       } = transferOutMessage
 
       setSwapData((prev) => {
-        if (!prev) return;
+        if (!prev) return
         return {
           ...prev,
-          creditNoticeMessageId,
           transferOutMessageId,
           quantityOut,
-          totalFee,
         }
       })
+
+      // GET CREDIT NOTICE TO RECIPIENT
+      // Get resulting messages from token out to swapper
+      const transferOutResult = await result({
+        message: transferOutMessageId,
+        process: tokenOut,
+      })
+      // Check success
+      // TODO: solve the MessageResult type issue with lowercase error
+      if (!!transferOutResult?.Error || !!transferOutResult?.error) {
+        setFailingMessage(transferOutMessage)
+        throw new Error("Swap fails at transfer from lp amm to token out")
+      }
     } catch (e) {
       console.error("GET SWAP ERROR", e)
     } finally {
@@ -247,8 +275,18 @@ export function SwapPage() {
             }
           />
           <TokenAmountSection tokenInfo={tokenInInfo} amount={quantityIn} label="Quantity In" />
-          <TokenAmountSection tokenInfo={tokenOutInfo} amount={swapData?.quantityOut ?? "0"} label="Quantity Out" loading={!swapData?.quantityOut} />
-          <TokenAmountSection tokenInfo={tokenInInfo} amount={swapData?.totalFee ?? "0"} label="Total Fee" loading={!swapData?.totalFee} />
+          <TokenAmountSection
+            tokenInfo={tokenOutInfo}
+            amount={swapData?.quantityOut ?? "0"}
+            label="Quantity Out"
+            loading={!swapData?.quantityOut}
+          />
+          <TokenAmountSection
+            tokenInfo={tokenInInfo}
+            amount={swapData?.totalFee ?? "0"}
+            label="Total Fee"
+            loading={!swapData?.totalFee}
+          />
           <SectionInfo
             title="Block Height"
             value={
