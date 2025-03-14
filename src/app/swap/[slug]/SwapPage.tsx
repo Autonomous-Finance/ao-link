@@ -28,17 +28,19 @@ interface Swap {
   blockHeight: number | null
   ingestedAt: Date
   transferInMessageId: string
-  transferOutMessageId: string
-  creditNoticeMessageId: string
   tokenIn: string
+  lp: string
   tokenOut: string
   initiator: string
-  lp: string
-  amm: string
+  ammFactory: string
   quantityIn: string
-  quantityOut: string
   feeBps: number
-  totalFee: string
+  quantityOut?: string
+  creditNoticeMessageId?: string
+  transferOutMessageId?: string
+  totalFee?: string
+  failingMessageId?: string
+  error?: string
 }
 
 const getResultingMessageByTags = (resultingMessages: any[], tags: [string, string][]) => {
@@ -78,17 +80,51 @@ export function SwapPage() {
   const getSwap = async (transferInMessage: AoMessage) => {
     try {
       setSwapLoading(true)
-      // If original message has no Swap tag => not a swap
-      if (transferInMessage.tags["X-Action"] !== "Swap")
+      // If transfer in message has no Swap tag => not a swap
+      if (
+        transferInMessage.tags["X-Action"] !== "Swap" ||
+        transferInMessage.tags["Action"] !== "Transfer"
+      )
         throw new Error("Message does not initiate a swap")
-      // A - GET CREDIT NOTICE TO LP
-      // Get resulting messages from original message
-      const { Messages: originalResultingMessages } = await result({
+      // Get quantity in and LP id
+      const { Quantity: quantityIn, Recipient: lpProcessId } = transferInMessage.tags
+
+      // GET LP & AMM data
+      const lpProcess = await getMessageById(lpProcessId)
+      // If process data is not found, throw error
+      if (!lpProcess) throw new Error("LP process not found")
+      const ammFactory = lpProcess.tags["AMM-Factory"]
+      const tokenOut =
+        lpProcess.tags["Token-A"] === transferInMessage.to
+          ? lpProcess.tags["Token-B"]
+          : lpProcess.tags["Token-A"]
+      const feeBpsStr = lpProcess.tags["Fee-Bps"]
+
+      // Save basic swap data
+      setSwapData({
+        ingestedAt: transferInMessage.ingestedAt,
+        blockHeight: transferInMessage?.blockHeight,
+        transferInMessageId: transferInMessage.id,
+        tokenIn: transferInMessage.to,
+        initiator: transferInMessage.from,
+        quantityIn,
+        tokenOut,
+        lp: lpProcessId,
+        ammFactory,
+        feeBps: Number(feeBpsStr),
+      })
+      // Stop loading swap in the UI for the sake of speed
+      // i.e. We do not wait for resulting messages to be fetched
+      setSwapLoading(false)
+
+      // GET CREDIT NOTICE TO LP
+      // Get resulting messages from transfer in message
+      const { Messages: transferInResultingMessages, Error: transferInError } = await result({
         message: transferInMessage.id,
         process: transferInMessage.to,
       })
       // Get resulting Credit Notice message from the token in to the LP
-      const creditNotice = getResultingMessageByTags(originalResultingMessages, [
+      const creditNotice = getResultingMessageByTags(transferInResultingMessages, [
         ["Action", "Credit-Notice"],
         ["X-Action", "Swap"],
       ])
@@ -99,23 +135,26 @@ export function SwapPage() {
       const [, [creditNoticeMessage]] = await getResultingMessages(
         1,
         "",
-        true,
+        false,
         "",
         transferInMessage.to,
         [creditNoticeRef],
       )
-      const {
-        id: creditNoticeMessageId,
-        tags: { Quantity: quantityIn },
-        to: lpProcessId,
-      } = creditNoticeMessage
+      const { id: creditNoticeMessageId } = creditNoticeMessage
+      console.log(`creditNoticeMessage:`, creditNoticeMessage)
 
-      // B - GET TRANSFER TO TOKEN OUT
+      // GET TRANSFER TO TOKEN OUT
       // Get resulting messages from credit notice to the AMM
-      const { Messages: creditNoticeResultingMessages } = await result({
+      const creditNoticeResult = await result({
         message: creditNoticeMessageId,
         process: lpProcessId,
       })
+      console.log(`creditNoticeResult:`, creditNoticeResult?.error)
+      if (!!creditNoticeResult?.error) throw new Error(creditNoticeResult?.error)
+      const { Messages: creditNoticeResultingMessages, Error: creditNoticeError } =
+        creditNoticeResult
+      console.log(`creditNoticeError:`, creditNoticeError)
+      console.log(`creditNoticeResultingMessages:`, creditNoticeResultingMessages)
       // Get resulting Transfer message from the AMM to the token out
       const transferOut = getResultingMessageByTags(creditNoticeResultingMessages, [
         ["Action", "Transfer"],
@@ -131,36 +170,26 @@ export function SwapPage() {
       if (!transferOut) throw new Error("No transfer message sent from AMM to token out")
       // Get transfer message ID from graph using message ref
       const transferRef = getTagValue(transferOut.Tags, "Reference")
-      const feeBpsStr = getTagValue(transferOut.Tags, "X-Fee-Bps")
-      const [, [transferOutMessage]] = await getResultingMessages(1, "", true, "", lpProcessId, [
+      const [, [transferOutMessage]] = await getResultingMessages(1, "", false, "", lpProcessId, [
         transferRef,
       ])
       const {
         id: transferOutMessageId,
         tags: { Quantity: quantityOut },
-        to: tokenOut,
       } = transferOutMessage
 
-      const data: Swap = {
-        ingestedAt: transferInMessage.ingestedAt,
-        blockHeight: transferInMessage?.blockHeight,
-        transferInMessageId: transferInMessage.id,
-        creditNoticeMessageId,
-        transferOutMessageId,
-        tokenIn: transferInMessage.to,
-        tokenOut,
-        initiator: transferInMessage.from,
-        lp: lpProcessId,
-        amm: orderConfirmation.Target,
-        quantityIn,
-        quantityOut,
-        feeBps: Number(feeBpsStr),
-        totalFee,
-      }
-
-      setSwapData(data)
+      setSwapData((prev) => {
+        if (!prev) return;
+        return {
+          ...prev,
+          creditNoticeMessageId,
+          transferOutMessageId,
+          quantityOut,
+          totalFee,
+        }
+      })
     } catch (e) {
-      console.error(e)
+      console.error("GET SWAP ERROR", e)
     } finally {
       setSwapLoading(false)
     }
@@ -194,11 +223,9 @@ export function SwapPage() {
     tokenOut,
     initiator,
     lp,
-    amm,
+    ammFactory,
     quantityIn,
-    quantityOut,
     feeBps,
-    totalFee,
   } = swapData
 
   return (
@@ -207,7 +234,7 @@ export function SwapPage() {
         <Subheading type="SWAP" value={<IdBlock label={messageId} />} />
         <Stack gap={4}>
           <SectionInfo title="Swapper" value={<EntityBlock entityId={initiator} />} />
-          <SectionInfo title="AMM" value={<EntityBlock entityId={amm} />} />
+          <SectionInfo title="AMM Factory" value={<EntityBlock entityId={ammFactory} />} />
           <SectionInfo title="Liquidity Pool" value={<EntityBlock entityId={lp} />} />
           <SectionInfo title="Token In" value={<EntityBlock entityId={tokenIn} />} />
           <SectionInfo title="Token Out" value={<EntityBlock entityId={tokenOut} />} />
@@ -220,8 +247,8 @@ export function SwapPage() {
             }
           />
           <TokenAmountSection tokenInfo={tokenInInfo} amount={quantityIn} label="Quantity In" />
-          <TokenAmountSection tokenInfo={tokenOutInfo} amount={quantityOut} label="Quantity Out" />
-          <TokenAmountSection tokenInfo={tokenInInfo} amount={totalFee} label="Total Fee" />
+          <TokenAmountSection tokenInfo={tokenOutInfo} amount={swapData?.quantityOut ?? "0"} label="Quantity Out" loading={!swapData?.quantityOut} />
+          <TokenAmountSection tokenInfo={tokenInInfo} amount={swapData?.totalFee ?? "0"} label="Total Fee" loading={!swapData?.totalFee} />
           <SectionInfo
             title="Block Height"
             value={
