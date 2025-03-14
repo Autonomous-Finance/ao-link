@@ -139,7 +139,7 @@ export function SwapPage() {
       const [, [CreditNoticeTokenInMessage]] = await getResultingMessages(
         1,
         "",
-        false,
+        true,
         "",
         transferInMessage.to,
         [CreditNoticeTokenInRef],
@@ -187,7 +187,7 @@ export function SwapPage() {
 
       // Get transfer message ID from graph using message ref
       const transferRef = getTagValue(transferOut.Tags, "Reference")
-      const [, [transferOutMessage]] = await getResultingMessages(1, "", false, "", lpProcessId, [
+      const [, [transferOutMessage]] = await getResultingMessages(1, "", true, "", lpProcessId, [
         transferRef,
       ])
       const {
