@@ -37,6 +37,8 @@ export function MessagePage() {
 
   const isValidId = useMemo(() => isArweaveId(String(messageId)), [messageId])
 
+  const [assignment, setAssignment] = useState<AoMessage | undefined | null>()
+
   const {
     data: message,
     isLoading,
@@ -46,6 +48,14 @@ export function MessagePage() {
     queryKey: ["message", messageId],
     queryFn: () => getMessageById(messageId),
   })
+
+  useEffect(() => {
+    if (!message) return
+
+    if (message.type === "Assignment" && message.userTags.Message) {
+      getMessageById(message.userTags.Message).then(setAssignment)
+    }
+  }, [message])
 
   const pushedFor = message?.tags["Pushed-For"]
 
@@ -222,13 +232,19 @@ export function MessagePage() {
             <Stack gap={4}>
               <TagsSection label="Tags" tags={userTags} />
               <TagsSection label="System Tags" tags={systemTags} />
+              {assignment && (
+                <TagsSection
+                  label="Assignment Tags"
+                  tags={{ ...assignment.systemTags, ...assignment.userTags }}
+                />
+              )}
               <ComputeResult
-                messageId={messageId}
-                processId={to}
+                messageId={assignment ? assignment.id : messageId}
+                processId={assignment ? userTags.Process : to}
                 autoCompute
                 onComputedResult={setComputeResult}
               />
-              <MessageData message={message} />
+              <MessageData message={assignment ? assignment : message} />
             </Stack>
           </Grid2>
         </Grid2>
