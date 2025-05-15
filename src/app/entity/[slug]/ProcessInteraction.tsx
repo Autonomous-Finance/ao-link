@@ -5,6 +5,7 @@ import { createDataItemSigner, dryrun, message, result } from "@permaweb/aoconne
 import { DryRunResult, MessageInput } from "@permaweb/aoconnect/dist/lib/dryrun"
 import { MessageResult } from "@permaweb/aoconnect/dist/lib/result"
 import { Asterisk } from "@phosphor-icons/react"
+import { RequestHistoryPanel } from "@/components/RequestHistoryPanel"
 
 import React, { useCallback, useState } from "react"
 
@@ -30,9 +31,6 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
   const [query, setQuery] = useState<string | undefined>(
     JSON.stringify(
       {
-        // anchor: "123456789",
-        // Id: "123456789",
-        // Owner: "123456789",
         process: processId,
         data: "",
         tags: [{ name: "Action", value: "Info" }],
@@ -45,7 +43,6 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
   const handleFetch = useCallback(async () => {
     setLoading(true)
     setMsgId("")
-    // setResponse("")
     try {
       const msg = JSON.parse(query as string) as MessageInput
 
@@ -53,15 +50,40 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
 
       if (readOnly) {
         json = await dryrun(msg)
-      } else {
-        let msgId = await message({ ...msg, signer: createDataItemSigner(window.arweaveWallet) })
-        json = await result({
-          message: msgId,
-          process: processId,
-        })
-        setMsgId(msgId)
-      }
 
+        const newItem = {
+          id: crypto.randomUUID(),
+          processId,
+          request: msg,
+          response: json,
+          timestamp: new Date().toISOString()
+        }
+
+        const existing = JSON.parse(localStorage.getItem("dryRunHistory") || "[]")
+        const updated = [...existing.slice(-9), newItem]
+        localStorage.setItem("dryRunHistory", JSON.stringify(updated))
+
+    } else {
+      // “Send message” branch
+      const sentMsgId = await message({
+        ...msg,
+        signer: createDataItemSigner(window.arweaveWallet),
+      })
+      json = await result({ message: sentMsgId, process: processId })
+      setMsgId(sentMsgId)
+
+      const newItem = {
+        id: crypto.randomUUID(),
+        processId,
+        request: msg,
+        response: json,
+        timestamp: new Date().toISOString(),
+        sentMessageId: sentMsgId,
+      }
+      const existing = JSON.parse(localStorage.getItem("dryRunHistory") || "[]")
+      const updated = [...existing.slice(-9), newItem]
+      localStorage.setItem("dryRunHistory", JSON.stringify(updated))
+    }
       setResponse(JSON.stringify(prettifyResult(json), null, 2))
     } catch (error) {
       setResponse(JSON.stringify({ error: `Error fetching info: ${String(error)}` }, null, 2))
@@ -135,10 +157,11 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
             </Box>
           </Grid2>
         </Grid2>
+
         <Grid2 container spacing={{ xs: 1, lg: 2 }}>
           <Grid2 xs={12} lg={6}></Grid2>
           <Grid2 xs={12} lg={6}>
-            <Stack direction="row" justifyContent="space-between" gap={1} alignItems={"center"}>
+            <Stack direction="row" justifyContent="space-between" gap={1} alignItems="center">
               {msgId ? (
                 <Typography
                   variant="body2"
@@ -187,6 +210,10 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
             </Stack>
           </Grid2>
         </Grid2>
+
+        <Box sx={{ mt: 4 }}>
+          <RequestHistoryPanel onSelect={(value) => setQuery(value)} />
+        </Box>
       </Stack>
     </Box>
   )
