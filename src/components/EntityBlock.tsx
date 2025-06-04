@@ -3,8 +3,9 @@ import { DiamondsFour } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 
+import { ArNSNameDisplay } from "./ArNSNameChip"
 import { IdBlock } from "./IdBlock"
-import { useArnsForEntityId } from "@/hooks/useArnsForEntityId"
+import { useArnsNameForAddress } from "@/hooks/useArnsNameForAddress"
 import { getMessageById } from "@/services/messages-api"
 import { truncateId } from "@/utils/data-utils"
 
@@ -23,7 +24,7 @@ export function EntityBlock(props: EntityBlockProps) {
     return message?.tags["Name"]
   }, [message])
 
-  const arnsDomain = useArnsForEntityId(entityId)
+  const { data: primaryArnsName } = useArnsNameForAddress(entityId)
 
   return (
     <Stack direction="row" gap={0.5} alignItems="center">
@@ -34,19 +35,27 @@ export function EntityBlock(props: EntityBlockProps) {
           </Tooltip>
         </Fade>
       )}
-      <IdBlock
-        label={
-          entityName
-            ? entityName
-            : arnsDomain
-              ? arnsDomain
+      <Stack direction="row" gap={1} alignItems="center">
+        <IdBlock
+          label={
+            entityName
+              ? entityName
               : fullId
                 ? entityId
                 : truncateId(entityId)
-        }
-        value={entityId}
-        href={`/entity/${entityId}`}
-      />
+          }
+          value={entityId}
+          href={`/entity/${entityId}`}
+        />
+        
+        {/* Show primary ArNS name if available */}
+        {primaryArnsName && (
+          <ArNSNameDisplay
+            name={primaryArnsName}
+            onClick={() => window.open(`https://${primaryArnsName}.ar.io`, '_blank')}
+          />
+        )}
+      </Stack>
     </Stack>
   )
 }

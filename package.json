@@ -13,6 +13,7 @@
     "deploy": "permaweb-deploy --ant-process My3zjcGNtaOaZntPCLXZjIKAzOqluRRHCIUh9mUzzAo"
   },
   "dependencies": {
+    "@ar.io/sdk": "^3.12.2",
     "@arweave-wallet-kit/browser-wallet-strategy": "^0.1.1",
     "@arweave-wallet-kit/core": "^0.1.1",
     "@arweave-wallet-kit/react": "^0.3.2",

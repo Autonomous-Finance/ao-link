@@ -7,11 +7,13 @@ import React, { useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 
 import { ProcessesByModule } from "@/app/entity/[slug]/ProcessesByModule"
+import { ArNSNameDisplay } from "@/components/ArNSNameChip"
 import { IdBlock } from "@/components/IdBlock"
 import { LoadingSkeletons } from "@/components/LoadingSkeletons"
 import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import { Subheading } from "@/components/Subheading"
+import { useArnsNameForAddress } from "@/hooks/useArnsNameForAddress"
 
 import { TabWithCount } from "@/components/TabWithCount"
 import { getMessageById } from "@/services/messages-api"
@@ -30,6 +32,7 @@ export function ModulePage() {
   const [processesCount, setProcessesCount] = useState<number>()
 
   const isValidId = useMemo(() => isArweaveId(String(moduleId)), [moduleId])
+  const { data: moduleArnsName } = useArnsNameForAddress(moduleId)
 
   const {
     data: message,
@@ -55,7 +58,20 @@ export function ModulePage() {
 
   return (
     <Stack component="main" gap={6} paddingY={4} key={moduleId}>
-      <Subheading type="MODULE" value={<IdBlock label={moduleId} />} />
+      <Subheading 
+        type="MODULE" 
+        value={
+          <Stack direction="row" gap={1} alignItems="center">
+            <IdBlock label={moduleId} />
+            {moduleArnsName && (
+              <ArNSNameDisplay
+                name={moduleArnsName}
+                onClick={() => window.open(`https://${moduleArnsName}.ar.io`, '_blank')}
+              />
+            )}
+          </Stack>
+        } 
+      />
       <Grid2 container spacing={{ xs: 2, lg: 12 }}>
         <Grid2 xs={12} lg={6}>
           <Stack gap={4}>

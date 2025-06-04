@@ -18,6 +18,7 @@ export const TYPE_ICON_MAP: Record<string, any> = {
   Message: "/message.svg",
   Module: "/article.svg",
   Swap: "/message.svg",
+  ArNS: "/domain.svg",
 }
 
 export const TYPE_COLOR_MAP: Record<string, string> = {
@@ -31,6 +32,8 @@ export const TYPE_COLOR_MAP: Record<string, string> = {
   Block: "#FEEEE5",
   Entity: "#9EA2AA",
   Token: "#ffeb84",
+  ArNS: "#a8d8ea",
+  User: "#FFADAD",
 }
 
 export const TYPE_PATH_MAP: Record<string, string> = {
@@ -44,4 +47,6 @@ export const TYPE_PATH_MAP: Record<string, string> = {
   Block: "block",
   Entity: "entity",
   Token: "token",
+  ArNS: "arns",
+  User: "entity",
 }

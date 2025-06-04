@@ -1,38 +1,60 @@
-import { Skeleton, TableCell, TableRow, Typography } from "@mui/material"
+import { Box, IconButton, Link, Stack, TableCell, TableRow, Typography } from "@mui/material"
+import { ArrowUpRight } from "@phosphor-icons/react"
 
-import { useQuery } from "@tanstack/react-query"
-
-import { EntityBlock } from "@/components/EntityBlock"
 import { IdBlock } from "@/components/IdBlock"
 import { MonoFontFF } from "@/components/RootLayout/fonts"
-import { ArnsRecord, getRecordValue } from "@/services/arns-api"
+import { ArNSRecord } from "@/services/arns-service"
+import { formatRelative } from "@/utils/date-utils"
+import { truncateId } from "@/utils/data-utils"
 
 type ArnsTableRowProps = {
-  record: ArnsRecord
+  record: ArNSRecord
 }
 
 export function ArnsTableRow(props: ArnsTableRowProps) {
   const { record } = props
 
-  const { data: recordValue, isLoading } = useQuery({
-    queryKey: ["record-value", record.name],
-    queryFn: async () => {
-      const results = await getRecordValue(record.processId)
-      return results
-    },
-  })
-
   return (
     <TableRow key={record.name}>
       <TableCell>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <IconButton
+            size="small"
+            component="a"
+            href={`https://${record.name}.ar.io`}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ color: 'text.secondary' }}
+          >
+            <ArrowUpRight size={16} />
+          </IconButton>
+          <Typography fontFamily={MonoFontFF} variant="inherit" component="div">
+            <Link
+              href={`https://arns.ar.io/#/manage/names/${record.name}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="hover"
+              color="inherit"
+            >
+              {record.name}
+            </Link>
+          </Typography>
+        </Stack>
+      </TableCell>
+      <TableCell>
         <Typography fontFamily={MonoFontFF} variant="inherit" component="div">
-          <IdBlock label={record.name} value={record.name} />
+          <IdBlock
+            label={truncateId(record.processId)}
+            value={record.processId}
+            href={`/entity/${record.processId}`}
+          />
         </Typography>
       </TableCell>
       <TableCell>
-        <EntityBlock entityId={record.processId} fullId skipQuery />
+        <Typography variant="body2" color="text.secondary">
+          {formatRelative(new Date(record.startTimestamp))}
+        </Typography>
       </TableCell>
-      <TableCell>{isLoading ? <Skeleton /> : recordValue?.transactionId}</TableCell>
     </TableRow>
   )
 }

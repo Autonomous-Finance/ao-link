@@ -2,7 +2,7 @@ import { Skeleton, Typography } from "@mui/material"
 import React from "react"
 
 import { SectionInfo } from "./SectionInfo"
-import { useArnsForEntityId } from "@/hooks/useArnsForEntityId"
+import { usePrimaryArnsName } from "@/hooks/usePrimaryArnsName"
 
 type ArnsSectionProps = {
   entityId: string
@@ -11,20 +11,20 @@ type ArnsSectionProps = {
 export function ArnsSection(props: ArnsSectionProps) {
   const { entityId } = props
 
-  const arnsDomain = useArnsForEntityId(entityId)
+  const { data: arnsName, isLoading } = usePrimaryArnsName(entityId)
 
   return (
     <SectionInfo
-      title="ArNS"
+      title="Primary ArNS Name"
       value={
-        arnsDomain === null ? (
+        isLoading ? (
           <Skeleton width={100} />
-        ) : arnsDomain === undefined ? (
+        ) : arnsName ? (
+          `${arnsName}`
+        ) : (
           <Typography color="text.secondary" variant="inherit">
             None
           </Typography>
-        ) : (
-          arnsDomain
         )
       }
     />
