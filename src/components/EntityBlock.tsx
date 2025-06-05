@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 
 import { IdBlock } from "./IdBlock"
-import { useArnsForEntityId } from "@/hooks/useArnsForEntityId"
 import { getMessageById } from "@/services/messages-api"
 import { truncateId } from "@/utils/data-utils"
 
@@ -23,8 +22,6 @@ export function EntityBlock(props: EntityBlockProps) {
     return message?.tags["Name"]
   }, [message])
 
-  const arnsDomain = useArnsForEntityId(entityId)
-
   return (
     <Stack direction="row" gap={0.5} alignItems="center">
       {message?.type === "Process" && (
@@ -38,11 +35,9 @@ export function EntityBlock(props: EntityBlockProps) {
         label={
           entityName
             ? entityName
-            : arnsDomain
-              ? arnsDomain
-              : fullId
-                ? entityId
-                : truncateId(entityId)
+            : fullId
+              ? entityId
+              : truncateId(entityId)
         }
         value={entityId}
         href={`/entity/${entityId}`}

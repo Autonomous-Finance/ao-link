@@ -1,7 +1,8 @@
 import React from "react"
+import { Box, Typography, CircularProgress } from "@mui/material"
 
 import { ArDomainsTable } from "./ArDomainsTable"
-import { getOwnedDomainsHistory } from "@/services/messages-api"
+import { useArnsRecordsByOwner } from "@/hooks/useArnsRecordsByOwner"
 
 type ArDomainsProps = {
   entityId: string
@@ -13,21 +14,40 @@ function BaseArDomains(props: ArDomainsProps) {
 
   if (!open) return null
 
-  const pageSize = 25
+  const { data: arnsRecords, isLoading, error } = useArnsRecordsByOwner(entityId)
+
+  if (error) {
+    return (
+      <Box p={3}>
+        <Typography color="error">
+          Error loading ArNS records: {error instanceof Error ? error.message : 'Unknown error'}
+        </Typography>
+      </Box>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" p={3}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (!arnsRecords || arnsRecords.length === 0) {
+    return (
+      <Box p={3}>
+        <Typography color="text.secondary">
+          No ArNS names owned by this entity.
+        </Typography>
+      </Box>
+    )
+  }
 
   return (
     <ArDomainsTable
-      pageSize={pageSize}
-      fetchFunction={async (offset, ascending, sortField, lastRecord) => {
-        const [, records] = await getOwnedDomainsHistory(
-          pageSize,
-          lastRecord?.cursor,
-          ascending,
-          entityId,
-        )
-
-        return records
-      }}
+      records={arnsRecords}
+      loading={isLoading}
     />
   )
 }

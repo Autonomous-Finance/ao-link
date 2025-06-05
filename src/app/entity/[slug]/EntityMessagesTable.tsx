@@ -15,9 +15,9 @@ import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { AsyncTable, AsyncTableProps, HeaderCell } from "@/components/AsyncTable"
-import { EntityBlock } from "@/components/EntityBlock"
 import { IdBlock } from "@/components/IdBlock"
 import { InOutLabel } from "@/components/InOutLabel"
+import { TableEntityBlock } from "@/components/TableEntityBlock"
 import { TypeBadge } from "@/components/TypeBadge"
 import { AoMessage, MSG_TYPES } from "@/types"
 import { TYPE_ICON_MAP, TYPE_PATH_MAP, truncateId } from "@/utils/data-utils"
@@ -154,13 +154,13 @@ export function EntityMessagesTable(props: EntityMessagesTableProps) {
             </TableCell>
             <TableCell>{item.action}</TableCell>
             <TableCell>
-              <EntityBlock entityId={item.from} />
+              <TableEntityBlock entityId={item.from} />
             </TableCell>
             <TableCell>
               {entityId !== undefined && <InOutLabel outbound={entityId !== item.to} />}
             </TableCell>
             <TableCell>
-              <EntityBlock entityId={item.to} />
+              <TableEntityBlock entityId={item.to} />
             </TableCell>
             {!hideBlockColumn && (
               <TableCell align="right">

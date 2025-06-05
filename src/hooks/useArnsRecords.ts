@@ -6,31 +6,30 @@ import {
   $arnsRecordsMapFetching,
   $arnsRecordsMapRefresh,
 } from "@/stores/arns-records-store"
+import { shouldRefreshNanostore } from "@/services/cache-config"
 
 export function useArnsRecordsMap() {
   const recordsMapStringified = useStore($arnsRecordsMap)
   const refresh = $arnsRecordsMapRefresh.get()
-  const delta = new Date().getTime() - parseInt(refresh)
-  const oneDay = 86400000
+  const shouldRefresh = shouldRefreshNanostore(refresh)
 
-  const shouldRefresh = refresh === "0" || delta > oneDay
-
-  if (shouldRefresh && $arnsRecordsMapFetching.get() !== "true") {
-    console.log("Refetching arns records.")
-    $arnsRecordsMapFetching.set("true")
-    console.log("Fetching all ARNS records.")
-    getAllRecords()
-      .then((records) => {
-        console.log("Fetched all ARNS records.")
-        $arnsRecordsMapRefresh.set(new Date().getTime().toString())
-        $arnsRecordsMapFetching.set("false")
-        $arnsRecordsMap.set(JSON.stringify(records))
-      })
-      .catch((err) => {
-        console.error(err)
-        $arnsRecordsMapFetching.set("false")
-      })
-  }
+  // TEMPORARILY DISABLED: This was causing massive rate limiting by fetching ALL ArNS records
+  // if (shouldRefresh && $arnsRecordsMapFetching.get() !== "true") {
+  //   console.log("Refetching arns records.")
+  //   $arnsRecordsMapFetching.set("true")
+  //   console.log("Fetching all ARNS records.")
+  //   getAllRecords()
+  //     .then((records) => {
+  //       console.log("Fetched all ARNS records.")
+  //       $arnsRecordsMapRefresh.set(new Date().getTime().toString())
+  //       $arnsRecordsMapFetching.set("false")
+  //       $arnsRecordsMap.set(JSON.stringify(records))
+  //     })
+  //     .catch((err) => {
+  //       console.error(err)
+  //       $arnsRecordsMapFetching.set("false")
+  //     })
+  // }
 
   if (!recordsMapStringified) return undefined
 

@@ -15,6 +15,7 @@ import { BalanceSection } from "@/components/BalanceSection"
 import { EntityBlock } from "@/components/EntityBlock"
 import { ChartDataItem, Graph } from "@/components/Graph"
 import { IdBlock } from "@/components/IdBlock"
+import { OwnerBlock } from "@/components/OwnerBlock"
 import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import { Subheading } from "@/components/Subheading"
@@ -138,7 +139,7 @@ export function ProcessPage(props: ProcessPageProps) {
               )}
             </Paper>
             <SectionInfoWithChip title="Type" value={type} />
-            <SectionInfo title="Owner" value={<EntityBlock entityId={owner} />} />
+            <SectionInfo title="Owner" value={<OwnerBlock ownerId={owner} />} />
             <SectionInfo
               title="Module"
               value={
