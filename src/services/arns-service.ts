@@ -259,3 +259,45 @@ export async function getOwnedDomains(entityId: string): Promise<string[]> {
     return []
   }
 }
+
+/**
+ * Get the logo transaction ID for an ArNS name by querying the ANT state
+ */
+export async function getArNSLogo(name: string): Promise<string | null> {
+  try {
+    const record = await getArNSRecord(name)
+    if (!record) {
+      return null
+    }
+
+    // Query the ANT process to get its state which includes the logo
+    const response = await fetch(`https://cu.ao-testnet.xyz/dry-run?process-id=${record.processId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        Owner: "123456789",
+        Target: record.processId,
+        Tags: [{ name: "Action", value: "State" }],
+      }),
+    })
+
+    const result = await response.json()
+    
+    if ("error" in result) {
+      throw new Error(result.error)
+    }
+
+    // Parse the state from the response
+    if ("Messages" in result && result.Messages.length > 0) {
+      const stateData = JSON.parse(result.Messages[0].Data)
+      return stateData.Logo || null
+    }
+
+    return null
+  } catch (error) {
+    console.error(`Error fetching logo for ArNS name ${name}:`, error)
+    return null
+  }
+}

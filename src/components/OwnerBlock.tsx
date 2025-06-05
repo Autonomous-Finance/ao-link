@@ -1,9 +1,10 @@
-import { Stack } from "@mui/material"
+import { Box, Stack } from "@mui/material"
 import { useNavigate } from "react-router-dom"
 
-import { ArNSNameDisplay } from "./ArNSNameChip"
 import { EntityBlock } from "./EntityBlock"
+import { MainFontFF } from "./RootLayout/fonts"
 import { usePrimaryArnsName } from "@/hooks/usePrimaryArnsName"
+import { useArnsLogo } from "@/hooks/useArnsLogo"
 
 type OwnerBlockProps = {
   ownerId: string
@@ -18,6 +19,7 @@ export function OwnerBlock(props: OwnerBlockProps) {
   const navigate = useNavigate()
   
   const { data: primaryName, isLoading } = usePrimaryArnsName(ownerId)
+  const { data: logoTxId } = useArnsLogo(primaryName || "")
 
   const handleArnsClick = () => {
     navigate(`/entity/${ownerId}`)
@@ -27,11 +29,43 @@ export function OwnerBlock(props: OwnerBlockProps) {
     <Stack direction="row" alignItems="center" gap={1}>
       <EntityBlock entityId={ownerId} />
       {primaryName && (
-        <ArNSNameDisplay
-          name={primaryName}
+        <Stack 
+          direction="row" 
+          alignItems="center" 
+          gap={0.5}
           onClick={handleArnsClick}
-          inline
-        />
+          sx={{
+            cursor: "pointer",
+            color: "#1976d2",
+            "&:hover": {
+              textDecoration: "underline",
+            },
+          }}
+        >
+          {logoTxId && (
+            <Box
+              component="img"
+              src={`https://arweave.net/${logoTxId}`}
+              alt={`${primaryName} logo`}
+              sx={{
+                width: 14,
+                height: 14,
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+              onError={(e) => {
+                e.currentTarget.style.display = "none"
+              }}
+            />
+          )}
+          <span style={{ 
+            fontFamily: "monospace",
+            fontSize: "0.875rem",
+            color: "inherit"
+          }}>
+            {primaryName}
+          </span>
+        </Stack>
       )}
     </Stack>
   )

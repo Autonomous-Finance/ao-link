@@ -36,40 +36,20 @@ export default function ArnsPage() {
 
   return (
     <Stack component="main" gap={2} paddingY={4}>
-      {/* Call to Action */}
-      <Box 
-        sx={{ 
-          p: 3, 
-          borderRadius: 2, 
-          border: '2px solid',
-          borderColor: 'primary.main',
-          background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.1) 0%, rgba(25, 118, 210, 0.05) 100%)'
-        }}
-      >
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Own Your Web3 Identity
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Register your own ArNS name and get a permanent, decentralized domain
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            size="large"
-            endIcon={<ArrowUpRight size={16} />}
-            href="https://arns.ar.io"
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ minWidth: 140 }}
-          >
-            Get Your Name
-          </Button>
-        </Stack>
-      </Box>
-
-      <Subheading type="ArNS Records" value={totalItems > 0 ? totalItems : undefined} />
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Subheading type="ArNS Records" value={totalItems > 0 ? totalItems : undefined} />
+        <Button
+          variant="text"
+          size="small"
+          endIcon={<ArrowUpRight size={14} />}
+          href="https://arns.ar.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ color: 'text.secondary' }}
+        >
+          Get your name
+        </Button>
+      </Stack>
       
       <Box sx={{ marginX: -2 }}>
         {isLoading ? (
