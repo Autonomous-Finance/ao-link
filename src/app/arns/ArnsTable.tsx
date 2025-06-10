@@ -2,10 +2,10 @@ import React, { memo } from "react"
 
 import { ArnsTableRow } from "./ArnsTableRow"
 import { InMemoryTable } from "@/components/InMemoryTable"
-import { ArnsRecord } from "@/services/arns-api"
+import { ArNSRecord } from "@/services/arns-service"
 
 type BaseArnsTableProps = {
-  data: ArnsRecord[]
+  data: ArNSRecord[]
 }
 
 function BaseArnsTable(props: BaseArnsTableProps) {
@@ -13,16 +13,16 @@ function BaseArnsTable(props: BaseArnsTableProps) {
 
   return (
     <InMemoryTable
-      initialSortField="balance"
+      initialSortField="startTimestamp"
       initialSortDir="desc"
       data={data}
       pageSize={50}
       headerCells={[
-        { label: "Name", sx: { width: "33%" } },
-        { label: "ANT Process Id", sx: { width: "33%" } },
-        { label: "Value", sx: { width: "33%" } },
+        { label: "Name", sx: { width: "40%" } },
+        { label: "ANT Process Id", sx: { width: "40%" } },
+        { label: "Created", sx: { width: "20%" } },
       ]}
-      renderRow={(record: ArnsRecord) => <ArnsTableRow key={record.name} record={record} />}
+      renderRow={(record: ArNSRecord) => <ArnsTableRow key={record.name} record={record} />}
     />
   )
 }

@@ -1,8 +1,8 @@
-import { Box, Stack, Tab, Tabs } from "@mui/material"
+import { Box, Stack, Tabs } from "@mui/material"
 import React, { useState } from "react"
 import { useSearchParams } from "react-router-dom"
 
-import { ArDomains } from "./ArDomains"
+// import { ArDomains } from "./ArDomains"
 import { IncomingMessagesTable } from "./IncomingMessagesTable"
 import { OutgoingMessagesTable } from "./OutgoingMessagesTable"
 import { SpawnedProcesses } from "./SpawnedProcesses"
@@ -55,7 +55,7 @@ export function UserPage(props: UserPageProps) {
           <TabWithCount value="spawned" label="Spawned processes" chipValue={processesCount} />
           <TabWithCount value="transfers" label="Token transfers" chipValue={transfersCount} />
           <TabWithCount value="balances" label="Token balances" chipValue={balancesCount} />
-          <Tab value="arns" label="ArNS" />
+          {/* <Tab value="arns" label="ArNS" /> */}
         </Tabs>
         <Box sx={{ marginX: -2 }}>
           <OutgoingMessagesTable
@@ -83,7 +83,7 @@ export function UserPage(props: UserPageProps) {
             open={activeTab === "balances"}
             onCountReady={setBalancesCount}
           />
-          <ArDomains entityId={entityId} open={activeTab === "arns"} />
+          {/* <ArDomains entityId={entityId} open={activeTab === "arns"} /> */}
         </Box>
       </div>
     </Stack>

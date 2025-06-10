@@ -1,6 +1,6 @@
 "use client"
 
-import { ConnectButton } from "@arweave-wallet-kit/react"
+import { ConnectButton, useActiveAddress } from "@arweave-wallet-kit/react"
 import {
   AppBar,
   Container,
@@ -20,6 +20,119 @@ import { Link } from "react-router-dom"
 import { Logo } from "./Logo"
 import { MainFontFF } from "./RootLayout/fonts"
 import SearchBar from "@/app/SearchBar"
+import { usePrimaryArnsName } from "@/hooks/usePrimaryArnsName"
+import { useArnsLogo } from "@/hooks/useArnsLogo"
+
+const ProfileButton = () => {
+  const activeAddress = useActiveAddress()
+  const { data: arnsName, isLoading: isLoadingName } = usePrimaryArnsName(activeAddress || "")
+  const { data: logoTxId, isLoading: isLoadingLogo } = useArnsLogo(arnsName || "")
+
+  // Debug logging
+  console.log("Profile Debug:", { activeAddress, arnsName, logoTxId, isLoadingName, isLoadingLogo })
+
+  const handleProfileClick = () => {
+    // Find and click the hidden ConnectButton to trigger its modal
+    const connectButton = document.getElementById('hidden-connect-button')
+    if (connectButton) {
+      connectButton.click()
+    }
+  }
+
+  if (!activeAddress) {
+    return (
+      <ConnectButton
+        id="connect-wallet-button"
+        showBalance={false}
+        showProfilePicture={false}
+        useAns={false}
+      />
+    )
+  }
+
+  if (isLoadingName) {
+    return (
+      <ConnectButton
+        id="connect-wallet-button"
+        showBalance={false}
+        showProfilePicture={false}
+        useAns={false}
+      />
+    )
+  }
+
+  if (arnsName) {
+    return (
+      <Box sx={{ position: 'relative' }}>
+        <Button
+          onClick={handleProfileClick}
+          sx={{
+            height: "100%",
+            borderRadius: 1,
+            border: "1px solid var(--mui-palette-divider)",
+            paddingX: 2.5,
+            paddingY: 1,
+            color: "var(--mui-palette-primary-main)",
+            background: "none",
+            fontWeight: 500,
+            fontFamily: MainFontFF,
+            textTransform: "none",
+            lineHeight: 1,
+            fontSize: "0.8125rem",
+            minWidth: "auto",
+            "&:active": {
+              transform: "scale(0.98) !important",
+            },
+            "&:hover": {
+              transform: "none !important",
+              boxShadow: "none !important",
+              backgroundColor: "rgba(var(--mui-palette-primary-mainChannel) / 0.04)",
+            },
+          }}
+        >
+          <Stack direction="row" alignItems="center" gap={1}>
+            {logoTxId && (
+              <Box
+                component="img"
+                src={`https://arweave.net/${logoTxId}`}
+                alt={`${arnsName} logo`}
+                sx={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                }}
+                onError={(e) => {
+                  console.log("Logo failed to load:", logoTxId)
+                  e.currentTarget.style.display = "none"
+                }}
+              />
+            )}
+            <span>{arnsName}</span>
+          </Stack>
+        </Button>
+        {/* Hidden ConnectButton to trigger wallet modal */}
+        <Box sx={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none' }}>
+          <ConnectButton
+            id="hidden-connect-button"
+            showBalance={false}
+            showProfilePicture={false}
+            useAns={false}
+          />
+        </Box>
+      </Box>
+    )
+  }
+
+  return (
+    <ConnectButton
+      id="connect-wallet-button"
+      showBalance={false}
+      showProfilePicture={false}
+      useAns={false}
+    />
+  )
+}
 
 const Header = () => {
   const { mode = "dark", setMode } = useColorScheme()
@@ -135,12 +248,10 @@ const Header = () => {
                     height: "100%",
                     borderRadius: 1,
                     border: "1px solid var(--mui-palette-divider)",
-                    // border: "1px solid var(--mui-palette-accent-main)",
                     paddingX: 2.5,
                     paddingY: 1,
                     color: "var(--mui-palette-primary-main)",
                     background: "none",
-                    // background: "rgba(var(--mui-palette-accent-mainChannel) / 0.05)",
                   },
                   "&.MuiBox-root button:active": {
                     transform: "scale(0.98) !important",
@@ -162,12 +273,7 @@ const Header = () => {
                   },
                 }}
               >
-                <ConnectButton
-                  id="connect-wallet-button"
-                  showBalance={false}
-                  showProfilePicture={false}
-                  useAns={false}
-                />
+                <ProfileButton />
               </Box>
               <IconButton
                 sx={{ fontSize: "1.125rem" }}
