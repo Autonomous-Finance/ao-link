@@ -1,44 +1,97 @@
-import React, { useCallback, useState } from "react"
 import { useActiveAddress } from "@arweave-wallet-kit/react"
-import { Box, Button, CircularProgress, Paper, Stack, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Paper, Stack, Typography, TextField } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
+
+import { useStore } from "@nanostores/react"
 import { createDataItemSigner, dryrun, message, result } from "@permaweb/aoconnect"
 import { DryRunResult, MessageInput } from "@permaweb/aoconnect/dist/lib/dryrun"
 import { MessageResult } from "@permaweb/aoconnect/dist/lib/result"
 import { Asterisk } from "@phosphor-icons/react"
+import { atom } from "nanostores"
+import React, { useCallback, useMemo, useState } from "react"
 
 import { CodeEditor } from "@/components/CodeEditor"
 import { FormattedDataBlock } from "@/components/FormattedDataBlock"
 import { IdBlock } from "@/components/IdBlock"
+import { RequestHistoryPanel, dryRunHistoryStore } from "@/components/RequestHistoryPanel"
 import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { prettifyResult } from "@/utils/ao-utils"
 import { truncateId } from "@/utils/data-utils"
-
-import { RequestHistoryPanel, dryRunHistoryStore } from "@/components/RequestHistoryPanel"
 
 type ProcessInteractionProps = {
   processId: string
   readOnly?: boolean
 }
 
-export function ProcessInteraction(props: ProcessInteractionProps) {
-  const { processId, readOnly } = props
-  const [response, setResponse] = useState("")
-  const [msgId, setMsgId] = useState("")
-  const [loading, setLoading] = useState(false)
+type Template = { id: string; name: string; payload: string }
+
+const templateStoreMap: Record<string, ReturnType<typeof atom<Template[]>>> = {}
+function getTemplateStore(key: string) {
+  if (!templateStoreMap[key]) {
+    let initial: Template[] = []
+    try {
+      const stored = localStorage.getItem(key)
+      if (stored) initial = JSON.parse(stored)
+    } catch {}
+    const store = atom<Template[]>(initial)
+    store.listen((list) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(list))
+      } catch {}
+    })
+    templateStoreMap[key] = store
+  }
+  return templateStoreMap[key]
+}
+
+export function ProcessInteraction({ processId, readOnly }: ProcessInteractionProps) {
   const activeAddress = useActiveAddress()
 
-  const [query, setQuery] = useState<string>(
-    JSON.stringify(
-      {
-        process: processId,
-        data: "",
-        tags: [{ name: "Action", value: "Info" }],
-      },
-      null,
-      2,
-    ),
+  const defaultQuery = useMemo(
+    () =>
+      JSON.stringify(
+        { process: processId, data: "", tags: [{ name: "Action", value: "Info" }] },
+        null,
+        2,
+      ),
+    [processId],
   )
+
+  const [query, setQuery] = useState<string>(defaultQuery)
+  const [response, setResponse] = useState<string>("")
+  const [msgId, setMsgId] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [isAdding, setIsAdding] = useState<boolean>(false)
+  const [newName, setNewName] = useState<string>("")
+  const [newId, setNewId] = useState<string>("")
+
+  const STORAGE_KEY = `processInteractionTemplates_${processId}`
+  const templatesStore = useMemo(() => getTemplateStore(STORAGE_KEY), [STORAGE_KEY])
+  const templates = useStore(templatesStore)
+
+  const loadTemplate = (id: string | null, payload: string) => {
+    setQuery(payload)
+    setSelectedId(id)
+    setIsAdding(false)
+  }
+  const startAdd = () => {
+    setIsAdding(true)
+    setSelectedId(null)
+    setNewName("")
+    setNewId(crypto.randomUUID())
+    setQuery("")
+  }
+  const saveTemplate = () => {
+    templatesStore.set([...templates, { id: newId, name: newName, payload: query }])
+    setSelectedId(newId)
+    setIsAdding(false)
+  }
+  const deleteTemplate = () => {
+    if (!selectedId) return
+    templatesStore.set(templates.filter((t) => t.id !== selectedId))
+    loadTemplate(null, defaultQuery)
+  }
 
   const handleFetch = useCallback(async () => {
     setLoading(true)
@@ -46,88 +99,113 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
     try {
       const msg = JSON.parse(query) as MessageInput
       let json: DryRunResult | MessageResult
-
       if (readOnly) {
         json = await dryrun(msg)
-
-        const newItem = {
+        const entry = {
           id: crypto.randomUUID(),
           processId,
           request: msg,
           response: json,
           timestamp: new Date().toISOString(),
         }
-
-        const existing = dryRunHistoryStore.get() || []
-        const updated = [...existing, newItem].slice(-10)
-        dryRunHistoryStore.set(updated)
+        const hist = dryRunHistoryStore.get() || []
+        dryRunHistoryStore.set([...hist, entry].slice(-10))
       } else {
-        const sentMsgId = await message({
-          ...msg,
-          signer: createDataItemSigner(window.arweaveWallet),
-        })
-        json = await result({ message: sentMsgId, process: processId })
-        setMsgId(sentMsgId)
-
-        const newItem = {
+        const sid = await message({ ...msg, signer: createDataItemSigner(window.arweaveWallet) })
+        json = await result({ message: sid, process: processId })
+        setMsgId(sid)
+        const entry = {
           id: crypto.randomUUID(),
           processId,
           request: msg,
           response: json,
           timestamp: new Date().toISOString(),
-          sentMessageId: sentMsgId,
+          sentMessageId: sid,
         }
-
-        const existing = dryRunHistoryStore.get() || []
-        const updated  = [...existing.slice(-9), newItem]
-        dryRunHistoryStore.set(updated)
+        const hist = dryRunHistoryStore.get() || []
+        dryRunHistoryStore.set([...hist.slice(-9), entry])
       }
-
       setResponse(JSON.stringify(prettifyResult(json), null, 2))
-    } catch (error) {
-      setResponse(
-        JSON.stringify({ error: `Error fetching info: ${String(error)}` }, null, 2),
-      )
+    } catch (err) {
+      setResponse(JSON.stringify({ error: `Error fetching info: ${String(err)}` }, null, 2))
     }
     setLoading(false)
   }, [processId, query, readOnly])
 
   return (
-    <Box sx={{ marginBottom: 10, marginTop: 3, marginX: 2 }}>
+    <Box sx={{ my: 3, mx: 2, mb: 10 }}>
       <Stack gap={1}>
         <Grid2 container spacing={{ xs: 4, lg: 2 }}>
           <Grid2 xs={12} lg={6}>
             <Box sx={{ position: "relative" }}>
-              <Paper
-                component={CodeEditor}
-                height={600}
-                defaultLanguage="json"
-                defaultValue={query}
-                onChange={(value) => {
-                  if (typeof value === "string") {
-                    setQuery(value)
-                  }
-                }}
-              />
-              <Typography
-                variant="caption"
+              <Box
                 sx={{
                   position: "absolute",
                   top: -24,
                   left: 0,
-                  border: "1px solid var(--mui-palette-divider)",
-                  background: "var(--mui-palette-background-paper)",
-                  borderBottom: 0,
-                  paddingTop: 0.5,
-                  paddingLeft: 2,
-                  paddingRight: 2,
+                  display: "flex",
                   zIndex: "var(--mui-zIndex-appBar)",
                 }}
               >
-                Query
-              </Typography>
+                <Typography
+                  variant="caption"
+                  onClick={() => loadTemplate(null, defaultQuery)}
+                  sx={{
+                    border: "1px solid var(--mui-palette-divider)",
+                    background: "var(--mui-palette-background-paper)",
+                    borderBottom: 0,
+                    paddingTop: 0.5,
+                    paddingLeft: 2,
+                    paddingRight: 2,
+                    cursor: "pointer",
+                  }}
+                >
+                  Query
+                </Typography>
+                {templates.map((t) => (
+                  <Typography
+                    key={t.id}
+                    variant="caption"
+                    onClick={() => loadTemplate(t.id, t.payload)}
+                    sx={{
+                      border: "1px solid var(--mui-palette-divider)",
+                      background: "var(--mui-palette-background-paper)",
+                      borderBottom: 0,
+                      paddingTop: 0.5,
+                      paddingLeft: 2,
+                      paddingRight: 2,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {t.name}
+                  </Typography>
+                ))}
+                <Typography
+                  variant="caption"
+                  onClick={startAdd}
+                  sx={{
+                    border: "1px solid var(--mui-palette-divider)",
+                    background: "var(--mui-palette-background-paper)",
+                    borderBottom: 0,
+                    paddingTop: 0.5,
+                    paddingLeft: 2,
+                    paddingRight: 2,
+                    cursor: "pointer",
+                  }}
+                >
+                  ＋
+                </Typography>
+              </Box>
+              <Paper
+                component={CodeEditor}
+                height={600}
+                defaultLanguage="json"
+                value={query}
+                onChange={(v) => typeof v === "string" && setQuery(v)}
+              />
             </Box>
           </Grid2>
+
           <Grid2 xs={12} lg={6}>
             <Box sx={{ position: "relative" }}>
               <Paper
@@ -164,9 +242,37 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
         </Grid2>
 
         <Grid2 container spacing={{ xs: 1, lg: 2 }}>
-          <Grid2 xs={12} lg={6} />
           <Grid2 xs={12} lg={6}>
-            <Stack direction="row" justifyContent="space-between" gap={1} alignItems="center">
+            {(isAdding || selectedId) && (
+              <Stack direction="row" spacing={1} alignItems="center">
+                {isAdding ? (
+                  <>
+                    <TextField
+                      size="small"
+                      placeholder="Name"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                    />
+                    <Button
+                      size="small"
+                      variant="contained"
+                      disabled={!newName}
+                      onClick={saveTemplate}
+                    >
+                      Save
+                    </Button>
+                  </>
+                ) : (
+                  <Button size="small" color="error" variant="outlined" onClick={deleteTemplate}>
+                    Delete Template
+                  </Button>
+                )}
+              </Stack>
+            )}
+          </Grid2>
+
+          <Grid2 xs={12} lg={6}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
               {msgId ? (
                 <Typography
                   variant="body2"
@@ -174,7 +280,7 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
                   component={Stack}
                   direction="row"
                   gap={1}
-                  marginX={1}
+                  mx={1}
                 >
                   Message ID:
                   <IdBlock label={truncateId(msgId)} value={msgId} href={`/message/${msgId}`} />
@@ -182,7 +288,8 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
               ) : (
                 <div />
               )}
-              {(readOnly || activeAddress) && (
+
+              {readOnly || activeAddress ? (
                 <Button
                   size="small"
                   color="secondary"
@@ -192,15 +299,14 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
                   endIcon={
                     loading ? (
                       <CircularProgress size={12} color="inherit" />
-                    ) : readOnly ? null : (
-                      <Asterisk width={12} height={12} weight="bold" />
+                    ) : (
+                      !readOnly && <Asterisk width={12} height={12} weight="bold" />
                     )
                   }
                 >
                   {readOnly ? "Dry run" : "Send message"}
                 </Button>
-              )}
-              {!readOnly && !activeAddress && (
+              ) : (
                 <Button
                   size="small"
                   variant="contained"
@@ -215,7 +321,7 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
         </Grid2>
 
         <Box sx={{ mt: 4 }}>
-          <RequestHistoryPanel onSelect={(value) => setQuery(value)} />
+          <RequestHistoryPanel onSelect={(val) => loadTemplate(null, val)} />
         </Box>
       </Stack>
     </Box>
