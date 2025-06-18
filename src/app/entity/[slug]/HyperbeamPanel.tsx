@@ -28,7 +28,7 @@ const HyperbeamPanel = memo(function HyperbeamPanel({ baseUrl, open }: Hyperbeam
           ? fetch(`${baseUrl}/compute/keys/serialize~json@1.0`).then((res) => res.json())
           : Promise.reject(),
       )
-      .then(data => {
+      .then((data) => {
         const list = Array.isArray(data) ? data : Object.values(data)
         setKeys(list as string[])
       })
@@ -82,7 +82,11 @@ const HyperbeamPanel = memo(function HyperbeamPanel({ baseUrl, open }: Hyperbeam
                       <CircularProgress size={16} />
                     ) : (
                       <Typography component="pre" sx={{ whiteSpace: "pre-wrap", fontSize: 12 }}>
-                        {values[key]?.body ?? JSON.stringify(values[key], null, 2) ?? "No data"}
+                        {values[key] === null
+                          ? "Error loading data"
+                          : values[key]?.body !== undefined
+                            ? values[key].body
+                            : JSON.stringify(values[key], null, 2)}
                       </Typography>
                     )}
                   </Box>
