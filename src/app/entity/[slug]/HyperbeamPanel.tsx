@@ -82,7 +82,7 @@ const HyperbeamPanel = memo(function HyperbeamPanel({ baseUrl, open }: Hyperbeam
                       <CircularProgress size={16} />
                     ) : (
                       <Typography component="pre" sx={{ whiteSpace: "pre-wrap", fontSize: 12 }}>
-                        {values[key]?.body ?? "No data"}
+                        {values[key]?.body ?? JSON.stringify(values[key], null, 2) ?? "No data"}
                       </Typography>
                     )}
                   </Box>
