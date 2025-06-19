@@ -1,4 +1,3 @@
-// src/app/entity/[slug]/ProcessPage.tsx
 import { Box, CircularProgress, Paper, Stack, Tabs, Tooltip, Typography } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
 import React, { useEffect, useMemo, useState } from "react"
@@ -57,10 +56,10 @@ export function ProcessPage({ message }: ProcessPageProps) {
   const [ents, setEnts] = useState<Record<string, AoMessage> | null>(null)
   useEffect(() => {
     if (!outMsgs) return
-    const ids = Array.from(new Set(outMsgs.flatMap(m => [m.from, m.to])))
-    Promise.all(ids.map(getMessageById)).then(res => {
+    const ids = Array.from(new Set(outMsgs.flatMap((m) => [m.from, m.to])))
+    Promise.all(ids.map(getMessageById)).then((res) => {
       const map = Object.fromEntries(res.filter((x): x is AoMessage => !!x).map((x) => [x.id, x]))
-      setEnts(prev => ({ ...(prev || {}), ...map }))
+      setEnts((prev) => ({ ...(prev || {}), ...map }))
     })
   }, [outMsgs])
 
@@ -68,7 +67,7 @@ export function ProcessPage({ message }: ProcessPageProps) {
     if (!outMsgs || !ents) return null
     const seen: Record<string, boolean> = {}
     return outMsgs
-      .map(x => ({
+      .map((x) => ({
         id: x.id,
         highlight: true,
         source: `${ents[x.from]?.type || "User"} ${truncateId(x.from)}`,
@@ -92,6 +91,14 @@ export function ProcessPage({ message }: ProcessPageProps) {
       .then(r => setHbAvail(r.ok))
       .catch(() => setHbAvail(false))
   }, [entityId])
+
+  useEffect(() => {
+    // If the current tab is "hyperbeam" but it's not available, switch to default
+    if (activeTab === "hyperbeam" && !hbAvail) {
+      setActiveTab(defaultTab)
+      setSearchParams({})
+    }
+  }, [hbAvail, activeTab, setSearchParams])
 
   return (
     <Stack component="main" gap={6} paddingY={4}>
