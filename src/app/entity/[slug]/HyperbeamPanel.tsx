@@ -39,6 +39,21 @@ const HyperbeamPanel = memo(function HyperbeamPanel({ baseUrl, open }: Hyperbeam
   const [loadingKeys, setLoadingKeys] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalValue, setModalValue] = useState<{ key: string; value: any }>({ key: "", value: "" })
+  const [atSlot, setAtSlot] = useState<string | null>(null)
+  const [currentSlot, setCurrentSlot] = useState<string | null>(null)
+
+  // Fetch at-slot and slot/current immediately when panel opens
+  useEffect(() => {
+    if (!open) return
+    fetch(`${baseUrl}/compute/at-slot`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then(data => setAtSlot(data?.body ?? String(data)))
+      .catch(() => setAtSlot("(error)"))
+    fetch(`${baseUrl}/slot/current`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then(data => setCurrentSlot(data?.body ?? String(data)))
+      .catch(() => setCurrentSlot("(error)"))
+  }, [baseUrl, open])
 
   useEffect(() => {
     if (!open) return
@@ -104,6 +119,14 @@ const HyperbeamPanel = memo(function HyperbeamPanel({ baseUrl, open }: Hyperbeam
     <Paper sx={{ p: 3, maxHeight: 500, overflowY: "auto" }}>
       <Stack gap={2}>
         <Subheading type="HYPERBEAM" value="Hyperbeam Data" />
+
+        {/* Display at-slot and current slot info */}
+        <Stack direction="row" gap={2} alignItems="center">
+          <Typography variant="subtitle2" color="text.secondary">at-slot:</Typography>
+          <Typography variant="body2">{atSlot ?? <CircularProgress size={12} />}</Typography>
+          <Typography variant="subtitle2" color="text.secondary">slot/current:</Typography>
+          <Typography variant="body2">{currentSlot ?? <CircularProgress size={12} />}</Typography>
+        </Stack>
 
         {loadingKeys ? (
           <CircularProgress size={24} />
