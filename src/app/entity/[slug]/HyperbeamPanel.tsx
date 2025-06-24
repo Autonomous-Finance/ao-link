@@ -1,4 +1,3 @@
-// src/app/entity/[slug]/HyperbeamPanel.tsx
 import { Visibility } from "@mui/icons-material"
 import {
   CircularProgress,
@@ -9,10 +8,17 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  TextField,
+  Box,
 } from "@mui/material"
 import { useStore } from "@nanostores/react"
-import React, { useEffect, useState, memo } from "react"
+import React, { useState, memo, useRef } from "react"
 
+import { useHyperbeamData } from "./useHyperbeamData"
 import { SectionInfo } from "@/components/SectionInfo"
 import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import { Subheading } from "@/components/Subheading"
@@ -32,83 +38,113 @@ function shouldShowEyeIcon(value: any) {
   return typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean";
 }
 
-const CACHE_TTL = 60 * 60 * 1000 // 1 hour
-
 const HyperbeamPanel = memo(function HyperbeamPanel({ baseUrl, open }: HyperbeamPanelProps) {
   const hyperbeamData = useStore($hyperbeamData)
-  const [loadingKeys, setLoadingKeys] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalValue, setModalValue] = useState<{ key: string; value: any }>({ key: "", value: "" })
-  const [atSlot, setAtSlot] = useState<string | null>(null)
-  const [currentSlot, setCurrentSlot] = useState<string | null>(null)
+  const [customNodeInput, setCustomNodeInput] = useState("")
+  const [customNodeUrl, setCustomNodeUrl] = useState<string | null>(null)
+  const [customNodeError, setCustomNodeError] = useState<string | null>(null)
+  const [usingCustom, setUsingCustom] = useState(false)
 
-  // Fetch at-slot and slot/current immediately when panel opens
-  useEffect(() => {
-    if (!open) return
-    fetch(`${baseUrl}/compute/at-slot`)
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then(data => setAtSlot(data?.body ?? String(data)))
-      .catch(() => setAtSlot("(error)"))
-    fetch(`${baseUrl}/slot/current`)
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then(data => setCurrentSlot(data?.body ?? String(data)))
-      .catch(() => setCurrentSlot("(error)"))
-  }, [baseUrl, open])
+  // Debounce for custom node input
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
 
-  useEffect(() => {
-    if (!open) return
-    const now = Date.now()
-    if (hyperbeamData.keys && hyperbeamData.values && now - hyperbeamData.lastFetched < CACHE_TTL) {
-      console.log("[HyperbeamPanel] Using cached data")
-      return
+  // Extract process path from baseUrl (everything after the domain)
+  const processPath = (() => {
+    try {
+      const url = new URL(baseUrl)
+      return url.pathname
+    } catch {
+      // fallback: find first single slash after protocol
+      const match = baseUrl.match(/^https?:\/\/[^/]+(\/.*)$/)
+      return match ? match[1] : ''
     }
-    setLoadingKeys(true)
-    const t0 = performance.now()
-    console.log("[HyperbeamPanel] Fetching keys HEAD", new Date().toISOString())
-    fetch(`${baseUrl}/compute/keys/serialize~json@1.0`, { method: "HEAD" })
-      .then((r) => {
-        const t1 = performance.now()
-        console.log(`[HyperbeamPanel] HEAD request took ${(t1 - t0).toFixed(2)}ms`)
-        return r.ok
-          ? fetch(`${baseUrl}/compute/keys/serialize~json@1.0`).then((res) => res.json())
-          : Promise.reject()
-      })
-      .then(async (data) => {
-        const t2 = performance.now()
-        const list = Array.isArray(data) ? data : Object.values(data)
-        console.log(`[HyperbeamPanel] Got ${list.length} keys in ${(t2 - t0).toFixed(2)}ms`)
-        if (!list.length) {
-          $hyperbeamData.set({ keys: [], values: {}, lastFetched: now })
-          return
-        }
-        const url = `${baseUrl}/compute/serialize~json@1.0?keys=${list.join(",")}`
-        console.log("[HyperbeamPanel] Fetching all key values (batch)", url)
-        const t3 = performance.now()
-        const res = await fetch(url)
-        const t4 = performance.now()
-        let values = await res.json()
-        const t5 = performance.now()
-        if (Array.isArray(values)) {
-          values = Object.fromEntries(list.map((k, i) => [k, values[i]]))
-        }
-        $hyperbeamData.set({ keys: list, values, lastFetched: now })
-        console.log(
-          `[HyperbeamPanel] Batch fetch took ${(t4 - t3).toFixed(2)}ms, JSON parse took ${(t5 - t4).toFixed(2)}ms`,
-        )
-        console.log("[HyperbeamPanel] Total time:", (t5 - t0).toFixed(2), "ms")
-      })
-      .catch((e) => {
-        $hyperbeamData.set({ keys: null, values: {}, lastFetched: now })
-        console.error("[HyperbeamPanel] Error fetching keys/values", e)
-      })
-      .finally(() => setLoadingKeys(false))
-  }, [baseUrl, open, hyperbeamData])
+  })()
+
+  // Node options with process path appended
+  const NODE_OPTIONS = [
+    { label: "Default", value: baseUrl },
+    {
+      label: "dev-router.forward.computer",
+      value: `https://dev-router.forward.computer${processPath}`,
+    },
+    { label: "tee-4.forward.computer", value: `https://tee-4.forward.computer${processPath}` },
+    { label: "Custom...", value: "__custom__" },
+  ]
+
+  // Node selection state
+  const [selectedNodeUrl, setSelectedNodeUrl] = useState(baseUrl)
+
+  // Use custom hook for all data fetching and state
+  const {
+    atSlot,
+    currentSlot,
+    atSlotLoading,
+    currentSlotLoading,
+    loadingKeys,
+    fetchError,
+    nodeSwitching,
+    setNodeSwitching,
+    setFetchError,
+  } = useHyperbeamData({
+    selectedNodeUrl,
+    open,
+    usingCustom,
+    customNodeUrl,
+    customNodeError,
+    processPath,
+    $hyperbeamData,
+  })
 
   const handleOpenModal = (key: string, value: any) => {
     setModalValue({ key, value })
     setModalOpen(true)
   }
   const handleCloseModal = () => setModalOpen(false)
+
+  // When the node changes, set nodeSwitching to true, clear keys/values, and reset error
+  const handleNodeChange = (e: any) => {
+    const value = e.target.value
+    if (value === "__custom__") {
+      setUsingCustom(true)
+      setCustomNodeInput("")
+      setCustomNodeUrl(null)
+      setCustomNodeError(null)
+      setSelectedNodeUrl("")
+      setNodeSwitching(true)
+      setFetchError(null)
+      $hyperbeamData.set({ keys: null, values: {}, lastFetched: 0 })
+      return
+    }
+    setUsingCustom(false)
+    setSelectedNodeUrl(value)
+    setNodeSwitching(true)
+    setFetchError(null)
+    $hyperbeamData.set({ keys: null, values: {}, lastFetched: 0 })
+  }
+
+  // Handle custom node input change (debounced)
+  const handleCustomNodeInput = (e: any) => {
+    const val = e.target.value
+    setCustomNodeInput(val)
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+    debounceTimeout.current = setTimeout(() => {
+      // Basic validation
+      if (!val.startsWith("http://") && !val.startsWith("https://")) {
+        setCustomNodeError("URL must start with http:// or https://")
+        setCustomNodeUrl(null)
+        setSelectedNodeUrl("")
+        return
+      }
+      setCustomNodeError(null)
+      setCustomNodeUrl(val)
+      setSelectedNodeUrl(val + processPath)
+      setNodeSwitching(true)
+      setFetchError(null)
+      $hyperbeamData.set({ keys: null, values: {}, lastFetched: 0 })
+    }, 300)
+  }
 
   if (!open) return null
 
@@ -119,19 +155,62 @@ const HyperbeamPanel = memo(function HyperbeamPanel({ baseUrl, open }: Hyperbeam
     <Paper sx={{ p: 3, maxHeight: 500, overflowY: "auto" }}>
       <Stack gap={2}>
         <Subheading type="HYPERBEAM" value="Hyperbeam Data" />
+        {/* Node selection and display */}
+        <FormControl
+          size="small"
+          sx={{ minWidth: 320, display: "flex", flexDirection: "row", alignItems: "center" }}
+        >
+          <InputLabel id="node-select-label">Node URL</InputLabel>
+          <Select
+            labelId="node-select-label"
+            value={usingCustom ? "__custom__" : selectedNodeUrl}
+            label="Node URL"
+            onChange={handleNodeChange}
+            sx={{ flex: 1 }}
+          >
+            {NODE_OPTIONS.map(opt => (
+              <MenuItem key={opt.value} value={opt.value}>
+                {opt.label} ({opt.value === "__custom__" ? "Enter your own" : opt.value})
+              </MenuItem>
+            ))}
+          </Select>
+          {nodeSwitching && <CircularProgress size={20} sx={{ ml: 2 }} />}
+        </FormControl>
+        {usingCustom && (
+          <Box sx={{ mt: 1, mb: 1 }}>
+            <TextField
+              label="Custom Node URL"
+              value={customNodeInput}
+              onChange={handleCustomNodeInput}
+              size="small"
+              fullWidth
+              error={!!customNodeError}
+              helperText={customNodeError || `Enter the base URL, e.g. https://my-node.com`}
+            />
+          </Box>
+        )}
+        <Typography variant="caption" color="text.secondary">
+          Current node: {usingCustom && customNodeUrl ? `${customNodeUrl}${processPath}` : selectedNodeUrl}
+        </Typography>
 
         {/* Display at-slot and current slot info */}
         <Stack direction="row" gap={2} alignItems="center">
           <Typography variant="subtitle2" color="text.secondary">at-slot:</Typography>
-          <Typography variant="body2">{atSlot ?? <CircularProgress size={12} />}</Typography>
+          <Typography variant="body2">
+            {atSlotLoading ? <CircularProgress size={12} /> : atSlot}
+          </Typography>
           <Typography variant="subtitle2" color="text.secondary">slot/current:</Typography>
-          <Typography variant="body2">{currentSlot ?? <CircularProgress size={12} />}</Typography>
+          <Typography variant="body2">
+            {currentSlotLoading ? <CircularProgress size={12} /> : currentSlot}
+          </Typography>
         </Stack>
 
-        {loadingKeys ? (
+        {loadingKeys || nodeSwitching ? (
           <CircularProgress size={24} />
+        ) : fetchError ? (
+          <SectionInfo title="Error" value={fetchError} />
         ) : !hyperbeamData.keys ? (
-          <SectionInfo title="Availability" value="Not available on Hyperbeam" />
+          <SectionInfo title="Availability" value="N/A" />
         ) : (
           <>
             <SectionInfoWithChip title="Keys found" value={String(keys.length)} />
