@@ -281,7 +281,6 @@ export async function getMessageById(id: string): Promise<AoMessage | null> {
  */
 const processesQuery = (includeCount = false) => gql`
   query (
-    $moduleId: String!
     $limit: Int!
     $sortOrder: SortOrder!
     $cursor: String
@@ -290,8 +289,7 @@ const processesQuery = (includeCount = false) => gql`
       sort: $sortOrder
       first: $limit
       after: $cursor
-
-      tags: [{ name: "Module", values: [$moduleId]}, { name: "Type", values: ["Process"]}, ${AO_NETWORK_IDENTIFIER}]
+      tags: [{ name: "Type", values: ["Process"] }, ${AO_NETWORK_IDENTIFIER}]
       ${AO_MIN_INGESTED_AT}
     ) {
       ${includeCount ? "count" : ""}
@@ -306,8 +304,6 @@ export async function getProcesses(
   limit = 100,
   cursor = "",
   ascending: boolean,
-  //
-  moduleId = "",
 ): Promise<[number | undefined, AoMessage[]]> {
   try {
     const result = await goldsky
@@ -315,8 +311,6 @@ export async function getProcesses(
         limit,
         sortOrder: ascending ? "HEIGHT_ASC" : "INGESTED_AT_DESC",
         cursor,
-        //
-        moduleId,
       })
       .toPromise()
     const { data } = result
