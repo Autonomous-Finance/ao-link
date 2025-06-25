@@ -84,21 +84,12 @@ export function ProcessPage({ message }: ProcessPageProps) {
       })
   }, [outMsgs, ents])
 
-  // Hyperbeam availability
   const [hbAvail, setHbAvail] = useState(false)
   useEffect(() => {
     fetch(`${HB_BASE}/compute/keys/serialize~json@1.0`, { method: "HEAD" })
       .then(r => setHbAvail(r.ok))
       .catch(() => setHbAvail(false))
   }, [entityId])
-
-  useEffect(() => {
-    // If the current tab is "hyperbeam" but it's not available, switch to default
-    if (activeTab === "hyperbeam" && !hbAvail) {
-      setActiveTab(defaultTab)
-      setSearchParams({})
-    }
-  }, [hbAvail, activeTab, setSearchParams])
 
   return (
     <Stack component="main" gap={6} paddingY={4}>
@@ -164,7 +155,7 @@ export function ProcessPage({ message }: ProcessPageProps) {
 
       <Stack>
         <Tabs value={activeTab} onChange={handleChange} textColor="primary">
-          {hbAvail && <TabWithCount value="hyperbeam" label="Hyperbeam" />}
+          <TabWithCount value="hyperbeam" label="Hyperbeam" />
           <TabWithCount value="outgoing" label="Outgoing messages" chipValue={outCount} />
           <TabWithCount value="incoming" label="Incoming messages" chipValue={inCount} />
           <TabWithCount value="spawned" label="Spawned processes" chipValue={prCount} />
@@ -211,8 +202,6 @@ export function ProcessPage({ message }: ProcessPageProps) {
             open={activeTab === "source-code"}
             onCountReady={setEvCount}
           />
-
-          {/* only mount HyperbeamPanel once you click that tab */}
           {activeTab === "hyperbeam" && <HyperbeamPanel baseUrl={HB_BASE} open />}
         </Box>
       </Stack>
