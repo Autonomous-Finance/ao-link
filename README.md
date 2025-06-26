@@ -10,4 +10,6 @@ AO Link is a web-based explorer and visualization tool for the AO protocol. It p
 - 💻 Interactive process console for read/write operations
 - 🎨 Dark/Light theme support
 - ⚡ Real-time data updates
+- 📱 Installable PWA for offline access
+- 📱 Optimized for phone and tablet screens
 

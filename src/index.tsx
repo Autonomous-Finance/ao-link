@@ -1,4 +1,5 @@
 import "./app/globals.css"
+import "../styles/mobile.css"
 import "@fontsource/roboto-mono/300.css"
 import "@fontsource/roboto-mono/400.css"
 import "@fontsource/roboto-mono/500.css"
@@ -48,3 +49,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </RootLayoutUI>
   </HashRouter>,
 )
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(console.error)
+  })
+}

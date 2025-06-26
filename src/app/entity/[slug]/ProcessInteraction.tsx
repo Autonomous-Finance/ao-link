@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react"
 import { useActiveAddress } from "@arweave-wallet-kit/react"
-import { Box, Button, CircularProgress, Paper, Stack, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Paper, Stack, Typography, useMediaQuery, useTheme, Backdrop } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
 import { createDataItemSigner, dryrun, message, result } from "@permaweb/aoconnect"
 import { DryRunResult, MessageInput } from "@permaweb/aoconnect/dist/lib/dryrun"
@@ -27,6 +27,9 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
   const [msgId, setMsgId] = useState("")
   const [loading, setLoading] = useState(false)
   const activeAddress = useActiveAddress()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const panelHeight = isMobile ? 300 : 600
 
   const [query, setQuery] = useState<string>(
     JSON.stringify(
@@ -93,14 +96,25 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
   }, [processId, query, readOnly])
 
   return (
-    <Box sx={{ marginBottom: 10, marginTop: 3, marginX: 2 }}>
+    <Box sx={{ marginBottom: 10, marginTop: 3, marginX: 2, position: "relative" }}>
+      <Backdrop
+        open={loading}
+        sx={{
+          position: "absolute",
+          inset: 0,
+          zIndex: theme.zIndex.drawer + 1,
+          color: "#fff",
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <Stack gap={1}>
         <Grid2 container spacing={{ xs: 4, lg: 2 }}>
           <Grid2 xs={12} lg={6}>
             <Box sx={{ position: "relative" }}>
               <Paper
                 component={CodeEditor}
-                height={600}
+                height={panelHeight}
                 defaultLanguage="json"
                 defaultValue={query}
                 onChange={(value) => {
@@ -133,8 +147,8 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
               <Paper
                 component={FormattedDataBlock}
                 minHeight="unset"
-                height={600}
-                maxHeight={600}
+                height={panelHeight}
+                maxHeight={panelHeight}
                 data={response}
                 placeholder={
                   loading

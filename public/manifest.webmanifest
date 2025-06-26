@@ -1,0 +1,16 @@
+{
+  "name": "AO Link",
+  "short_name": "AO Link",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#545bff",
+  "icons": [
+    {
+      "src": "/ao.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -15,7 +15,7 @@ export const PieChart = ({ data, seriesTitle }: AreaChartProps) => {
     ...defaultOpts,
     chart: {
       backgroundColor: "transparent",
-      height: 600,
+      height: defaultOpts.chart?.height,
       width: undefined,
     },
     series: [

@@ -212,7 +212,7 @@ const SearchBar = () => {
   const navigate = useNavigate()
 
   return (
-    <Box sx={{ width: 640, position: "relative" }}>
+    <Box sx={{ width: { xs: "100%", sm: 640 }, position: "relative" }}>
       <Autocomplete
         id="search-bar"
         size="small"
@@ -227,6 +227,9 @@ const SearchBar = () => {
           },
           "& .MuiAutocomplete-popper": {
             zIndex: 1301, // Higher than backdrop
+            width: { xs: "100vw !important", sm: "auto" },
+            maxWidth: { xs: "100vw", sm: "none" },
+            left: { xs: "0 !important", sm: "auto" },
           },
         }}
         onChange={(event, newValue, reason) => {

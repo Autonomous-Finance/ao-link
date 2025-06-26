@@ -1,4 +1,4 @@
-import { Avatar, Box, Divider, Skeleton, Stack, Typography } from "@mui/material"
+import { Avatar, Box, Divider, Skeleton, Stack, Typography, useMediaQuery, useTheme } from "@mui/material"
 import { Wallet, ArrowUpRight, ArrowDownLeft } from "@phosphor-icons/react"
 import { Fragment } from "react"
 import { useParams } from "react-router-dom"
@@ -101,6 +101,9 @@ function SwapTransfer({ t }: SwapTransferProps) {
 export function SwapPage() {
   const { messageId = "" } = useParams()
   const { swap, isLoading } = useSwap(messageId)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const graphHeight = isMobile ? 300 : 600
 
   return (
     <Fragment>
@@ -108,13 +111,13 @@ export function SwapPage() {
         <Box width="100%">
           <Typography variant="h6">Swap messages tree:</Typography>
           {isLoading ? (
-            <Skeleton width="100%" height={600} />
+            <Skeleton width="100%" sx={{ height: graphHeight }} />
           ) : swap?.tree ? (
             <MessageTreeGraph
               data={swap?.tree}
               label={(d) => `${d.action ? `${d.action}` : ""}`}
               r={5}
-              height={600}
+              height={graphHeight}
               padding={2}
               strokeWidth={3}
               highlightPath={["Transfer", "Credit-Notice", "Transfer", "Credit-Notice"]}

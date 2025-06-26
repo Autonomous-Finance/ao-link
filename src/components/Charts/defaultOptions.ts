@@ -7,6 +7,9 @@ import { formatNumber } from "@/utils/number-utils"
 
 import { TitleFontFF } from "../RootLayout/fonts"
 
+const isMobile =
+  typeof window !== "undefined" && window.matchMedia("(max-width:600px)").matches
+
 export const defaultOpts: HighchartOptions = {
   title: {
     text: "",
@@ -21,7 +24,7 @@ export const defaultOpts: HighchartOptions = {
       },
     },
     backgroundColor: "transparent",
-    height: 600,
+    height: isMobile ? 300 : 600,
   },
   legend: {
     layout: "horizontal",
