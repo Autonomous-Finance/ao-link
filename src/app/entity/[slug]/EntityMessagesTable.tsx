@@ -127,6 +127,7 @@ export function EntityMessagesTable(props: EntityMessagesTableProps) {
 
   return (
     <AsyncTable
+      virtualize
       extraFilters={extraFilters}
       {...rest}
       component={Paper}
