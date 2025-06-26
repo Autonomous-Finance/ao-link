@@ -130,9 +130,10 @@ export function AsyncTable(props: AsyncTableProps) {
 
   return (
     <Stack component={component || "div"}>
-      <Table {...rest}>
-        <TableHead>
-          <TableRow hover={false}>
+      <Box sx={{ overflowX: "auto", width: "100%" }}>
+        <Table {...rest} sx={{ minWidth: 650, ...(rest.sx || {}) }}> {/* Ensure some minWidth for table if desired */}
+          <TableHead>
+            <TableRow hover={false}>
             {headerCells.map((cell, index) => (
               <TableCell
                 key={index}

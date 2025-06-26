@@ -16,32 +16,38 @@ export function CopyToClipboard(props: CopyToClipboardProps) {
   if (!value) return null
 
   return (
-    <Tooltip title={copied ? "Copied" : "Copy to clipboard"}>
-      <Box
-        sx={{
-          marginBottom: "-2px",
-          marginLeft: 1,
-          cursor: "pointer",
-          display: "inline-block",
-          "&:hover": { fill: "var(--mui-palette-text-primary)" },
-        }}
-        onClick={(event) => {
-          event.stopPropagation()
-          navigator.clipboard.writeText(value)
-
-          setCopied(true)
-
-          setTimeout(() => {
-            setCopied(false)
-          }, 1000)
-        }}
-      >
-        {copied ? (
-          <Check size={14} weight="regular" />
-        ) : (
-          <Copy fill="inherit" size={14} weight="regular" />
-        )}
-      </Box>
+    <Tooltip title={copied ? "Copied!" : "Copy to clipboard"}>
+      {/* Wrap with a span to ensure Tooltip has a valid child when IconButton is disabled (though not used here) */}
+      <span>
+        <IconButton
+          size="small" // Standard MUI IconButton sizes are good for touch
+          onClick={(event) => {
+            event.stopPropagation()
+            navigator.clipboard.writeText(value)
+            setCopied(true)
+            setTimeout(() => {
+              setCopied(false)
+            }, 1500) // Increased timeout slightly
+          }}
+          sx={{
+            // marginLeft: 0.5, // IconButton often has some inherent padding, adjust if needed
+            // p: 0.25, // IconButton has its own padding, fine-tune if necessary
+            "&:hover": {
+              // color: "var(--mui-palette-text-primary)", // Ensure icon color changes on hover if desired
+            },
+            "& .MuiSvgIcon-root": { // If Phosphor icons are treated as SvgIcon by sx
+              fontSize: 18, // Slightly larger icon
+            }
+          }}
+          aria-label="Copy to clipboard"
+        >
+          {copied ? (
+            <Check size={18} weight="bold" color="var(--mui-palette-success-main)" /> // Use theme color for success
+          ) : (
+            <Copy size={18} weight="regular" />
+          )}
+        </IconButton>
+      </span>
     </Tooltip>
   )
 }

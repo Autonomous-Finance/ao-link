@@ -67,40 +67,40 @@ export default function HomePage() {
   )
 
   return (
-    <Stack component="main" gap={2}>
+    <Stack component="main" gap={2} sx={{ paddingY: { xs: 2, sm: 3 } }}>
       {!stats ? (
-        <Grid2 container spacing={{ xs: 1, lg: 2 }} marginX={-2.5}>
-          <Grid2 xs={6} lg={3}>
+        <Grid2 container spacing={{ xs: 2, sm: 1, lg: 2 }} sx={{ marginX: { xs: 0, sm: -2.5 } }}>
+          <Grid2 xs={12} sm={6} lg={3}>
             <Skeleton height={150} variant="rectangular" />
           </Grid2>
-          <Grid2 xs={6} lg={3}>
+          <Grid2 xs={12} sm={6} lg={3}>
             <Skeleton height={150} variant="rectangular" />
           </Grid2>
-          <Grid2 xs={6} lg={3}>
+          <Grid2 xs={12} sm={6} lg={3}>
             <Skeleton height={150} variant="rectangular" />
           </Grid2>
-          <Grid2 xs={6} lg={3}>
+          <Grid2 xs={12} sm={6} lg={3}>
             <Skeleton height={150} variant="rectangular" />
           </Grid2>
         </Grid2>
       ) : (
-        <Grid2 container spacing={{ xs: 1, lg: 2 }} marginX={-2.5}>
-          <Grid2 xs={6} lg={3}>
+        <Grid2 container spacing={{ xs: 2, sm: 1, lg: 2 }} sx={{ marginX: { xs: 0, sm: -2.5 } }}>
+          <Grid2 xs={12} sm={6} lg={3}>
             <AreaChart data={messages} titleText="TOTAL MESSAGES" overrideValue={totalMessages} />
           </Grid2>
-          <Grid2 xs={6} lg={3}>
+          <Grid2 xs={12} sm={6} lg={3}>
             <AreaChart data={users} titleText="USERS" />
           </Grid2>
-          <Grid2 xs={6} lg={3}>
+          <Grid2 xs={12} sm={6} lg={3}>
             <AreaChart data={processes} titleText="PROCESSES" />
           </Grid2>
-          <Grid2 xs={6} lg={3}>
+          <Grid2 xs={12} sm={6} lg={3}>
             <AreaChart data={modules} titleText="MODULES" />
           </Grid2>
         </Grid2>
       )}
       <Subheading type="Latest messages" />
-      <Box sx={{ marginX: -2 }}>
+      <Box sx={{ marginX: { xs: 0, sm: -2 } }}> {/* Adjust negative margin for mobile */}
         <AllMessagesTable open />
       </Box>
     </Stack>
