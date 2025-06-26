@@ -1,9 +1,10 @@
 "use client"
 
+import React, { useEffect, useMemo, useState } from "react"
+import PageWrapper from "@/components/PageWrapper"
 import { Box, Skeleton, Stack } from "@mui/material"
 
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
-import { useEffect, useMemo, useState } from "react"
 
 import { AllMessagesTable } from "./AllMessagesTable"
 import { AreaChart } from "@/components/Charts/AreaChart"
@@ -15,7 +16,7 @@ import { HighchartAreaData, NetworkStat } from "@/types"
 import { formatAbsString } from "@/utils/date-utils"
 import { wait } from "@/utils/utils"
 
-export default function HomePage() {
+function HomePageContent() {
   const [stats, setStats] = useState<NetworkStat[]>()
 
   useEffect(() => {
@@ -104,5 +105,13 @@ export default function HomePage() {
         <AllMessagesTable open />
       </Box>
     </Stack>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <PageWrapper>
+      <HomePageContent />
+    </PageWrapper>
   )
 }

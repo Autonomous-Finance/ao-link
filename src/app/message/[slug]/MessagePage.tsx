@@ -35,6 +35,7 @@ import TransactionHero from "./TransactionHero"
 import TransactionDetailsTabs from "./TransactionDetailsTabs"
 import PageSkeleton from "@/components/PageSkeleton"
 import ErrorView from "@/components/ErrorView"
+import PageWrapper from "@/components/PageWrapper"
 
 const defaultTab = "resulting"
 
@@ -160,21 +161,23 @@ export function MessagePage() {
   }
 
   return (
-    <React.Fragment key={messageId}>
-      <TransactionHero message={message} pushedFor={pushedFor} />
-      <Box sx={{ mt: 3 }}>
-        <Suspense fallback={<PageSkeleton />}>
-          <ErrorBoundary fallback={<ErrorView />}>
-            <TransactionDetailsTabs
-              message={assignment ? assignment : message}
-              pushedFor={pushedFor}
-              computeResult={computeResult}
-              onCount={() => null}
-              onGraphData={handleDataReady}
-            />
-          </ErrorBoundary>
-        </Suspense>
-      </Box>
-    </React.Fragment>
+    <PageWrapper>
+      <React.Fragment key={messageId}>
+        <TransactionHero message={message} pushedFor={pushedFor} />
+        <Box sx={{ mt: 3 }}>
+          <Suspense fallback={<PageSkeleton />}>
+            <ErrorBoundary fallback={<ErrorView />}>
+              <TransactionDetailsTabs
+                message={assignment ? assignment : message}
+                pushedFor={pushedFor}
+                computeResult={computeResult}
+                onCount={() => null}
+                onGraphData={handleDataReady}
+              />
+            </ErrorBoundary>
+          </Suspense>
+        </Box>
+      </React.Fragment>
+    </PageWrapper>
   )
 }
