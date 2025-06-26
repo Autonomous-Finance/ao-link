@@ -251,7 +251,7 @@ export async function getSpawnedProcesses(
 
 export async function getMessageById(id: string): Promise<AoMessage | null> {
   if (!isArweaveId(id)) {
-    throw new Error("Invalid Arweave ID")
+    return null
   }
   const { data, error } = await goldsky
     .query<TransactionsResponse>(
