@@ -321,13 +321,14 @@ const Header = () => {
                 >
                   <ProfileButton />
                 </Box>
+                {/* Minimal IconButton for testing TS1005 error */}
                 <IconButton
-                  sx={{ fontSize: "1.125rem" }}
-                  size="large"
                   onClick={() => {
                     const nextMode = mode === "dark" ? "light" : "dark";
                     setMode(nextMode);
-                  }} // Carefully restored original logic
+                  }} // Added back original onClick logic
+                  size="large"
+                  sx={{ fontSize: "1.125rem" }}
                 >
                   {mode === "dark" ? <Moon weight="bold" /> : <Sun weight="bold" />}
                 </IconButton>
