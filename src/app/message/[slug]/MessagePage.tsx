@@ -92,6 +92,7 @@ export function MessagePage() {
     entityIdsSet.add(message.to)
 
     graphMessages?.forEach((x) => {
+      if (!x) return
       entityIdsSet.add(x.from)
       entityIdsSet.add(x.to)
     })
@@ -110,7 +111,7 @@ export function MessagePage() {
   const graphData = useMemo<ChartDataItem[] | null>(() => {
     if (!message || graphMessages === null || !entities) return null
 
-    const results: ChartDataItem[] = graphMessages.map((x) => {
+    const results: ChartDataItem[] = graphMessages.filter(Boolean).map((x) => {
       const source_type = entities[x.from]?.type || "User"
       const target_type = entities[x.to]?.type || "User"
 
