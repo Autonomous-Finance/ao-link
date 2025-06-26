@@ -95,7 +95,8 @@
     "warp-arbundles": "^1.0.4",
     "@types/react-window": "^1.8.5",
     "husky": "^8.0.3",
-    "lint-staged": "^15.2.0"
+    "lint-staged": "^15.2.0",
+    "rollup-plugin-visualizer": "^5.9.0"
   },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610",
   "lint-staged": {

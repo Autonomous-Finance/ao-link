@@ -13,7 +13,14 @@ import { Footer } from "../Footer"
 import Header from "../Header"
 import { NavigationEvents } from "../NavigationEvents"
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000,
+    },
+  },
+})
 
 export default function RootLayoutUI({ children }: { children: React.ReactNode }) {
   return (
