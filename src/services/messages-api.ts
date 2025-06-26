@@ -280,16 +280,12 @@ export async function getMessageById(id: string): Promise<AoMessage | null> {
  * WARN This query fails if both count and cursor are set
  */
 const processesQuery = (includeCount = false) => gql`
-  query (
-    $limit: Int!
-    $sortOrder: SortOrder!
-    $cursor: String
-  ) {
+  query ($limit: Int!, $sortOrder: SortOrder!, $cursor: String, $tags: [TagFilter!]) {
     transactions(
       sort: $sortOrder
       first: $limit
       after: $cursor
-      tags: [{ name: "Type", values: ["Process"] }, ${AO_NETWORK_IDENTIFIER}]
+      tags: $tags
       ${AO_MIN_INGESTED_AT}
     ) {
       ${includeCount ? "count" : ""}
@@ -304,13 +300,24 @@ export async function getProcesses(
   limit = 100,
   cursor = "",
   ascending: boolean,
+  moduleId?: string,
 ): Promise<[number | undefined, AoMessage[]]> {
   try {
+    const tags = [
+      { name: "Type", values: ["Process", "Module"] },
+      { name: "Data-Protocol", values: ["ao"] },
+    ]
+
+    if (moduleId) {
+      tags.push({ name: "Module", values: [moduleId] })
+    }
+
     const result = await goldsky
       .query<TransactionsResponse>(processesQuery(!cursor), {
         limit,
         sortOrder: ascending ? "HEIGHT_ASC" : "INGESTED_AT_DESC",
         cursor,
+        tags,
       })
       .toPromise()
     const { data } = result
@@ -1008,7 +1015,6 @@ export const fetchMessageGraph = async ({
 
       leafs = leafs.filter((l) => l !== null)
 
-      // @ts-ignore
       head.children = head.children.concat(leafs)
     }
 
