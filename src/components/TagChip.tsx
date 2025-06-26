@@ -1,4 +1,4 @@
-import { IconButton, Typography, TypographyProps } from "@mui/material"
+import { IconButton, Typography, TypographyProps, Box } from "@mui/material"
 import React from "react"
 
 import { getColorFromText } from "@/utils/color-utils"

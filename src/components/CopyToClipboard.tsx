@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Tooltip } from "@mui/material"
+import { Tooltip, IconButton } from "@mui/material"
 import { Check, Copy } from "@phosphor-icons/react"
 import React from "react"
 

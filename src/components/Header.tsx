@@ -332,8 +332,9 @@ const Header = () => {
                 >
                   {mode === "dark" ? <Moon weight="bold" /> : <Sun weight="bold" />}
                 </IconButton>
+                </Stack>
               </Stack>
-            </Stack>
+            )}
           </Toolbar>
         </Container>
       </AppBar>
