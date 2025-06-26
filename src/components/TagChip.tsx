@@ -62,7 +62,7 @@ export function TagChip(props: TypographyProps & { name: string; value: string }
           e.stopPropagation()
           navigator.clipboard.writeText(value)
           setCopied(true)
-          setTimeout(() => setCopied(false), 2000)
+          setTimeout(() => setCopied(false), 1500) // Aligned to 1500ms
         }}
         sx={{
           ml: 0.5, // Margin left to space from text

@@ -190,6 +190,7 @@ export function AsyncTable(props: AsyncTableProps) {
           )}
         </TableBody>
       </Table>
+      </Box> {/* Close the Box component that wraps the Table */}
       {!endReached && data.length > 0 && (
         <Stack
           paddingY={1.5}

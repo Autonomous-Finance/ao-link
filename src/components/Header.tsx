@@ -22,9 +22,9 @@ import {
   InputAdornment,
   TextField,
 } from "@mui/material"
-import { Moon, Sun, List as MenuIcon, XCircle, MagnifyingGlass, ArrowLeft } from "@phosphor-icons/react" // Added MagnifyingGlass, ArrowLeft
+import { Moon, Sun, List as MenuIcon, XCircle, MagnifyingGlass, ArrowLeft } from "@phosphor-icons/react"
 import { Link, useNavigate } from "react-router-dom"
-import { useState } from "react"
+import { useState, useCallback } from "react" // Imported useCallback
 
 import { Logo } from "./Logo"
 import { MainFontFF } from "./RootLayout/fonts"
@@ -160,7 +160,7 @@ const Header = () => {
     target: typeof window !== "undefined" ? window : undefined,
   })
 
-  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+  const toggleDrawer = useCallback((open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
       event.type === "keydown" &&
       ((event as React.KeyboardEvent).key === "Tab" || (event as React.KeyboardEvent).key === "Shift")
@@ -168,7 +168,7 @@ const Header = () => {
       return
     }
     setDrawerOpen(open)
-  }
+  }, [setDrawerOpen]) // Added setDrawerOpen to dependency array, though empty [] might also work if setDrawerOpen is guaranteed stable
 
   const drawerContent = (
     <Box
@@ -285,7 +285,8 @@ const Header = () => {
                   <Box
                     sx={{
                       height: 40,
-                    display: { xs: isMobile ? 'none' : 'block', sm: 'block' }, // Hide profile button on very small screens if search is also hidden
+                    // display: { xs: isMobile ? 'none' : 'block', sm: 'block' }, // Temporarily simplified
+                    display: 'block', // Simplified for testing
                     "&.MuiBox-root > button > div": {
                       height: "fit-content",
                       padding: 0,
