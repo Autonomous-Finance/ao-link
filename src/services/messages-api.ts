@@ -423,7 +423,6 @@ export async function getResultingMessages(
   msgRefs?: string[],
   useOldRefSymbol = false,
 ): Promise<[number | undefined, AoMessage[]]> {
-  console.log("📜 LOG > msgRefs:", msgRefs)
   try {
     const result = await goldsky
       .query<TransactionsResponse>(resultingMessagesQuery(!cursor, useOldRefSymbol), {
@@ -994,7 +993,7 @@ export const fetchMessageGraph = async ({
         useOldRefSymbol: shouldUseOldRefSymbol,
       })
 
-      let nodesIds = nodes.map((n) => n.id)
+      let nodesIds = nodes.filter((n) => n && isArweaveId(String(n.id))).map((n) => n.id)
 
       if (ignoreRepeatingMessages) {
         nodesIds = [...new Set(nodesIds)]
@@ -1003,6 +1002,7 @@ export const fetchMessageGraph = async ({
       let leafs = []
 
       for (const nodeId of nodesIds) {
+        if (!isArweaveId(nodeId)) continue
         const leaf = await fetchMessageGraph({
           msgId: nodeId,
           actions,
