@@ -54,7 +54,13 @@
     "react-vis-graph-wrapper": "^0.1.3",
     "tailwind-merge": "^2.2.1",
     "urql": "^4.1.0",
-    "monaco-editor": "^0.52.2"
+    "monaco-editor": "^0.52.2",
+    "uuid": "^9.0.1",
+    "vis-util": "^5.0.7",
+    "@egjs/hammerjs": "^2.0.17",
+    "@types/hammerjs": "^2.0.46",
+    "component-emitter": "^1.3.1",
+    "keycharm": "^0.4.0"
   },
   "devDependencies": {
     "@irys/sdk": "0.2.10",
