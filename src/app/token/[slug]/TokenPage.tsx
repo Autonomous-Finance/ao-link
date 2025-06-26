@@ -12,13 +12,15 @@ import {
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
 import { ArrowSquareOut } from "@phosphor-icons/react"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState, Suspense } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
+import { ErrorBoundary } from "react-error-boundary"
 
 import { TokenHolderChart } from "./TokenHolderChart"
 import { TokenHolderTable } from "./TokenHolderTable"
 import { IdBlock } from "@/components/IdBlock"
-import { LoadingSkeletons } from "@/components/LoadingSkeletons"
+import PageSkeleton from "@/components/PageSkeleton"
+import ErrorView from "@/components/ErrorView"
 import { SectionInfo } from "@/components/SectionInfo"
 import { Subheading } from "@/components/Subheading"
 import { TokenAmountBlock } from "@/components/TokenAmountBlock"
@@ -62,100 +64,99 @@ export default function TokenPage() {
   }, [tokenId, tokenInfo])
 
   if (!tokenId || tokenInfo === null || errorMessage) {
-    return (
-      <Stack component="main" gap={4} paddingY={4} key={tokenId}>
-        <Subheading type="TOKEN" value={<IdBlock label={String(tokenId)} />} />
-        <Typography>{errorMessage}</Typography>
-      </Stack>
-    )
+    return <ErrorView message={errorMessage || "Invalid token"} />
   }
 
   return (
-    <Stack component="main" gap={6} paddingY={4} key={tokenId}>
-      <Subheading type="TOKEN" value={<IdBlock label={tokenId} />} />
-      <Grid2 container spacing={{ xs: 4 }}>
-        <Grid2 xs={12} lg={6}>
-          {tokenInfo === undefined ? (
-            <Skeleton height={48} variant="rectangular" />
-          ) : (
-            <Stack direction="row" gap={1} alignItems="center">
-              <Avatar
-                src={`https://arweave.net/${tokenInfo.logo}`}
-                alt={tokenInfo.name}
-                sx={{ width: 48, height: 48 }}
-              />
-              <Stack>
-                <Tooltip title="Name" placement="right">
-                  <Typography variant="h6" lineHeight={1.15}>
-                    {tokenInfo.name}
-                  </Typography>
-                </Tooltip>
-                <Tooltip title="Ticker" placement="right">
-                  <Typography variant="body2" lineHeight={1.15} color="text.secondary">
-                    {tokenInfo.ticker}
-                  </Typography>
-                </Tooltip>
-              </Stack>
-            </Stack>
-          )}
-        </Grid2>
-        <Grid2 xs={12} lg={6}>
-          {tokenHolders === undefined ? (
-            <Skeleton height={48} variant="rectangular" />
-          ) : (
-            <Stack justifyContent="center" height="100%">
-              <SectionInfo title="Token holders" value={tokenHolders.length} />
-              <SectionInfo
-                title="Circulating supply"
-                value={
-                  <TokenAmountBlock
-                    amount={tokenHolders.reduce((acc, holder) => acc + holder.balance, 0)}
-                    tokenInfo={tokenInfo}
+    <Suspense fallback={<PageSkeleton />}>
+      <ErrorBoundary fallback={<ErrorView />}>
+        <Stack component="main" gap={6} paddingY={4} key={tokenId}>
+          <Subheading type="TOKEN" value={<IdBlock label={tokenId} />} />
+          <Grid2 container spacing={{ xs: 4 }}>
+            <Grid2 xs={12} lg={6}>
+              {tokenInfo === undefined ? (
+                <Skeleton height={48} variant="rectangular" />
+              ) : (
+                <Stack direction="row" gap={1} alignItems="center">
+                  <Avatar
+                    src={`https://arweave.net/${tokenInfo.logo}`}
+                    alt={tokenInfo.name}
+                    sx={{ width: 48, height: 48 }}
                   />
-                }
-              />
-            </Stack>
-          )}
-        </Grid2>
-      </Grid2>
-      <div>
-        <Tabs value={activeTab} onChange={handleChange} textColor="primary">
-          <Tab value="table" label="Token Holders Table" />
-          <Tab value="chart" label="Token Holders Chart" />
-          <Button
-            href={`https://dexi.defi.ao/#/token/${tokenId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{
-              gap: 0.5,
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "row",
-              fontSize: "0.875rem",
-              textTransform: "none",
-              color: "var(--mui-palette-text-secondary)",
-            }}
-            color="secondary"
-          >
-            View on Dexi
-            <ArrowSquareOut />
-          </Button>
-        </Tabs>
-        <Box sx={{ marginX: -2 }}>
-          {tokenHolders === undefined || !tokenInfo ? (
-            <LoadingSkeletons />
-          ) : (
-            <Paper>
-              {activeTab === "table" && (
-                <TokenHolderTable data={tokenHolders} tokenInfo={tokenInfo} />
+                  <Stack>
+                    <Tooltip title="Name" placement="right">
+                      <Typography variant="h6" lineHeight={1.15}>
+                        {tokenInfo.name}
+                      </Typography>
+                    </Tooltip>
+                    <Tooltip title="Ticker" placement="right">
+                      <Typography variant="body2" lineHeight={1.15} color="text.secondary">
+                        {tokenInfo.ticker}
+                      </Typography>
+                    </Tooltip>
+                  </Stack>
+                </Stack>
               )}
-              {activeTab === "chart" && (
-                <TokenHolderChart data={tokenHolders} tokenInfo={tokenInfo} />
+            </Grid2>
+            <Grid2 xs={12} lg={6}>
+              {tokenHolders === undefined ? (
+                <Skeleton height={48} variant="rectangular" />
+              ) : (
+                <Stack justifyContent="center" height="100%">
+                  <SectionInfo title="Token holders" value={tokenHolders.length} />
+                  <SectionInfo
+                    title="Circulating supply"
+                    value={
+                      <TokenAmountBlock
+                        amount={tokenHolders.reduce((acc, holder) => acc + holder.balance, 0)}
+                        tokenInfo={tokenInfo}
+                      />
+                    }
+                  />
+                </Stack>
               )}
-            </Paper>
-          )}
-        </Box>
-      </div>
-    </Stack>
+            </Grid2>
+          </Grid2>
+          <div>
+            <Tabs value={activeTab} onChange={handleChange} textColor="primary">
+              <Tab value="table" label="Token Holders Table" />
+              <Tab value="chart" label="Token Holders Chart" />
+              <Button
+                href={`https://dexi.defi.ao/#/token/${tokenId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  gap: 0.5,
+                  display: "flex",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  fontSize: "0.875rem",
+                  textTransform: "none",
+                  color: "var(--mui-palette-text-secondary)",
+                }}
+                color="secondary"
+              >
+                View on Dexi
+                <ArrowSquareOut />
+              </Button>
+            </Tabs>
+            <Box sx={{ marginX: -2 }}>
+              {tokenHolders === undefined || !tokenInfo ? (
+                <PageSkeleton />
+              ) : (
+                <Paper>
+                  {activeTab === "table" && (
+                    <TokenHolderTable data={tokenHolders} tokenInfo={tokenInfo} />
+                  )}
+                  {activeTab === "chart" && (
+                    <TokenHolderChart data={tokenHolders} tokenInfo={tokenInfo} />
+                  )}
+                </Paper>
+              )}
+            </Box>
+          </div>
+        </Stack>
+      </ErrorBoundary>
+    </Suspense>
   )
 }

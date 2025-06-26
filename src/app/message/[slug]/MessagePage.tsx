@@ -3,7 +3,8 @@ import { Box, CircularProgress, Paper, Stack, Tabs, Tooltip, Typography } from "
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
 import { MessageResult } from "@permaweb/aoconnect/dist/lib/result"
 import { useQuery } from "@tanstack/react-query"
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState, Suspense } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 
 import { Navigate, useParams, useSearchParams } from "react-router-dom"
 
@@ -32,6 +33,8 @@ import { isArweaveId } from "@/utils/utils"
 
 import TransactionHero from "./TransactionHero"
 import TransactionDetailsTabs from "./TransactionDetailsTabs"
+import PageSkeleton from "@/components/PageSkeleton"
+import ErrorView from "@/components/ErrorView"
 
 const defaultTab = "resulting"
 
@@ -147,17 +150,8 @@ export function MessagePage() {
 
   const [computeResult, setComputeResult] = useState<MessageResult | undefined | null>(undefined)
 
-  if (isLoading) {
-    return <LoadingSkeletons />
-  }
-
-  if (!isValidId || error || !message) {
-    return (
-      <Stack component="main" gap={4} paddingY={4}>
-        <Typography>{error?.message || "Message not found."}</Typography>
-      </Stack>
-    )
-  }
+  if (isLoading) return <PageSkeleton />
+  if (!isValidId || error || !message) return <ErrorView message={error?.message || "Message not found."} />
 
   const { from, type, blockHeight, ingestedAt, to, systemTags, userTags } = message
 
@@ -169,13 +163,17 @@ export function MessagePage() {
     <React.Fragment key={messageId}>
       <TransactionHero message={message} pushedFor={pushedFor} />
       <Box sx={{ mt: 3 }}>
-        <TransactionDetailsTabs
-          message={assignment ? assignment : message}
-          pushedFor={pushedFor}
-          computeResult={computeResult}
-          onCount={() => null}
-          onGraphData={handleDataReady}
-        />
+        <Suspense fallback={<PageSkeleton />}>
+          <ErrorBoundary fallback={<ErrorView />}>
+            <TransactionDetailsTabs
+              message={assignment ? assignment : message}
+              pushedFor={pushedFor}
+              computeResult={computeResult}
+              onCount={() => null}
+              onGraphData={handleDataReady}
+            />
+          </ErrorBoundary>
+        </Suspense>
       </Box>
     </React.Fragment>
   )
