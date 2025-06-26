@@ -928,14 +928,23 @@ export interface FetchMessageGraphArgs {
   depth?: number
 }
 
-export const fetchMessageGraph = async ({
-  msgId,
-  actions,
-  startFromPushedFor = false,
-  ignoreRepeatingMessages = false,
-  depth = 0,
-}: FetchMessageGraphArgs): Promise<MessageTree | null> => {
+export const fetchMessageGraph = async (
+  {
+    msgId,
+    actions,
+    startFromPushedFor = false,
+    ignoreRepeatingMessages = false,
+    depth = 0,
+  }: FetchMessageGraphArgs,
+  visited: Set<string> = new Set(),
+): Promise<MessageTree | null> => {
   try {
+    if (visited.has(msgId)) {
+      return null
+    }
+
+    visited.add(msgId)
+
     let originalMsg = await getMessageById(msgId)
 
     if (!originalMsg) {
@@ -977,6 +986,11 @@ export const fetchMessageGraph = async ({
     for (const result of head.result?.Messages ?? []) {
       const refTag = result.Tags.find((t: any) => ["Ref_", "Reference"].includes(t.name))
 
+      // Require a valid target and at least one reference tag value
+      if (!isArweaveId(String(result.Target)) || !refTag?.value) {
+        continue
+      }
+
       const shouldUseOldRefSymbol = refTag.name === "Ref_"
 
       const nodes = await getResultingMessagesNodes({
@@ -1003,12 +1017,15 @@ export const fetchMessageGraph = async ({
 
       for (const nodeId of nodesIds) {
         if (!isArweaveId(nodeId)) continue
-        const leaf = await fetchMessageGraph({
-          msgId: nodeId,
-          actions,
-          ignoreRepeatingMessages,
-          depth: depth + 1,
-        })
+        const leaf = await fetchMessageGraph(
+          {
+            msgId: nodeId,
+            actions,
+            ignoreRepeatingMessages,
+            depth: depth + 1,
+          },
+          visited,
+        )
 
         leafs.push(leaf)
       }
@@ -1019,8 +1036,7 @@ export const fetchMessageGraph = async ({
     }
 
     return head
-  } catch (err) {
-    console.error("Failed to fetch message graph:", err)
+  } catch (error) {
     return null
   }
 }
