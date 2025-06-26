@@ -285,8 +285,7 @@ const Header = () => {
                   <Box
                     sx={{
                       height: 40,
-                    // display: { xs: isMobile ? 'none' : 'block', sm: 'block' }, // Temporarily simplified
-                    display: 'block', // Simplified for testing
+                    display: { xs: isMobile ? 'none' : 'block', sm: 'block' }, // Reverted to original logic
                     "&.MuiBox-root > button > div": {
                       height: "fit-content",
                       padding: 0,
@@ -326,8 +325,8 @@ const Header = () => {
                   sx={{ fontSize: "1.125rem" }}
                   size="large"
                   onClick={() => {
-                    const nextMode = mode === "dark" ? "light" : "dark"
-                    setMode(nextMode)
+                    const nextMode = mode === "dark" ? "light" : "dark";
+                    setMode(nextMode);
                   }}
                 >
                   {mode === "dark" ? <Moon weight="bold" /> : <Sun weight="bold" />}
