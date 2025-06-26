@@ -327,7 +327,7 @@ const Header = () => {
                   onClick={() => {
                     const nextMode = mode === "dark" ? "light" : "dark";
                     setMode(nextMode);
-                  }}
+                  }} // Carefully restored original logic
                 >
                   {mode === "dark" ? <Moon weight="bold" /> : <Sun weight="bold" />}
                 </IconButton>
