@@ -45,7 +45,7 @@ function BaseCombinedTable(props: Props) {
       fetchFunction={async (offset, ascending, sortField, last) => {
         // On first call we need both resulting and first page of linked.
 
-        const linkedCursor = last?.cursor ?? undefined
+        const linkedCursor = last?._dir === "in" ? last.cursor : undefined
 
         const [linkedCountRaw, linked] = await getLinkedMessages(
           pageSize,
