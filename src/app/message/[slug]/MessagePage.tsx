@@ -93,7 +93,9 @@ export function MessagePage() {
 
     Promise.all(entityIds.map(getMessageById)).then((entitiesArray) => {
       const newEntities = Object.fromEntries(
-        entitiesArray.filter((x): x is AoMessage => x !== undefined).map((x) => [x.id, x]),
+        entitiesArray
+          .filter((x): x is AoMessage => x !== undefined && x !== null)
+          .map((x) => [x.id, x]),
       )
 
       setEntities((prev) => ({ ...prev, ...newEntities }))

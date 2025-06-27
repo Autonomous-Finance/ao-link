@@ -49,7 +49,14 @@ export function UserPage(props: UserPageProps) {
         <ArnsSection entityId={entityId} />
       </Stack>
       <div>
-        <Tabs value={activeTab} onChange={handleChange} textColor="primary">
+        <Tabs
+          value={activeTab}
+          onChange={handleChange}
+          textColor="primary"
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+        >
           <TabWithCount value="outgoing" label="Outgoing messages" chipValue={outgoingCount} />
           <TabWithCount value="incoming" label="Incoming messages" chipValue={incomingCount} />
           <TabWithCount value="spawned" label="Spawned processes" chipValue={processesCount} />

@@ -251,7 +251,7 @@ export async function getSpawnedProcesses(
 
 export async function getMessageById(id: string): Promise<AoMessage | null> {
   if (!isArweaveId(id)) {
-    throw new Error("Invalid Arweave ID")
+    return null
   }
   const { data, error } = await goldsky
     .query<TransactionsResponse>(
@@ -423,7 +423,6 @@ export async function getResultingMessages(
   msgRefs?: string[],
   useOldRefSymbol = false,
 ): Promise<[number | undefined, AoMessage[]]> {
-  console.log("📜 LOG > msgRefs:", msgRefs)
   try {
     const result = await goldsky
       .query<TransactionsResponse>(resultingMessagesQuery(!cursor, useOldRefSymbol), {
@@ -929,14 +928,23 @@ export interface FetchMessageGraphArgs {
   depth?: number
 }
 
-export const fetchMessageGraph = async ({
-  msgId,
-  actions,
-  startFromPushedFor = false,
-  ignoreRepeatingMessages = false,
-  depth = 0,
-}: FetchMessageGraphArgs): Promise<MessageTree | null> => {
+export const fetchMessageGraph = async (
+  {
+    msgId,
+    actions,
+    startFromPushedFor = false,
+    ignoreRepeatingMessages = false,
+    depth = 0,
+  }: FetchMessageGraphArgs,
+  visited: Set<string> = new Set(),
+): Promise<MessageTree | null> => {
   try {
+    if (visited.has(msgId)) {
+      return null
+    }
+
+    visited.add(msgId)
+
     let originalMsg = await getMessageById(msgId)
 
     if (!originalMsg) {
@@ -978,6 +986,11 @@ export const fetchMessageGraph = async ({
     for (const result of head.result?.Messages ?? []) {
       const refTag = result.Tags.find((t: any) => ["Ref_", "Reference"].includes(t.name))
 
+      // Require a valid target and at least one reference tag value
+      if (!isArweaveId(String(result.Target)) || !refTag?.value) {
+        continue
+      }
+
       const shouldUseOldRefSymbol = refTag.name === "Ref_"
 
       const nodes = await getResultingMessagesNodes({
@@ -994,7 +1007,7 @@ export const fetchMessageGraph = async ({
         useOldRefSymbol: shouldUseOldRefSymbol,
       })
 
-      let nodesIds = nodes.map((n) => n.id)
+      let nodesIds = nodes.filter((n) => n && isArweaveId(String(n.id))).map((n) => n.id)
 
       if (ignoreRepeatingMessages) {
         nodesIds = [...new Set(nodesIds)]
@@ -1003,12 +1016,16 @@ export const fetchMessageGraph = async ({
       let leafs = []
 
       for (const nodeId of nodesIds) {
-        const leaf = await fetchMessageGraph({
-          msgId: nodeId,
-          actions,
-          ignoreRepeatingMessages,
-          depth: depth + 1,
-        })
+        if (!isArweaveId(nodeId)) continue
+        const leaf = await fetchMessageGraph(
+          {
+            msgId: nodeId,
+            actions,
+            ignoreRepeatingMessages,
+            depth: depth + 1,
+          },
+          visited,
+        )
 
         leafs.push(leaf)
       }
@@ -1019,8 +1036,7 @@ export const fetchMessageGraph = async ({
     }
 
     return head
-  } catch (err) {
-    console.error("Failed to fetch message graph:", err)
+  } catch (error) {
     return null
   }
 }

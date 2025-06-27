@@ -1,8 +1,7 @@
 "use client"
 
+import React, { useState } from "react"
 import { Box, Stack, Tabs } from "@mui/material"
-
-import { useState } from "react"
 
 import { useParams } from "react-router-dom"
 
@@ -13,6 +12,7 @@ import { Subheading } from "@/components/Subheading"
 import { TabWithCount } from "@/components/TabWithCount"
 
 import { formatNumber } from "@/utils/number-utils"
+import PageWrapper from "@/components/PageWrapper"
 
 export default function BlockPage() {
   const params = useParams()
@@ -26,19 +26,21 @@ export default function BlockPage() {
   const [messagesCount, setMessagesCount] = useState<number>()
 
   return (
-    <Stack component="main" gap={4} paddingY={4} key={blockHeight}>
-      <Subheading
-        type="Block"
-        value={<IdBlock label={formatNumber(blockHeight)} value={params.blockHeight} />}
-      />
-      <div>
-        <Tabs value={activeTab} onChange={handleChange} textColor="primary">
-          <TabWithCount value={0} label="Messages" chipValue={messagesCount} />
-        </Tabs>
-        <Box sx={{ marginX: -2 }}>
-          <BlockMessagesTable open blockHeight={blockHeight} onCountReady={setMessagesCount} />
-        </Box>
-      </div>
-    </Stack>
+    <PageWrapper>
+      <Stack component="main" gap={4} paddingY={4} key={blockHeight}>
+        <Subheading
+          type="Block"
+          value={<IdBlock label={formatNumber(blockHeight)} value={params.blockHeight} />}
+        />
+        <div>
+          <Tabs value={activeTab} onChange={handleChange} textColor="primary">
+            <TabWithCount value={0} label="Messages" chipValue={messagesCount} />
+          </Tabs>
+          <Box sx={{ marginX: -2 }}>
+            <BlockMessagesTable open blockHeight={blockHeight} onCountReady={setMessagesCount} />
+          </Box>
+        </div>
+      </Stack>
+    </PageWrapper>
   )
 }

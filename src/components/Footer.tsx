@@ -11,10 +11,11 @@ export function Footer() {
         position: "sticky",
         bottom: 0,
         width: "100%",
+        overflowX: "hidden",
       }}
     >
       <Container
-        maxWidth="xl"
+        maxWidth={false}
         sx={{
           paddingX: 2,
           paddingY: 1,

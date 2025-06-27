@@ -1,13 +1,15 @@
 "use client"
 
-import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Stack, Typography, Paper } from "@mui/material"
 import { ArrowUpRight } from "@phosphor-icons/react"
-import { Fragment } from "react"
+import React, { Fragment } from "react"
+import PageWrapper from "@/components/PageWrapper"
 
 import { ArnsTable } from "./ArnsTable"
-import { LoadingSkeletons } from "@/components/LoadingSkeletons"
-import { Subheading } from "@/components/Subheading"
+import PageSkeleton from "@/components/PageSkeleton"
+import ErrorView from "@/components/ErrorView"
 import { useArnsRecordsPaginated } from "@/hooks/useArnsRecordsPaginated"
+import { Subheading } from "@/components/Subheading"
 
 export default function ArnsPage() {
   const {
@@ -24,17 +26,9 @@ export default function ArnsPage() {
   const allRecords = data?.pages.flatMap(page => page.items) ?? []
   const totalItems = data?.pages[0]?.totalItems ?? 0
 
-  if (isError) {
-    return (
-      <Stack component="main" gap={2} paddingY={4}>
-        <Typography color="error">
-          Error loading ArNS records: {error?.message}
-        </Typography>
-      </Stack>
-    )
-  }
+  if (isError) return <ErrorView message={error?.message} />
 
-  return (
+  const content = (
     <Stack component="main" gap={2} paddingY={4}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Subheading type="ArNS Records" value={totalItems > 0 ? totalItems : undefined} />
@@ -53,10 +47,12 @@ export default function ArnsPage() {
       
       <Box sx={{ marginX: -2 }}>
         {isLoading ? (
-          <LoadingSkeletons />
+          <PageSkeleton />
         ) : (
           <Fragment>
-            <ArnsTable data={allRecords} />
+            <Paper variant="outlined" sx={{ width: '100%', overflowX: 'auto' }}>
+              <ArnsTable data={allRecords} />
+            </Paper>
             
             {/* Load More Button */}
             {hasNextPage && (
@@ -76,4 +72,6 @@ export default function ArnsPage() {
       </Box>
     </Stack>
   )
+
+  return <PageWrapper>{content}</PageWrapper>
 }

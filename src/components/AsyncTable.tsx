@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material"
 import React, { ReactNode, useEffect, useRef, useState } from "react"
+import { FixedSizeList, ListChildComponentProps } from "react-window"
 
 import { ErrorBoundary } from "./ErrorBoundary"
 import { LoadingSkeletons } from "./LoadingSkeletons"
@@ -41,6 +42,7 @@ export type AsyncTableProps = Omit<TableProps, "component"> &
       extraFilters?: Record<string, string>,
     ) => Promise<any[]>
     extraFilters?: Record<string, string>
+    virtualize?: boolean
   }
 
 export function AsyncTable(props: AsyncTableProps) {
@@ -53,6 +55,7 @@ export function AsyncTable(props: AsyncTableProps) {
     fetchFunction,
     component,
     extraFilters,
+    virtualize,
     ...rest
   } = props
 
@@ -130,15 +133,28 @@ export function AsyncTable(props: AsyncTableProps) {
 
   return (
     <Stack component={component || "div"}>
-      <Table {...rest}>
-        <TableHead>
-          <TableRow hover={false}>
+      <Box sx={{ overflowX: "auto", width: "100%" }}>
+        <Table
+          {...rest}
+          size="small"
+          sx={{
+            minWidth: { xs: "auto", md: 650 },
+            "& .MuiTableCell-root": {
+              paddingY: 0.75,
+              fontSize: { xs: "0.75rem", sm: "0.8125rem" },
+            },
+            ...(rest.sx || {}),
+          }}
+        >
+          <TableHead>
+            <TableRow hover={false}>
             {headerCells.map((cell, index) => (
               <TableCell
                 key={index}
                 align={cell.align}
                 sx={{
                   color: "#9ea2aa",
+                  whiteSpace: "nowrap",
                   ...(cell.sx || {}),
                 }}
               >
@@ -164,31 +180,42 @@ export function AsyncTable(props: AsyncTableProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow hover={false}>
-            <TableCell colSpan={99} sx={{ padding: 0, border: 0 }}>
-              {loading ? (
-                <LinearProgress color="primary" variant="indeterminate" sx={{ height: 2 }} />
-              ) : (
-                <Box sx={{ height: 2 }} />
+          {virtualize && data.length > pageSize * 3 ? (
+            <VirtualRows
+              data={data}
+              rowRenderer={renderRow}
+              rowHeight={44}
+            />
+          ) : (
+            <>
+              <TableRow hover={false}>
+                <TableCell colSpan={99} sx={{ padding: 0, border: 0 }}>
+                  {loading ? (
+                    <LinearProgress color="primary" variant="indeterminate" sx={{ height: 2 }} />
+                  ) : (
+                    <Box sx={{ height: 2 }} />
+                  )}
+                </TableCell>
+              </TableRow>
+              {data.map((row, index) => (
+                <ErrorBoundary key={row.id} fallback={<>Something went wrong</>}>
+                  {renderRow(row, index)}
+                </ErrorBoundary>
+              ))}
+              {data.length === 0 && endReached && (
+                <TableRow hover={false}>
+                  <TableCell colSpan={99} sx={{ padding: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      No data available.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
               )}
-            </TableCell>
-          </TableRow>
-          {data.map((row, index) => (
-            <ErrorBoundary key={row.id} fallback={<>Something went wrong</>}>
-              {renderRow(row, index)}
-            </ErrorBoundary>
-          ))}
-          {data.length === 0 && endReached && (
-            <TableRow hover={false}>
-              <TableCell colSpan={99} sx={{ padding: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  No data available.
-                </Typography>
-              </TableCell>
-            </TableRow>
+            </>
           )}
         </TableBody>
       </Table>
+      </Box> {/* Close the Box component that wraps the Table */}
       {!endReached && data.length > 0 && (
         <Stack
           paddingY={1.5}
@@ -206,5 +233,38 @@ export function AsyncTable(props: AsyncTableProps) {
         </Stack>
       )}
     </Stack>
+  )
+}
+
+// virtual rows component
+function VirtualRows<T>({
+  data,
+  rowRenderer,
+  rowHeight,
+}: {
+  data: T[]
+  rowRenderer: (row: T, idx: number) => React.ReactNode
+  rowHeight: number
+}) {
+  const itemData = React.useMemo(() => ({ data, rowRenderer }), [data, rowRenderer])
+
+  const Row = ({ index, style }: ListChildComponentProps) => {
+    const { data, rowRenderer } = itemData as any
+    return <div style={style}>{rowRenderer(data[index], index)}</div>
+  }
+
+  const height = Math.min(400, data.length * rowHeight)
+
+  return (
+    <FixedSizeList
+      height={height}
+      itemCount={data.length}
+      itemSize={rowHeight}
+      overscanCount={8}
+      width="100%"
+      itemData={itemData}
+    >
+      {Row}
+    </FixedSizeList>
   )
 }

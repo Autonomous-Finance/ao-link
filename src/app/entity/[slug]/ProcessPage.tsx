@@ -118,12 +118,19 @@ export function ProcessPage(props: ProcessPageProps) {
   }, [outgoingMessages, entities])
 
   return (
-    <Stack component="main" gap={6} paddingY={4}>
+    <Stack component="main" gap={{ xs: 3, sm: 6 }} paddingY={{ xs: 2, sm: 4 }}>
       <Subheading type="PROCESS" value={<IdBlock label={entityId} />} />
       <Grid2 container spacing={{ xs: 2, lg: 12 }}>
         <Grid2 xs={12} lg={6}>
-          <Stack gap={4}>
-            <Paper sx={{ height: 428, width: 428 }}>
+          <Stack gap={{ xs: 2, sm: 4 }}>
+            <Paper sx={{
+              height: { xs: 300, sm: 400, md: 428 },
+              width: '100%', // Make width responsive
+              maxWidth: { md: 428 }, // Optional: constrain max width on larger screens if desired
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
               {graphData === null ? (
                 <Stack justifyContent="center" alignItems="center" sx={{ height: "100%" }}>
                   <CircularProgress size={24} color="primary" />
@@ -177,7 +184,14 @@ export function ProcessPage(props: ProcessPageProps) {
         </Grid2>
       </Grid2>
       <Stack>
-        <Tabs value={activeTab} onChange={handleChange} textColor="primary">
+        <Tabs
+          value={activeTab}
+          onChange={handleChange}
+          textColor="primary"
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+        >
           <TabWithCount value="outgoing" label="Outgoing messages" chipValue={outgoingCount} />
           <TabWithCount value="incoming" label="Incoming messages" chipValue={incomingCount} />
           <TabWithCount value="spawned" label="Spawned processes" chipValue={processesCount} />
@@ -187,7 +201,7 @@ export function ProcessPage(props: ProcessPageProps) {
           <TabWithCount value="write" label="Write" />
           <TabWithCount value="source-code" label="Source Code" chipValue={evalCount} />
         </Tabs>
-        <Box sx={{ marginX: -2 }}>
+        <Box sx={{ marginX: { xs: 0, sm: -2 } }}> {/* Adjust negative margin for mobile */}
           <OutgoingMessagesTable
             entityId={entityId}
             open={activeTab === "outgoing"}
