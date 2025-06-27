@@ -8,6 +8,8 @@ import { getLinkedMessages, getResultingMessages } from "@/services/messages-api
 import { AoMessage } from "@/types"
 import { truncateId } from "@/utils/data-utils"
 import { formatFullDate, formatRelative } from "@/utils/date-utils"
+import { TableRow, TableCell } from "@mui/material"
+import { useNavigate } from "react-router-dom"
 
 interface Props {
   message: AoMessage
@@ -25,6 +27,8 @@ interface DirMessage extends AoMessage {
 function BaseCombinedTable(props: Props) {
   const { message, computeResult, pageSize, onCountReady, onDataReady } = props
   const pushedFor = message.tags["Pushed-For"]
+
+  const navigate = useNavigate()
 
   return (
     <AsyncTable
@@ -78,18 +82,24 @@ function BaseCombinedTable(props: Props) {
       }}
       renderRow={(row: DirMessage) => {
         return (
-          <tr key={row.id} style={{ cursor: "pointer" }} onClick={() => (location.hash = `#/message/${row.id}`)}>
-            <td>{row._dir === "out" ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}</td>
-            <td>
+          <TableRow
+            key={row.id}
+            sx={{ cursor: "pointer" }}
+            onClick={() => navigate(`/message/${row.id}`)}
+          >
+            <TableCell>
+              {row._dir === "out" ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
+            </TableCell>
+            <TableCell>
               <IdBlock label={truncateId(row.id)} value={row.id} />
-            </td>
-            <td>
+            </TableCell>
+            <TableCell>
               <TypeBadge type={row.type} />
-            </td>
-            <td style={{ textAlign: "right" }}>
+            </TableCell>
+            <TableCell align="right">
               {row.ingestedAt ? formatRelative(row.ingestedAt) : "-"}
-            </td>
-          </tr>
+            </TableCell>
+          </TableRow>
         )
       }}
       virtualize
