@@ -43,17 +43,19 @@ function BaseCombinedTable(props: Props) {
         { label: "Age", align: "right", sx: { width: 120 } },
       ]}
       fetchFunction={async (offset, ascending, sortField, last) => {
-        // Fetch linked page
+        // On first call we need both resulting and first page of linked.
+
+        const linkedCursor = last?.cursor ?? undefined
+
         const [linkedCountRaw, linked] = await getLinkedMessages(
           pageSize,
-          last?._dir === "in" ? last.cursor : undefined,
+          linkedCursor,
           ascending,
           pushedFor || message.id,
         )
 
-        // Fetch resulting page (only first batch when offset==0)
         let resulting: AoMessage[] = []
-        let resultingCount: number = 0
+        let resultingCount = 0
         if (offset === 0) {
           const res = await getResultingMessages(
             pageSize,
