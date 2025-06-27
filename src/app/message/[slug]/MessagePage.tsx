@@ -3,8 +3,7 @@ import { Box, CircularProgress, Paper, Stack, Tabs, Tooltip, Typography } from "
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
 import { MessageResult } from "@permaweb/aoconnect/dist/lib/result"
 import { useQuery } from "@tanstack/react-query"
-import React, { useCallback, useEffect, useMemo, useState, Suspense } from "react"
-import { ErrorBoundary } from "react-error-boundary"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 
 import { Navigate, useParams, useSearchParams } from "react-router-dom"
 
@@ -30,12 +29,6 @@ import { formatFullDate, formatRelative } from "@/utils/date-utils"
 
 import { formatNumber } from "@/utils/number-utils"
 import { isArweaveId } from "@/utils/utils"
-
-import TransactionHero from "./TransactionHero"
-import TransactionDetailsTabs from "./TransactionDetailsTabs"
-import PageSkeleton from "@/components/PageSkeleton"
-import ErrorView from "@/components/ErrorView"
-import PageWrapper from "@/components/PageWrapper"
 
 const defaultTab = "resulting"
 
@@ -92,7 +85,6 @@ export function MessagePage() {
     entityIdsSet.add(message.to)
 
     graphMessages?.forEach((x) => {
-      if (!x) return
       entityIdsSet.add(x.from)
       entityIdsSet.add(x.to)
     })
@@ -101,7 +93,9 @@ export function MessagePage() {
 
     Promise.all(entityIds.map(getMessageById)).then((entitiesArray) => {
       const newEntities = Object.fromEntries(
-        entitiesArray.filter((x): x is AoMessage => x !== undefined).map((x) => [x.id, x]),
+        entitiesArray
+          .filter((x): x is AoMessage => x !== undefined && x !== null)
+          .map((x) => [x.id, x]),
       )
 
       setEntities((prev) => ({ ...prev, ...newEntities }))
@@ -111,7 +105,7 @@ export function MessagePage() {
   const graphData = useMemo<ChartDataItem[] | null>(() => {
     if (!message || graphMessages === null || !entities) return null
 
-    const results: ChartDataItem[] = graphMessages.filter(Boolean).map((x) => {
+    const results: ChartDataItem[] = graphMessages.map((x) => {
       const source_type = entities[x.from]?.type || "User"
       const target_type = entities[x.to]?.type || "User"
 
@@ -152,8 +146,17 @@ export function MessagePage() {
 
   const [computeResult, setComputeResult] = useState<MessageResult | undefined | null>(undefined)
 
-  if (isLoading) return <PageSkeleton />
-  if (!isValidId || error || !message) return <ErrorView message={error?.message || "Message not found."} />
+  if (isLoading) {
+    return <LoadingSkeletons />
+  }
+
+  if (!isValidId || error || !message) {
+    return (
+      <Stack component="main" gap={4} paddingY={4}>
+        <Typography>{error?.message || "Message not found."}</Typography>
+      </Stack>
+    )
+  }
 
   const { from, type, blockHeight, ingestedAt, to, systemTags, userTags } = message
 
@@ -162,23 +165,116 @@ export function MessagePage() {
   }
 
   return (
-    <PageWrapper>
-      <React.Fragment key={messageId}>
-        <TransactionHero message={message} pushedFor={pushedFor} />
-        <Box sx={{ mt: 3 }}>
-          <Suspense fallback={<PageSkeleton />}>
-            <ErrorBoundary fallback={<ErrorView />}>
-              <TransactionDetailsTabs
-                message={assignment ? assignment : message}
-                pushedFor={pushedFor}
-                computeResult={computeResult}
-                onCount={() => null}
-                onGraphData={handleDataReady}
+    <React.Fragment key={messageId}>
+      <Stack component="main" gap={6} paddingY={4}>
+        <Subheading type="MESSAGE" value={<IdBlock label={messageId} />} />
+        <Grid2 container spacing={{ xs: 2, lg: 12 }}>
+          <Grid2 xs={12} lg={6}>
+            <Stack gap={4}>
+              <Paper sx={{ height: 428, width: 428 }}>
+                {graphData === null ? (
+                  <Stack justifyContent="center" alignItems="center" sx={{ height: "100%" }}>
+                    <CircularProgress size={24} color="primary" />
+                  </Stack>
+                ) : graphData.length > 0 ? (
+                  <Graph data={graphData} />
+                ) : (
+                  <Stack justifyContent="center" alignItems="center" sx={{ height: "100%" }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Nothing to see here.
+                    </Typography>
+                  </Stack>
+                )}
+              </Paper>
+              <SectionInfoWithChip title="Type" value={type} />
+              <SectionInfo title="From" value={<EntityBlock entityId={from} />} />
+              {to && <SectionInfo title="To" value={<EntityBlock entityId={to} />} />}
+              {pushedFor && (
+                <SectionInfo
+                  title="Pushed for"
+                  value={
+                    <IdBlock
+                      label={truncateId(pushedFor)}
+                      value={pushedFor}
+                      href={`/message/${pushedFor}`}
+                    />
+                  }
+                />
+              )}
+              <SectionInfo
+                title="Block Height"
+                value={
+                  blockHeight === null ? (
+                    "Processing"
+                  ) : (
+                    <IdBlock
+                      label={formatNumber(blockHeight)}
+                      value={String(blockHeight)}
+                      href={`/block/${blockHeight}`}
+                    />
+                  )
+                }
               />
-            </ErrorBoundary>
-          </Suspense>
-        </Box>
-      </React.Fragment>
-    </PageWrapper>
+              <SectionInfo
+                title="Seen at"
+                value={
+                  ingestedAt === null ? (
+                    "Processing"
+                  ) : (
+                    <Tooltip title={formatFullDate(ingestedAt)}>
+                      <span>{formatRelative(ingestedAt)}</span>
+                    </Tooltip>
+                  )
+                }
+              />
+              <SectionInfo title="Result Type" value="JSON" />
+            </Stack>
+          </Grid2>
+          <Grid2 xs={12} lg={6}>
+            <Stack gap={4}>
+              <TagsSection label="Tags" tags={userTags} />
+              <TagsSection label="System Tags" tags={systemTags} />
+              {assignment && (
+                <TagsSection
+                  label="Assignment Tags"
+                  tags={{ ...assignment.systemTags, ...assignment.userTags }}
+                />
+              )}
+              <ComputeResult
+                messageId={assignment ? assignment.id : messageId}
+                processId={assignment ? userTags.Process : to}
+                autoCompute
+                onComputedResult={setComputeResult}
+              />
+              <MessageData message={assignment ? assignment : message} />
+            </Stack>
+          </Grid2>
+        </Grid2>
+        <div>
+          <Tabs value={activeTab} onChange={handleChange} textColor="primary">
+            <TabWithCount value="resulting" label="Resulting messages" chipValue={resultingCount} />
+            <TabWithCount value="linked" label="Linked messages" chipValue={linkedMessages} />
+          </Tabs>
+          <Box sx={{ marginX: -2 }}>
+            {activeTab === "resulting" && (
+              <ResultingMessages
+                message={message}
+                onCountReady={setResultingCount}
+                onDataReady={handleDataReady}
+                computeResult={computeResult}
+              />
+            )}
+            {activeTab === "linked" && (
+              <LinkedMessages
+                pushedFor={pushedFor}
+                messageId={messageId}
+                onCountReady={setLinkedMessages}
+                onDataReady={handleDataReady}
+              />
+            )}
+          </Box>
+        </div>
+      </Stack>
+    </React.Fragment>
   )
 }

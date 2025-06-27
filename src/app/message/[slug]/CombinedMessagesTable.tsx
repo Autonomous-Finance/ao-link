@@ -30,6 +30,11 @@ function BaseCombinedTable(props: Props) {
 
   const navigate = useNavigate()
 
+  // Keep track of message ids already sent to the table to avoid duplicates which can
+  // cause the infinite-fetch loop (observer sees loader immediately because list height
+  // doesn't grow when we repeatedly get the same items).
+  const seenIdsRef = React.useRef<Set<string>>(new Set())
+
   return (
     <AsyncTable
       component="div"
@@ -74,12 +79,24 @@ function BaseCombinedTable(props: Props) {
         const totalCount = linkedCount + resultingCount
         if (onCountReady) onCountReady(totalCount)
 
-        const merged: DirMessage[] = [
+        const mergedRaw: DirMessage[] = [
           ...resulting.map((m) => ({ ...(m as any), _dir: "out" })),
           ...linked.map((m) => ({ ...(m as any), _dir: "in" })),
         ]
 
-        if (onDataReady) onDataReady(merged)
+        // Deduplicate across fetches
+        const merged: DirMessage[] = []
+        mergedRaw.forEach((item) => {
+          if (!seenIdsRef.current.has(item.id)) {
+            seenIdsRef.current.add(item.id)
+            merged.push(item)
+          }
+        })
+
+        // If no new items were added, signal end.
+        if (merged.length === 0) return []
+
+        if (onDataReady && offset === 0) onDataReady(merged)
         return merged
       }}
       renderRow={(row: DirMessage) => {
