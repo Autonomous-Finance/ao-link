@@ -286,7 +286,7 @@ const Header = () => {
                   <Box
                     sx={{
                       height: 40,
-                    display: { xs: isMobile ? 'none' : 'block', sm: 'block' }, // Reverted to original logic
+                      display: 'block',
                     "&.MuiBox-root > button > div": {
                       height: "fit-content",
                       padding: 0,
