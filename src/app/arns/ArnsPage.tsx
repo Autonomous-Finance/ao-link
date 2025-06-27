@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Stack, Typography, Paper } from "@mui/material"
 import { ArrowUpRight } from "@phosphor-icons/react"
 import React, { Fragment } from "react"
 import PageWrapper from "@/components/PageWrapper"
@@ -50,7 +50,9 @@ export default function ArnsPage() {
           <PageSkeleton />
         ) : (
           <Fragment>
-            <ArnsTable data={allRecords} />
+            <Paper variant="outlined" sx={{ width: '100%', overflowX: 'auto' }}>
+              <ArnsTable data={allRecords} />
+            </Paper>
             
             {/* Load More Button */}
             {hasNextPage && (
