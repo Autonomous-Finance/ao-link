@@ -214,8 +214,8 @@ const Header = () => {
           <Toolbar disableGutters>
             {isMobile && mobileSearchActive ? (
               <Stack direction="row" alignItems="center" sx={{ width: "100%" }}>
-                <IconButton onClick={() => setMobileSearchActive(false)} color="inherit" sx={{ mr: 1 }}>
-                  <ArrowLeft />
+                <IconButton onClick={() => setMobileSearchActive(false)} color="inherit" sx={{ mr: 1, color: 'var(--mui-palette-text-primary)' }}>
+                  <ArrowLeft weight="bold" />
                 </IconButton>
                 <Box sx={{ flexGrow: 1 }}>
                   <SearchBar />
@@ -268,17 +268,18 @@ const Header = () => {
                         color="inherit"
                         aria-label="open search"
                         onClick={() => setMobileSearchActive(true)}
+                        sx={{ color: 'var(--mui-palette-text-primary)' }}
                       >
-                        <MagnifyingGlass />
+                        <MagnifyingGlass weight="bold" />
                       </IconButton>
                       <IconButton
                         color="inherit"
                         aria-label="open drawer"
                         edge="start"
                         onClick={toggleDrawer(true)}
-                        sx={{ display: { md: "none" } }}
+                        sx={{ display: { md: "none" }, color: 'var(--mui-palette-text-primary)' }}
                       >
-                        <MenuIcon />
+                        <MenuIcon weight="bold" />
                       </IconButton>
                     </>
                   )}

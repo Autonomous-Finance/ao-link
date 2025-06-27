@@ -25,7 +25,8 @@ export function IdBlock(props: IdBlockProps) {
         display="flex"
         alignItems="center"
         sx={{
-          fill: "none",
+          wordBreak: "break-all",
+          overflowWrap: "anywhere",
           "&:hover": { fill: "var(--mui-palette-text-secondary)" },
         }}
       >
@@ -55,7 +56,8 @@ export function IdBlock(props: IdBlockProps) {
   return (
     <Box
       sx={{
-        fill: "none",
+        wordBreak: "break-all",
+        overflowWrap: "anywhere",
         "&:hover": { fill: "var(--mui-palette-text-secondary)" },
       }}
     >

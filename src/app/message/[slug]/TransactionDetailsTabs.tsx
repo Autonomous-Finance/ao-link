@@ -33,7 +33,14 @@ export default function TransactionDetailsTabs(props: Props) {
 
   return (
     <Box>
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="primary" variant="scrollable">
+      <Tabs
+        value={tab}
+        onChange={(_, v) => setTab(v)}
+        textColor="primary"
+        variant="scrollable"
+        scrollButtons="auto"
+        allowScrollButtonsMobile
+      >
         <TabWithCount value="messages" label="Messages" chipValue={localCount} />
         <TabWithCount value="details" label="Details" />
         <TabWithCount value="graph" label="Graph" />

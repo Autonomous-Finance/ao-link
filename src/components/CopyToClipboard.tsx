@@ -30,6 +30,7 @@ export function CopyToClipboard(props: CopyToClipboardProps) {
             }, 1500) // Increased timeout slightly
           }}
           sx={{
+            color: "var(--mui-palette-text-primary)",
             // marginLeft: 0.5, // IconButton often has some inherent padding, adjust if needed
             // p: 0.25, // IconButton has its own padding, fine-tune if necessary
             "&:hover": {
@@ -44,7 +45,7 @@ export function CopyToClipboard(props: CopyToClipboardProps) {
           {copied ? (
             <Check size={18} weight="bold" color="var(--mui-palette-success-main)" /> // Use theme color for success
           ) : (
-            <Copy size={18} weight="regular" />
+            <Copy size={18} weight="regular" color="var(--mui-palette-text-primary)" />
           )}
         </IconButton>
       </span>
