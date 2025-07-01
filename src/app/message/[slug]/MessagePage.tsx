@@ -171,7 +171,7 @@ export function MessagePage() {
         <Grid2 container spacing={{ xs: 2, lg: 12 }}>
           <Grid2 xs={12} lg={6}>
             <Stack gap={4}>
-              <Paper sx={{ height: 428, width: 428 }}>
+              <Paper sx={{ height: { xs: 300, sm: 428 }, width: { xs: '100%', sm: 428 }, maxWidth: '100%', overflow: 'auto' }}>
                 {graphData === null ? (
                   <Stack justifyContent="center" alignItems="center" sx={{ height: "100%" }}>
                     <CircularProgress size={24} color="primary" />
