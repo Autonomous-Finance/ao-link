@@ -3,6 +3,7 @@ import React, { ReactNode } from "react"
 
 import { MonoFontFF } from "./RootLayout/fonts"
 import { IdBlock } from "./IdBlock"
+import { CopyToClipboard } from "./CopyToClipboard"
 
 type SubheadingProps = {
   type: string
@@ -49,11 +50,15 @@ export function Subheading(props: SubheadingProps) {
             whiteSpace: 'nowrap',
             fontFamily: MonoFontFF,
             fontSize: '0.95em',
+            userSelect: 'text',
+            gap: 1,
           }}
         >
-          {/* If value is a string, show full and copyable; else fallback to original */}
           {typeof value === 'string' ? (
-            <IdBlock label={value} value={value} hideTooltip />
+            <>
+              <span style={{ userSelect: 'text' }}>{value}</span>
+              <CopyToClipboard value={value} />
+            </>
           ) : (
             value
           )}
