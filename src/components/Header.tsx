@@ -153,6 +153,7 @@ const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [mobileSearchActive, setMobileSearchActive] = useState(false) // State for mobile search visibility
   const isMobile = useMediaQuery(theme.breakpoints.down("md"))
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"))
 
   const elevated = useScrollTrigger({
     disableHysteresis: true,
@@ -261,8 +262,8 @@ const Header = () => {
                   )}
                 </Stack>
                 <Stack direction="row" gap={{ xs: 0.5, sm: 1 }} alignItems="center"> {/* Reduced gap for mobile icons */}
-                  {!isMobile && <SearchBar />}
-                  {isMobile && (
+                  {isLargeScreen && <SearchBar />}
+                  {!isLargeScreen && (
                     <>
                       <IconButton
                         color="inherit"
@@ -277,7 +278,7 @@ const Header = () => {
                         aria-label="open drawer"
                         edge="start"
                         onClick={toggleDrawer(true)}
-                        sx={{ display: { md: "none" }, color: 'var(--mui-palette-text-primary)' }}
+                        sx={{ display: { lg: "none" }, color: 'var(--mui-palette-text-primary)' }}
                       >
                         <MenuIcon weight="bold" />
                       </IconButton>
