@@ -1,7 +1,8 @@
-import { Stack, Typography } from "@mui/material"
+import { Stack, Typography, Box } from "@mui/material"
 import React, { ReactNode } from "react"
 
 import { MonoFontFF } from "./RootLayout/fonts"
+import { IdBlock } from "./IdBlock"
 
 type SubheadingProps = {
   type: string
@@ -39,9 +40,24 @@ export function Subheading(props: SubheadingProps) {
         <Typography variant="inherit" fontWeight={700}>
           /
         </Typography>
-        <Typography variant="inherit" fontFamily={MonoFontFF} component="div">
-          {value}
-        </Typography>
+        <Box
+          sx={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            maxWidth: '100vw',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            fontFamily: MonoFontFF,
+            fontSize: '0.95em',
+          }}
+        >
+          {/* If value is a string, show full and copyable; else fallback to original */}
+          {typeof value === 'string' ? (
+            <IdBlock label={value} value={value} hideTooltip />
+          ) : (
+            value
+          )}
+        </Box>
       </Stack>
     </Typography>
   )
