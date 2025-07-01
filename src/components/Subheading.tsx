@@ -52,11 +52,12 @@ export function Subheading(props: SubheadingProps) {
             fontSize: '0.95em',
             userSelect: 'text',
             gap: 1,
+            lineHeight: 1.2,
           }}
         >
           {typeof value === 'string' ? (
             <>
-              <span style={{ userSelect: 'text' }}>{value}</span>
+              <span style={{ userSelect: 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80vw', display: 'inline-block' }}>{value}</span>
               <CopyToClipboard value={value} />
             </>
           ) : (
