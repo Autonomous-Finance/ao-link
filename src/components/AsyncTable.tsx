@@ -180,7 +180,7 @@ export function AsyncTable(props: AsyncTableProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {virtualize && data.length > pageSize * 3 ? (
+          {virtualize && data.length > pageSize * 100 ? (
             <VirtualRows
               data={data}
               rowRenderer={renderRow}
