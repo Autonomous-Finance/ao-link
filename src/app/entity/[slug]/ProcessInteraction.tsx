@@ -14,7 +14,7 @@ import { MonoFontFF } from "@/components/RootLayout/fonts"
 import { prettifyResult } from "@/utils/ao-utils"
 import { truncateId } from "@/utils/data-utils"
 
-import { RequestHistoryPanel, dryRunHistoryStore } from "@/components/RequestHistoryPanel"
+import { RequestHistoryPanel, dryRunHistoryStore, addToDryRunHistory } from "@/components/RequestHistoryPanel"
 
 type ProcessInteractionProps = {
   processId: string
@@ -58,9 +58,7 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
           timestamp: new Date().toISOString(),
         }
 
-        const existing = dryRunHistoryStore.get() || []
-        const updated = [...existing, newItem].slice(-10)
-        dryRunHistoryStore.set(updated)
+        addToDryRunHistory(newItem)
       } else {
         const sentMsgId = await message({
           ...msg,
@@ -78,9 +76,7 @@ export function ProcessInteraction(props: ProcessInteractionProps) {
           sentMessageId: sentMsgId,
         }
 
-        const existing = dryRunHistoryStore.get() || []
-        const updated  = [...existing.slice(-9), newItem]
-        dryRunHistoryStore.set(updated)
+        addToDryRunHistory(newItem)
       }
 
       setResponse(JSON.stringify(prettifyResult(json), null, 2))

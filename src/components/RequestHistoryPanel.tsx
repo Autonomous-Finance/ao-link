@@ -20,6 +20,17 @@ export const dryRunHistoryStore = persistentAtom<any[]>(
   { encode: JSON.stringify, decode: JSON.parse },
 )
 
+const MAX_HISTORY = 5;
+
+export function addToDryRunHistory(newItem: any) {
+  const prev = dryRunHistoryStore.get() || [];
+  const updated = [...prev, newItem];
+  if (updated.length > MAX_HISTORY) {
+    updated.splice(0, updated.length - MAX_HISTORY); // Remove oldest
+  }
+  dryRunHistoryStore.set(updated);
+}
+
 const ChevronDownIcon = () => (
   <svg width="24" height="24" fill="none" viewBox="0 0 24 24" style={{ display: "block" }}>
     <path
@@ -45,7 +56,8 @@ const CodeEditor = lazy(() => import("./CodeEditor").then(m=>({default:m.CodeEdi
 
 export function RequestHistoryPanel({ onSelect }: RequestHistoryPanelProps) {
   const address = useActiveAddress()
-  const history = useStore(dryRunHistoryStore)
+  const rawHistory = useStore(dryRunHistoryStore)
+  const history = Array.isArray(rawHistory) ? rawHistory : []
   const [expanded, setExpanded] = useState<string | false>(false)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 
