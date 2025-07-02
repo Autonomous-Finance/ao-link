@@ -11,11 +11,10 @@ export function Footer() {
         position: "sticky",
         bottom: 0,
         width: "100%",
-        overflowX: "hidden",
       }}
     >
       <Container
-        maxWidth={false}
+        maxWidth="xl"
         sx={{
           paddingX: 2,
           paddingY: 1,
@@ -24,8 +23,17 @@ export function Footer() {
           borderTopRightRadius: 8,
         }}
       >
-        <Stack justifyContent="space-between" direction="row">
-          <Stack direction="row" sx={{ color: "#D4D5D9" }} gap={1.5} alignItems="center">
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{
+            overflowX: { xs: "auto", md: "visible" },
+            whiteSpace: { xs: "nowrap", md: "normal" },
+            width: "100%",
+            justifyContent: { xs: "flex-start", md: "space-between" },
+          }}
+        >
+          <Stack direction="row" gap={1.5} alignItems="center" sx={{ color: "#D4D5D9" }}>
             <Link
               href="/"
               sx={{
@@ -149,7 +157,9 @@ export function Footer() {
               DOCS
             </Link>
           </Stack>
-          <Stack direction="row" gap={1}>
+          {/* Spacer for mobile */}
+          <Box sx={{ display: { xs: 'inline-block', md: 'none' }, minWidth: 32 }} />
+          <Stack direction="row" gap={1} alignItems="center">
             <Typography component="span" sx={{ color: "rgb(180, 180, 180)" }} variant="caption">
               Powered by
             </Typography>
