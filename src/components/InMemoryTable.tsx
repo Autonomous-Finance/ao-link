@@ -106,64 +106,66 @@ export function InMemoryTable(props: InMemoryTableProps) {
 
   return (
     <Stack>
-      <Table size="small" {...rest}>
-        <TableHead
-        // sx={{ position: "sticky", top: 60 }}
-        >
-          <TableRow hover={false}>
-            {headerCells.map((cell, index) => (
-              <TableCell
-                key={index}
-                align={cell.align}
-                sx={{
-                  color: "#9ea2aa",
-                  // background: "var(--mui-palette-background-default)",
-                  ...(cell.sx || {}),
-                }}
-              >
-                {cell.sortable ? (
-                  <TableSortLabel
-                    active={sortField === cell.field}
-                    direction={sortAscending ? "asc" : "desc"}
-                    onClick={() => {
-                      if (sortField !== cell.field) {
-                        setSortField(cell.field as string)
-                      } else {
-                        setSortAscending(!sortAscending)
-                      }
-                    }}
-                  >
-                    {cell.label}
-                  </TableSortLabel>
+      <Box sx={{ overflowX: 'auto', width: '100%' }}>
+        <Table size="small" {...rest}>
+          <TableHead
+          // sx={{ position: "sticky", top: 60 }}
+          >
+            <TableRow hover={false}>
+              {headerCells.map((cell, index) => (
+                <TableCell
+                  key={index}
+                  align={cell.align}
+                  sx={{
+                    color: "#9ea2aa",
+                    // background: "var(--mui-palette-background-default)",
+                    ...(cell.sx || {}),
+                  }}
+                >
+                  {cell.sortable ? (
+                    <TableSortLabel
+                      active={sortField === cell.field}
+                      direction={sortAscending ? "asc" : "desc"}
+                      onClick={() => {
+                        if (sortField !== cell.field) {
+                          setSortField(cell.field as string)
+                        } else {
+                          setSortAscending(!sortAscending)
+                        }
+                      }}
+                    >
+                      {cell.label}
+                    </TableSortLabel>
+                  ) : (
+                    cell.label
+                  )}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow hover={false}>
+              <TableCell colSpan={99} sx={{ padding: 0, border: 0 }}>
+                {loading ? (
+                  <LinearProgress color="primary" variant="indeterminate" sx={{ height: 2 }} />
                 ) : (
-                  cell.label
+                  <Box sx={{ height: 2 }} />
                 )}
               </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow hover={false}>
-            <TableCell colSpan={99} sx={{ padding: 0, border: 0 }}>
-              {loading ? (
-                <LinearProgress color="primary" variant="indeterminate" sx={{ height: 2 }} />
-              ) : (
-                <Box sx={{ height: 2 }} />
-              )}
-            </TableCell>
-          </TableRow>
-          {visibleRows.map(renderRow)}
-          {data.length === 0 && !loading && (
-            <TableRow hover={false}>
-              <TableCell colSpan={99} sx={{ padding: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  No data available.
-                </Typography>
-              </TableCell>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            {visibleRows.map(renderRow)}
+            {data.length === 0 && !loading && (
+              <TableRow hover={false}>
+                <TableCell colSpan={99} sx={{ padding: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    No data available.
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </Box>
       {!endReached && data.length > 0 && (
         <Stack
           paddingY={1.5}

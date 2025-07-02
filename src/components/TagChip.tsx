@@ -1,14 +1,16 @@
 import { IconButton, Typography, TypographyProps } from "@mui/material"
+import { Check, Copy } from "@phosphor-icons/react"
 import React from "react"
 
+import { MonoFontFF } from "./RootLayout/fonts"
 import { getColorFromText } from "@/utils/color-utils"
 
-import { MonoFontFF } from "./RootLayout/fonts"
-import { Check, Copy } from "@phosphor-icons/react"
 import { isArweaveId } from "@/utils/utils"
 
-export function TagChip(props: TypographyProps & { name: string; value: string }) {
-  const { name, value } = props
+export function TagChip(
+  props: TypographyProps & { name: string; value: string; copyOnlyValue?: boolean },
+) {
+  const { name, value, copyOnlyValue = false } = props
 
   const [copied, setCopied] = React.useState(false)
   const valuesIsArweaveAddress = isArweaveId(value)
@@ -40,19 +42,21 @@ export function TagChip(props: TypographyProps & { name: string; value: string }
       <IconButton
         onClick={(e) => {
           e.stopPropagation()
-          navigator.clipboard.writeText(value)
+          navigator.clipboard.writeText(copyOnlyValue ? value : `${name}:${value}`)
           setCopied(true)
           setTimeout(() => setCopied(false), 2000)
         }}
         sx={{
-          width: 0,
-          overflow: "hidden",
+          width: 24,
+          minWidth: 24,
+          height: 24,
+          opacity: 0.5,
+          ml: 1,
           p: 0,
-          transition: "width 0.3s, transform 0.3s",
+          transition: "opacity 0.3s, transform 0.3s",
           color: "black",
-          ".MuiTypography-root:hover &": {
-            width: "auto",
-            ml: 1,
+          "&:hover": {
+            opacity: 1,
             transform: "scale(1.2)",
           },
         }}

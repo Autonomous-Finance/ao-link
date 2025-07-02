@@ -212,7 +212,19 @@ const SearchBar = () => {
   const navigate = useNavigate()
 
   return (
-    <Box sx={{ width: 640, position: "relative" }}>
+    <Box
+      sx={{
+        width: {
+          xs: "100%", // Full width on mobile
+          sm: 320,     // Smaller width on small tablets / landscape phones
+          md: 320,     // Even at md, keep it compact
+          lg: 400,     // Moderate width at lg
+          xl: 640,     // Default width on xl and above
+        },
+        maxWidth: "100%", // Ensure we never exceed the viewport width
+        position: "relative",
+      }}
+    >
       <Autocomplete
         id="search-bar"
         size="small"

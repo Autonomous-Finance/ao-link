@@ -13,7 +13,14 @@ import { Footer } from "../Footer"
 import Header from "../Header"
 import { NavigationEvents } from "../NavigationEvents"
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000,
+    },
+  },
+})
 
 export default function RootLayoutUI({ children }: { children: React.ReactNode }) {
   return (
@@ -24,7 +31,13 @@ export default function RootLayoutUI({ children }: { children: React.ReactNode }
           <ArweaveProvider>
             <Stack>
               <Header />
-              <Container maxWidth="xl" sx={{ minHeight: "calc(100vh - 101px)" }}>
+              <Container
+                maxWidth="xl"
+                sx={{
+                  minHeight: "calc(100vh - 101px)",
+                  px: { xs: 1.5, sm: 2, md: 3 },
+                }}
+              >
                 {children}
               </Container>
               <Footer />

@@ -1,17 +1,18 @@
+import React, { useMemo } from "react"
 import { Stack, Typography } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
-import { useMemo } from "react"
 import { Navigate, useParams } from "react-router-dom"
+import PageWrapper from "@/components/PageWrapper"
+import { getMessageById } from "@/services/messages-api"
 
 import { ProcessPage } from "./ProcessPage"
 import { UserPage } from "./UserPage"
 import { LoadingSkeletons } from "@/components/LoadingSkeletons"
-import { getMessageById } from "@/services/messages-api"
 
 import { AoProcess } from "@/types"
 import { isArweaveId } from "@/utils/utils"
 
-export default function EntityPage() {
+function EntityPageContent() {
   const { entityId = "" } = useParams()
 
   const isValidId = useMemo(() => isArweaveId(String(entityId)), [entityId])
@@ -47,4 +48,12 @@ export default function EntityPage() {
   }
 
   return <Navigate to={`/message/${entityId}`} />
+}
+
+export default function EntityPage() {
+  return (
+    <PageWrapper>
+      <EntityPageContent />
+    </PageWrapper>
+  )
 }

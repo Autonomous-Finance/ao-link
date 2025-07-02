@@ -134,14 +134,17 @@ export function createOptionsForStat(
   data: HighchartAreaData[],
   overrideValue: number | undefined,
   exportServer = false,
+  sizeVariant: "normal" | "small" = "normal", // New parameter
 ): HighchartOptions {
   const fontColor = exportServer ? "rgb(255, 255, 255)" : "var(--mui-palette-text-primary)"
   const backgroundColor = exportServer ? "#252424" : "transparent"
 
   const fontSizes = {
-    title: exportServer ? "36px" : "12px",
-    value: exportServer ? "96px" : "32px",
+    title: exportServer ? "36px" : (sizeVariant === "small" ? "11px" : "12px"), // Slightly smaller title for small
+    value: exportServer ? "96px" : (sizeVariant === "small" ? "24px" : "32px"), // Adjusted value font size
   }
+
+  const valueYPosition = exportServer ? 208 : (sizeVariant === "small" ? 98 : 104); // Adjust Y position slightly for smaller font
 
   return {
     title: {
@@ -190,7 +193,7 @@ export function createOptionsForStat(
           {
             point: {
               x: 0,
-              y: exportServer ? 208 : 104,
+              y: valueYPosition, // Use the calculated Y position
               xAxis: null,
               yAxis: null,
             },

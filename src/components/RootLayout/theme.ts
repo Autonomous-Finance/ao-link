@@ -17,6 +17,15 @@ const extraColors = {
 }
 
 export const theme = extendTheme({
+  breakpoints: {
+    values: {
+      xs: 0,      // phones (portrait)
+      sm: 600,    // phones (landscape) / small tablets
+      md: 900,    // tablets
+      lg: 1200,   // laptop
+      xl: 1536,   // large desktop
+    },
+  },
   colorSchemes: {
     dark: {
       palette: {

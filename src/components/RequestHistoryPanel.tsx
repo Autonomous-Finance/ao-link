@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, lazy, Suspense } from "react"
 import {
   Accordion,
   AccordionSummary,
@@ -10,7 +10,6 @@ import {
   Typography,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2"
-import { CodeEditor } from "@/components/CodeEditor"
 import { useActiveAddress } from "@arweave-wallet-kit/react"
 import { persistentAtom } from "@nanostores/persistent"
 import { useStore } from "@nanostores/react"
@@ -41,6 +40,8 @@ const truncateMiddle = (str: string, front = 8, back = 8) => {
 interface RequestHistoryPanelProps {
   onSelect: (payload: string) => void
 }
+
+const CodeEditor = lazy(() => import("./CodeEditor").then(m=>({default:m.CodeEditor})))
 
 export function RequestHistoryPanel({ onSelect }: RequestHistoryPanelProps) {
   const address = useActiveAddress()
@@ -204,12 +205,14 @@ export function RequestHistoryPanel({ onSelect }: RequestHistoryPanelProps) {
                       Query
                     </Typography>
                     <Paper sx={{ height: "100%", overflow: "auto" }}>
-                      <CodeEditor
-                        height="100%"
-                        defaultLanguage="json"
-                        defaultValue={JSON.stringify(item.request, null, 2)}
-                        options={{ readOnly: true }}
-                      />
+                      <Suspense fallback={<div style={{height:200,display:'flex',justifyContent:'center',alignItems:'center'}}>Loading editor...</div>}>
+                        <CodeEditor
+                          height="100%"
+                          defaultLanguage="json"
+                          defaultValue={JSON.stringify(item.request, null, 2)}
+                          options={{ readOnly: true }}
+                        />
+                      </Suspense>
                     </Paper>
                   </Grid2>
                   <Grid2 xs={12} md={6} sx={{ height: "100%" }}>
@@ -217,12 +220,14 @@ export function RequestHistoryPanel({ onSelect }: RequestHistoryPanelProps) {
                       Result
                     </Typography>
                     <Paper sx={{ height: "100%", overflow: "auto" }}>
-                      <CodeEditor
-                        height="100%"
-                        defaultLanguage="json"
-                        defaultValue={JSON.stringify(item.response, null, 2)}
-                        options={{ readOnly: true }}
-                      />
+                      <Suspense fallback={<div style={{height:200,display:'flex',justifyContent:'center',alignItems:'center'}}>Loading editor...</div>}>
+                        <CodeEditor
+                          height="100%"
+                          defaultLanguage="json"
+                          defaultValue={JSON.stringify(item.response, null, 2)}
+                          options={{ readOnly: true }}
+                        />
+                      </Suspense>
                     </Paper>
                   </Grid2>
                 </Grid2>

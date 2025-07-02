@@ -98,3 +98,24 @@ body * {
 body .a1osnke6 > div:not(:nth-child(1)) {
   display: none;
 }
+
+/* --- Responsive helpers -------------------------------------------------- */
+@media (max-width: 600px) {
+  table,
+  pre {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+button {
+  touch-action: manipulation;
+}
