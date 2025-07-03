@@ -21,6 +21,7 @@ import { SectionInfoWithChip } from "@/components/SectionInfoWithChip"
 import { Subheading } from "@/components/Subheading"
 import { TabWithCount } from "@/components/TabWithCount"
 import { TagsSection } from "@/components/TagsSection"
+import { HyperbeamPanel } from "./HyperbeamPanel"
 
 import { getMessageById } from "@/services/messages-api"
 import { AoMessage, AoProcess } from "@/types"
@@ -46,6 +47,8 @@ export function ProcessPage(props: ProcessPageProps) {
     userTags,
     systemTags,
   } = message
+
+  const HB_BASE = `https://hb.zoao.dev/${entityId}~process@1.0`
 
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || defaultTab)
@@ -192,6 +195,7 @@ export function ProcessPage(props: ProcessPageProps) {
           scrollButtons="auto"
           allowScrollButtonsMobile
         >
+          <TabWithCount value="hyperbeam" label="Hyperbeam" />
           <TabWithCount value="outgoing" label="Outgoing messages" chipValue={outgoingCount} />
           <TabWithCount value="incoming" label="Incoming messages" chipValue={incomingCount} />
           <TabWithCount value="spawned" label="Spawned processes" chipValue={processesCount} />
@@ -237,6 +241,7 @@ export function ProcessPage(props: ProcessPageProps) {
             open={activeTab === "source-code"}
             onCountReady={setEvalCount}
           />
+          {activeTab === "hyperbeam" && <HyperbeamPanel baseUrl={HB_BASE} open />}
         </Box>
       </Stack>
     </Stack>

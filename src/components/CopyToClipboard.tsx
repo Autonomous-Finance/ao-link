@@ -58,35 +58,35 @@ export function CopyToClipboard(props: CopyToClipboardProps) {
       tabIndex={-1}
       style={{ outline: "none" }}
     >
-      <Tooltip title={copied ? "Copied!" : "Copy to clipboard"}>
-        <span>
-          <IconButton
+    <Tooltip title={copied ? "Copied!" : "Copy to clipboard"}>
+      <span>
+        <IconButton
             className="copy-btn"
             size="small"
-            onClick={(event) => {
-              event.stopPropagation()
-              navigator.clipboard.writeText(value)
-              setCopied(true)
-              setTimeout(() => {
-                setCopied(false)
+          onClick={(event) => {
+            event.stopPropagation()
+            navigator.clipboard.writeText(value)
+            setCopied(true)
+            setTimeout(() => {
+              setCopied(false)
               }, 1500)
-            }}
-            sx={{
-              color: "var(--mui-palette-text-primary)",
+          }}
+          sx={{
+            color: "var(--mui-palette-text-primary)",
               "& .MuiSvgIcon-root": {
                 fontSize: 18,
-              }
-            }}
-            aria-label="Copy to clipboard"
-          >
-            {copied ? (
+            }
+          }}
+          aria-label="Copy to clipboard"
+        >
+          {copied ? (
               <Check size={18} weight="bold" color="var(--mui-palette-success-main)" />
-            ) : (
-              <Copy size={18} weight="regular" color="var(--mui-palette-text-primary)" />
-            )}
-          </IconButton>
-        </span>
-      </Tooltip>
+          ) : (
+            <Copy size={18} weight="regular" color="var(--mui-palette-text-primary)" />
+          )}
+        </IconButton>
+      </span>
+    </Tooltip>
     </span>
   )
 }

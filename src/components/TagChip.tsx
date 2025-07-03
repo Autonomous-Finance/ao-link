@@ -24,21 +24,21 @@ export function TagChip(
       }}
       variant="caption"
       fontFamily={MonoFontFF}
-    >
-      {valuesIsArweaveAddress ? (
-        <a
-          href={`/#/entity/${value}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          {name}:{value}
-        </a>
-      ) : (
-        <span>
-          {name}:{value}
-        </span>
-      )}
+      >
+        {valuesIsArweaveAddress ? (
+          <a
+            href={`/#/entity/${value}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            {name}:{value}
+          </a>
+        ) : (
+          <span>
+            {name}:{value}
+          </span>
+        )}
       <IconButton
         onClick={(e) => {
           e.stopPropagation()
