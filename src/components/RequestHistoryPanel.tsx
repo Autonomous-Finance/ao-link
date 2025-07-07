@@ -75,7 +75,7 @@ export function RequestHistoryPanel({ onSelect }: RequestHistoryPanelProps) {
   const displayed = history
     .slice()
     .reverse()
-    .slice(0, 10)
+    .slice(0, MAX_HISTORY)
 
   const renderSummary = (item: any) => {
     const reqTags = (item.request.tags || []).reduce((acc: any, t: any) => {

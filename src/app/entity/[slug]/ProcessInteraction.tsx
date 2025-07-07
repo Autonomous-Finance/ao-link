@@ -128,15 +128,13 @@ export function ProcessInteraction({ processId, readOnly }: ProcessInteractionPr
       if (readOnly) {
         json = await dryrun(msg)
         const entry = { id: crypto.randomUUID(), processId, request: msg, response: json, timestamp: new Date().toISOString() }
-        const hist = dryRunHistoryStore.get() || []
-        dryRunHistoryStore.set([...hist, entry].slice(-10))
+        addToDryRunHistory(entry)
       } else {
         const sid = await message({ ...msg, signer: createDataItemSigner(window.arweaveWallet) })
         json = await result({ message: sid, process: processId })
         setMsgId(sid)
         const entry = { id: crypto.randomUUID(), processId, request: msg, response: json, timestamp: new Date().toISOString(), sentMessageId: sid }
-        const hist = dryRunHistoryStore.get() || []
-        dryRunHistoryStore.set([...hist.slice(-9), entry])
+        addToDryRunHistory(entry)
       }
 
       setResponse(JSON.stringify(prettifyResult(json), null, 2))
