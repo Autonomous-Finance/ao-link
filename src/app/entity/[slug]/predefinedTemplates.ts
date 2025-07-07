@@ -22,7 +22,7 @@ export function getPredefinedTemplates(processId: string): Template[] {
         data: "",
         tags: [
           { name: "Action", value: "Transfer" },
-          { name: "Recipient", value: "OTHER_ADDRESS" },
+          { name: "Recipient", value: "RECEIVING_ADDRESS" },
           { name: "Quantity", value: "100000000000" },
         ],
       }, null, 2),
