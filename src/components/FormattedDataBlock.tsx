@@ -19,6 +19,8 @@ import { github, vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs"
 import { CopyToClipboard } from "./CopyToClipboard"
 import { MonoFontFF } from "@/components/RootLayout/fonts"
 
+import JSONbig from "json-bigint"
+
 SyntaxHighlighter.registerLanguage("json", json)
 SyntaxHighlighter.registerLanguage("lua", lua)
 
@@ -40,7 +42,7 @@ export function FormattedDataBlock(props: FormattedDataBlockProps) {
     if (isEvalMessage) return [rawData, "lua"]
 
     try {
-      const json = JSON.parse(rawData)
+      const json = JSONbig.parse(rawData)
       let formatted = JSON.stringify(json, null, 2)
       // if the json object has nested ansi strings, we strip them away
       formatted = formatted.replace(/\\u001b\[\d{1,2}(;\d{1,2})*m/g, "")
